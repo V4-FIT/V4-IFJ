@@ -7,4 +7,6 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 set(CMAKE_C_FLAGS_DEBUG "-g -Wall -pedantic")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 
-add_executable(ic20int src/main.c)
+set(SOURCES src/main.c)
+
+add_executable(ic20int ${SOURCES})
