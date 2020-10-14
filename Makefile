@@ -1,21 +1,20 @@
-TARGET			= ic20int
 SOURCE_DIR		= src
-BUILD_DIR		= cmake-build-release
+BUILD_DIR		= build
 
-.PHONY: all $(TARGET) zip clean
-all: $(TARGET)
+.PHONY: all Release Debug zip clean
+all: Release
 
-$(TARGET): $(BUILD_DIR)
-	$(MAKE) -C $<
-	cp $</$@ ./
+Release: config
+	cmake --build $(BUILD_DIR) --config $@
+	
+Debug: config
+	cmake --build $(BUILD_DIR) --config $@
 
-$(BUILD_DIR): CMakeLists.txt
-	mkdir -p $@
-	cd $@ && cmake -D CMAKE_BUILD_TYPE=Release ..
+config: CMakeLists.txt
+	cmake -B $(BUILD_DIR)
 
 zip:
 	cd $(SOURCE_DIR) && zip ../xgysel00.zip *.c *.h
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -rf $(TARGET)
