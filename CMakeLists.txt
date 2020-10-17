@@ -1,20 +1,19 @@
 cmake_minimum_required(VERSION 3.10)
-project(ic20int C)
+project(IFJ C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
-set(CMAKE_C_FLAGS_DEBUG "-g -Wall -pedantic")
-set(CMAKE_C_FLAGS_RELEASE "-O2")
+option (ENABLE_TESTS "Build tests along with IFJ20" ON)
+if (ENABLE_TESTS)
+  enable_testing()
+  add_subdirectory (tests)
+endif ()
 
-include_directories(./src/)
-
-set(SOURCES
-	src/main.c
-)
-
-add_executable(ic20int ${SOURCES})
+add_subdirectory(src)
 
 if(MSVC)
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ic20int)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ifj20)
+else()
+	#...
 endif()
