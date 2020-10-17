@@ -17,4 +17,3 @@ if(MSVC)
 else()
 	#...
 endif()
-

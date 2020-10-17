@@ -1,6 +1,5 @@
 set(SOURCES
 	main.c
-	foo.c
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -13,4 +12,3 @@ else()
 	set(CMAKE_C_FLAGS_DEBUG "-g -Wall -pedantic")
 	set(CMAKE_C_FLAGS_RELEASE "-O2")
 endif()
-
