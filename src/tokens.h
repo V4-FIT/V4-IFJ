@@ -1,42 +1,10 @@
-#ifndef ENUMS
-#define ENUMS
-
-/*states of the scanner finite state machine*/
-typedef enum {
-    S_START,
-    S_PIPE,
-    S_AMPERSAND,
-    S_COLON,
-    S_ASSIGN,
-    S_LESS,
-    S_GREATER,
-    S_NOT,
-    S_PLUS,
-    S_MINUS,
-    S_START,
-    S_SLASH,
-    S_ML_COMMENT1,
-    S_ML_COMMENT2,
-    S_SL_COMMENT,
-    S_STR_LIT,
-    S_ESCAPE_SEQ,
-    S_HEX1,
-    S_HEX2,
-    S_UNDERSCORE,
-    S_ZERO,
-    S_DEC_LIT,
-    S_FLOAT_SCI_LIT,
-    S_FLOAT_LIT,
-    S_FLOAT_EXP,
-    S_FLOAT_POINT,
-    S_HEX_LIT,
-    S_OCT_LIT,
-    S_BIN_LIT
-} scannerStates;
+#ifndef TOKENS
+#define TOKENS
 
 
 /*tokens produced by scanner*/
 typedef enum {
+    TK_ERROR,
     TK_STR_LIT,
     TK_EOL,
     TK_R_PARANTHESIS,
@@ -64,7 +32,7 @@ typedef enum {
     TK_STAR,
     TK_TIMES,
     TK_SLASH,
-    TK_DIVIDES,
+    TK_DIVIDE,
     TK_DEC_LIT,
     TK_FLOAT_SCI_LIT,
     TK_FLOAT_LIT,
@@ -72,14 +40,15 @@ typedef enum {
     TK_OCT_LIT,
     TK_BIN_LIT,
     TK_UNDERSCORE
-    //TODO KEYWORD,IDENTIFIER,RESERVED 
+    //TODO KEYWORD,IDENTIFIER,RESERVED
 } tokens;
 
 
 /*data type to represent tokens created by scanner*/
-typedef struct {
+typedef struct TokenStruct{
     tokens type;
     char* value;
-} t_token;
+} *t_token;
+
 
 #endif
