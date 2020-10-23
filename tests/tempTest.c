@@ -1,4 +1,4 @@
-#include <criterion.h>
+#include <criterion/criterion.h>
 #include <stdlib.h>
 
 // The purpose of this test is to be able to
