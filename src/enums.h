@@ -75,4 +75,11 @@ typedef enum {
     //TODO KEYWORD,IDENTIFIER,RESERVED 
 } tokens;
 
+
+/*data type to represent tokens created by scanner*/
+typedef struct {
+    tokens type;
+    char* value;
+} t_token;
+
 #endif
