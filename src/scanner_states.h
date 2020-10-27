@@ -75,6 +75,6 @@ scanner_state_t s_hex_lit(token_t token, int c);
 scanner_state_t s_oct_lit(token_t token, int c);
 scanner_state_t s_bin_lit(token_t token, int c);
 
-extern state_fun_ptr_t foo_ptr_array[];
+extern state_fun_ptr_t state_map[];
 
 #endif //IFJ_SCANNER_STATES_H

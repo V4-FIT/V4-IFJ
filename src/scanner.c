@@ -7,6 +7,6 @@ void retrieve_token(token_t token) {
 	scanner_state_t state = S_START;
 
 	while (state != S_END) {
-		state = foo_ptr_array[state](token, getc(stdin));
+		state = state_map[state](token, getc(stdin));
 	}
 }

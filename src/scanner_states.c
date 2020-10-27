@@ -2,7 +2,7 @@
 
 #include "scanner_states.h"
 
-state_fun_ptr_t foo_ptr_array[] = {
+state_fun_ptr_t state_map[] = {
 		[S_START] = &s_start,
 		[S_PIPE] = &s_pipe,
 		[S_AMPERSAND] = &s_ampersand,
@@ -87,12 +87,9 @@ scanner_state_t s_start(token_t token, int c) {
 			return S_SLASH;
 
 		default:
-			break;
+			token->type = TK_ERROR;
+			return S_END;
 	}
-
-	// FIXME: check validity
-	token->type = TK_ERROR;
-	return S_END;
 }
 
 scanner_state_t s_pipe(token_t token, int c) {
@@ -204,7 +201,7 @@ scanner_state_t s_slash(token_t token, int c) {
 		default:
 			token->type = TK_SLASH;
 			ungetc(c, stdin);
-			return S_END; // FIXME: check validity
+			return S_END;
 	}
 }
 
