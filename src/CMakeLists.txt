@@ -1,5 +1,7 @@
 set(SOURCES
 	main.c
+	scanner.c
+	scanner_states.c
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
