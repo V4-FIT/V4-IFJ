@@ -4,7 +4,7 @@
 
 #define LONG_STRING_SIZE 0xDEAD
 
-Test( char_sequence, initialization ) {
+Test(char_sequence, initialization) {
 	charseq_t charseq = charseq_init();
 	cr_assert_not_null(charseq);
 	cr_assert_not_null(charseq_data(charseq));
@@ -15,7 +15,7 @@ Test( char_sequence, initialization ) {
 	charseq_free(charseq);
 }
 
-Test( char_sequence, content_equality ) {
+Test(char_sequence, content_equality) {
 	charseq_t charseq = charseq_init();
 	cr_assert_not_null(charseq);
 	cr_assert_not_null(charseq_data(charseq));
@@ -29,7 +29,7 @@ Test( char_sequence, content_equality ) {
 	charseq_free(charseq);
 }
 
-Test( char_sequence, length_equality ) {
+Test(char_sequence, length_equality) {
 	charseq_t charseq = charseq_init();
 	cr_assert_not_null(charseq);
 	cr_assert_not_null(charseq_data(charseq));
@@ -42,7 +42,7 @@ Test( char_sequence, length_equality ) {
 	charseq_free(charseq);
 }
 
-Test( char_sequence, long_string ) {
+Test(char_sequence, long_string) {
 	charseq_t charseq = charseq_init();
 	cr_assert_not_null(charseq);
 	cr_assert_not_null(charseq_data(charseq));

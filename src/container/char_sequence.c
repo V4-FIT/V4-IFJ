@@ -5,7 +5,8 @@
 ////// Private
 
 // define the struct here to hide the interface
-struct CharSequence {
+struct CharSequence
+{
 	char *data;
 	size_t len;
 	size_t mem_size;
@@ -21,7 +22,7 @@ bool charseq_mayresize(charseq_t charseq) {
 	if ((charseq->len + 1) == charseq->mem_size) {
 		size_t oldsize = charseq->mem_size;
 		charseq->mem_size *= GROWTH_FACTOR;
-		void* data = realloc(charseq->data, sizeof(char) * (charseq->mem_size));
+		void *data = realloc(charseq->data, sizeof(char) * (charseq->mem_size));
 		if (data == NULL) {
 			return false;
 		} else {
@@ -69,7 +70,7 @@ char const *charseq_data(charseq_t charseq) {
 }
 
 void charseq_free(charseq_t charseq) {
-	if(charseq->data != NULL) {
+	if (charseq->data != NULL) {
 		free(charseq->data);
 	}
 	free(charseq);
