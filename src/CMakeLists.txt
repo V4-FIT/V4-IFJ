@@ -2,6 +2,7 @@ set(SOURCES
 	main.c
 	scanner.c
 	scanner_states.c
+	char_sequence.c
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
