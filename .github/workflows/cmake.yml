@@ -35,12 +35,17 @@ jobs:
         path: ${{runner.workspace}}/${{env.CACHE_DIR}}
         key: ${{runner.os}}-cache
 
+    - name: Fetch Google Test
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      working-directory: ${{runner.workspace}}/${{env.CACHE_DIR}}
+      run: wget https://github.com/google/googletest/archive/master.zip
+
     - name: Prepare Google Test
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       working-directory: ${{runner.workspace}}/${{env.CACHE_DIR}}
       run: |
-        wget https://github.com/google/googletest/archive/master.zip
         unzip master.zip
         mv googletest-master ${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}
         mkdir -p ${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}/build
