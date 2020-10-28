@@ -47,10 +47,10 @@ Test(forward_list, clear) {
 
 Test(forward_list, empty) {
 	flist_t flist = flist_init();
-	cr_expect_eq(flist_empty(flist), true);
+	cr_expect(flist_empty(flist));
 	int x = 0;
 	flist_push_front(flist, &x, sizeof(x));
-	cr_expect_eq(flist_empty(flist), false);
+	cr_expect_not(flist_empty(flist));
 	flist_free(flist);
 }
 

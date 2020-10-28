@@ -4,10 +4,6 @@
 
 #include "forward_list_private.h"
 
-////// Private
-
-////// Public
-
 flist_t flist_init() {
 	flist_t flist = malloc(sizeof(struct flist));
 	if (flist == NULL) {
