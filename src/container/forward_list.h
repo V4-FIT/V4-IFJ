@@ -3,12 +3,26 @@
 
 #include <stdbool.h>
 
-typedef struct forward_list *flist_t;
+typedef struct flist *flist_t;
 
-#define flist_create(name) flist_t name = NULL;
+typedef struct flist_node *flist_node_t;
 
-void flist_push_front(flist_t *flist, void *data, size_t data_size);
+flist_t flist_init();
 
-void flist_clear(flist_t *flist);
+bool flist_empty(flist_t flist);
+
+bool flist_push_front(flist_t flist, void *data, size_t data_size);
+
+void flist_pop_front(flist_t flist);
+
+void flist_clear(flist_t flist);
+
+void flist_free(flist_t flist);
+
+flist_node_t flist_front(flist_t flist);
+
+flist_node_t flist_node_next(flist_node_t flist_node);
+
+void *flist_node_data(flist_node_t flist_node);
 
 #endif // !FORWARD_LIST_H
