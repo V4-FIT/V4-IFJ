@@ -21,9 +21,11 @@ bool charseq_mayresize(charseq_t charseq) {
 	if ((charseq->len + 1) == charseq->mem_size) {
 		size_t oldsize = charseq->mem_size;
 		charseq->mem_size *= GROWTH_FACTOR;
-		charseq->data = realloc(charseq->data, sizeof(char) * (charseq->mem_size));
-		if (charseq->data == NULL) {
+		void* data = realloc(charseq->data, sizeof(char) * (charseq->mem_size));
+		if (data == NULL) {
 			return false;
+		} else {
+			charseq->data = data;
 		}
 		// clear the allocated memory
 		memset(charseq->data + oldsize, 0, oldsize);
