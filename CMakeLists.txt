@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
-project(IFJ C)
+project(IFJ)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option (ENABLE_TESTS "Build tests along with IFJ20" ON)
 if (ENABLE_TESTS)
