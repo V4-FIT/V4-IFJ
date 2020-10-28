@@ -9,7 +9,7 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
-  CACHE_DIR: $GITHUB_WORKSPACE/cache
+  CACHE_DIR: cache
   CACHED_GTEST_DIR: $CACHE_DIR/gtest
 
 jobs:
@@ -32,28 +32,28 @@ jobs:
       uses: actions/cache@v2
       id: cache
       with:
-        path: $CACHE_DIR
+        path: ${{runner.workspace}}/$CACHE_DIR
         key: ${{runner.os}}-cache
 
     - name: Prepare Google Test
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      working-directory: $CACHE_DIR
+      working-directory: ${{runner.workspace}}/$CACHE_DIR
       run: |
         wget https://github.com/google/googletest/archive/master.zip
         unzip master.zip
-        mv googletest-master $CACHED_GTEST_DIR
-        mkdir -p $CACHED_GTEST_DIR/build
+        mv googletest-master ${{runner.workspace}}/$CACHED_GTEST_DIR
+        mkdir -p ${{runner.workspace}}/$CACHED_GTEST_DIR/build
 
     - name: Build Google Test
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      working-directory: $CACHED_GTEST_DIR/build
+      working-directory: ${{runner.workspace}}/$CACHED_GTEST_DIR/build
       run: |
-        cmake $CACHED_GTEST_DIR
+        cmake ${{runner.workspace}}/$CACHED_GTEST_DIR
         cmake --build . --config $BUILD_TYPE
-        echo "GTEST_DIR=$CACHED_GTEST_DIR/googletest/" >> $GITHUB_ENV
-        echo "GTEST_LIB_DIR=$CACHED_GTEST_DIR/build/lib/" >> $GITHUB_ENV
+        echo "GTEST_DIR=${{runner.workspace}}/$CACHED_GTEST_DIR/googletest/" >> $GITHUB_ENV
+        echo "GTEST_LIB_DIR=${{runner.workspace}}/$CACHED_GTEST_DIR/build/lib/" >> $GITHUB_ENV
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
