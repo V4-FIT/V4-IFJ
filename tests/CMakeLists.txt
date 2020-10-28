@@ -14,3 +14,5 @@ add_executable(tests ${SOURCES} ${IFJ20_SRC})
 target_link_libraries(tests ${GTEST_BOTH_LIBRARIES})
 
 add_test(NAME Unit_Tests COMMAND tests)
+
+set_property(TARGET tests PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
