@@ -62,9 +62,8 @@ jobs:
       working-directory: ${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}/build
       run: |
         cmake ${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}
-        cmake --build . --config $BUILD_TYPE
-        echo "GTEST_INCLUDE_DIR=${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}/googletest/" >> $GITHUB_ENV
-        echo "GTEST_LIBRARY=${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}/build/lib/" >> $GITHUB_ENV
+        cmake --build . --config ${{env.BUILD_TYPE}}
+        echo "GTEST_ROOT=${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}" >> $GITHUB_ENV
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
