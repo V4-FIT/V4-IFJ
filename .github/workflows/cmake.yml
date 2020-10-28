@@ -63,7 +63,11 @@ jobs:
       run: |
         cmake ${{runner.workspace}}/${{env.CACHED_GTEST_DIR}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=ON
         cmake --build . --config $BUILD_TYPE
-        sudo cmake --build . --config $BUILD_TYPE --target install
+
+    - name: Install Google Test
+        shell: bash
+        working-directory: ${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}/build
+        run: sudo cmake --build . --config $BUILD_TYPE --target install
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
