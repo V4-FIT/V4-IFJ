@@ -35,6 +35,12 @@ jobs:
         path: ${{runner.workspace}}/${{env.CACHE_DIR}}
         key: ${{runner.os}}-cache
 
+    - name: Initialize cache directory
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
+        working-directory: ${{runner.workspace}}
+        run: mkdir -p ${{env.CACHE_DIR}}
+
     - name: Fetch Google Test
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
