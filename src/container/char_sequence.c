@@ -50,7 +50,7 @@ charseq_t charseq_init() {
 	return charseq;
 }
 
-bool charseq_add(charseq_t charseq, char c) {
+bool charseq_push_back(charseq_t charseq, char c) {
 	if (!charseq_mayresize(charseq)) {
 		return false;
 	}
@@ -64,7 +64,7 @@ size_t charseq_len(charseq_t charseq) {
 	return charseq->len;
 }
 
-char const *charseq_get(charseq_t charseq) {
+char const *charseq_data(charseq_t charseq) {
 	return charseq->data;
 }
 

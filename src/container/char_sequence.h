@@ -21,7 +21,7 @@ charseq_t charseq_init();
  * @param c character to be appended
  * @return true on success, false on allocation error
  */
-bool charseq_add(charseq_t charseq, char c);
+bool charseq_push_back(charseq_t charseq, char c);
 
 /**
  * Getter for the char sequence length
@@ -35,11 +35,12 @@ size_t charseq_len(charseq_t charseq);
  * @param charseq
  * @return c string representing the char sequence
  */
-char const *charseq_get(charseq_t charseq);
+char const *charseq_data(charseq_t charseq);
 
 /**
  * Free the allocated char sequence
  * @param charseq
+ * @note Invalidates all pointers pointing to char sequence data
  */
 void charseq_free(charseq_t charseq);
 
