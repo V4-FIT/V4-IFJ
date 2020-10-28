@@ -1,7 +1,7 @@
 SOURCE_DIR		= src
 BUILD_DIR		= build
 
-.PHONY: all Release Debug test zip clean
+.PHONY: all Release Debug test testd zip clean
 all: Release
 
 Release: $(BUILD_DIR)
@@ -15,7 +15,10 @@ $(BUILD_DIR): CMakeLists.txt
 	
 test:
 	cd $(BUILD_DIR) && ctest -C Release --output-on-failure
-
+	
+testd:
+	cd $(BUILD_DIR) && ctest -C Debug --output-on-failure
+	
 zip:
 	cd $(SOURCE_DIR) && zip ../xgysel00.zip *.c *.h
 

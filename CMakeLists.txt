@@ -15,5 +15,6 @@ add_subdirectory(src)
 if(MSVC)
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ifj20)
 else()
-	#...
+    set(CMAKE_C_FLAGS_DEBUG "-g -Wall -pedantic")
+    set(CMAKE_C_FLAGS_RELEASE "-O2")
 endif()
