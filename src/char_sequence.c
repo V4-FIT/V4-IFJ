@@ -25,7 +25,7 @@ bool charseq_mayresize(charseq_t charseq) {
 		if (charseq->data == NULL) {
 			return false;
 		}
-		// clear the new memory address
+		// clear the allocated memory
 		memset(charseq->data + oldsize, 0, oldsize);
 	}
 	return true;
