@@ -1,4 +1,4 @@
-#include "criterion.h"
+#include "criterion/criterion.h"
 
 #include "char_sequence.h"
 
