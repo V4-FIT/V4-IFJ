@@ -64,7 +64,6 @@ jobs:
         cmake ${{runner.workspace}}/${{env.CACHED_GTEST_DIR}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=ON
         cmake --build . --config $BUILD_TYPE
         sudo cmake --build . --config $BUILD_TYPE --target install
-#        echo "GTEST_ROOT=${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}" >> $GITHUB_ENV
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
