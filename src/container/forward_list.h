@@ -2,6 +2,7 @@
 #define FORWARD_LIST_H
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef struct flist *flist_t;
 

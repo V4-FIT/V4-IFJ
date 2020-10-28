@@ -1,5 +1,16 @@
 #include <criterion/criterion.h>
-#include "container/forward_list_private.h"
+#include "container/forward_list.h"
+
+struct flist_node
+{
+	void *data;
+	flist_node_t next;
+};
+
+struct flist
+{
+	flist_node_t head;
+};
 
 Test(forward_list, initialization) {
 	flist_t flist = flist_init();

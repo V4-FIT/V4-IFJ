@@ -44,6 +44,7 @@ charseq_t charseq_init() {
 
 	charseq->data = calloc(INITIAL_ALLOC_SIZE, sizeof(char));
 	if (charseq->data == NULL) {
+		free(charseq);
 		return NULL;
 	}
 

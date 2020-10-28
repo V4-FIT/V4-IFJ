@@ -2,7 +2,18 @@
 #include <string.h>
 #include <assert.h>
 
-#include "forward_list_private.h"
+#include "forward_list.h"
+
+struct flist_node
+{
+	void *data;
+	flist_node_t next;
+};
+
+struct flist
+{
+	flist_node_t head;
+};
 
 flist_t flist_init() {
 	flist_t flist = malloc(sizeof(struct flist));
