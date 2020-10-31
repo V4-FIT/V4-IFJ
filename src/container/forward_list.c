@@ -8,7 +8,7 @@ typedef struct flist_node *flist_node_t;
 
 struct flist_node
 {
-	void *data;
+	flist_data_t data;
 	flist_node_t next;
 };
 
@@ -32,7 +32,7 @@ bool flist_empty(flist_t flist) {
 	return flist->head == NULL;
 }
 
-bool flist_push_front(flist_t flist, void *data, size_t data_size) {
+bool flist_push_front(flist_t flist, flist_data_t data, size_t data_size) {
 	assert(flist && data && data_size);
 	flist_node_t new_node = malloc(sizeof(struct flist_node));
 	if (new_node == NULL) {
@@ -62,7 +62,7 @@ void flist_pop_front(flist_t flist) {
 	}
 }
 
-void *flist_front(flist_t flist) {
+flist_data_t flist_front(flist_t flist) {
 	assert(flist);
 	if (flist->head) {
 		return flist->head->data;
@@ -107,7 +107,7 @@ flist_iterator_t flist_advance(flist_iterator_t flist_iterator, size_t distance)
 	return flist_iterator;
 }
 
-void* flist_get(flist_iterator_t flist_iterator) {
+flist_data_t flist_get(flist_iterator_t flist_iterator) {
 	if (flist_iterator) {
 		return flist_iterator->data;
 	}

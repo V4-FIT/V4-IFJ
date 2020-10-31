@@ -15,6 +15,11 @@ typedef struct flist *flist_t;
 typedef struct flist_node *flist_iterator_t;
 
 /**
+ * @brief	void pointer typedef for generic data
+*/
+typedef void *flist_data_t;
+
+/**
  * @brief	Allocates and initializes a forward list
  * @return	the initialized forward list
  */
@@ -34,7 +39,7 @@ bool flist_empty(flist_t flist);
  * @param	data_size	The number of bytes to copy
  * @return	true on success, false on allocation error
  */
-bool flist_push_front(flist_t flist, void *data, size_t data_size);
+bool flist_push_front(flist_t flist, flist_data_t data, size_t data_size);
 
 /**
  * @brief	Deletes a node from the front of the list
@@ -47,7 +52,7 @@ void flist_pop_front(flist_t flist);
  * @param	flist 
  * @return	pointer to the data at the front or NULL if the list is empty
 */
-void *flist_front(flist_t flist);
+flist_data_t flist_front(flist_t flist);
 
 /**
  * @brief	Deletes all nodes from the list
@@ -99,6 +104,6 @@ flist_iterator_t flist_advance(flist_iterator_t flist_iterator, size_t distance)
  * @return	a pointer to the iterator data or NULL if iterator isn't pointing to a valid element
  * @note	calling this function on an iterator pointing to an invalid element is an error
  */
-void *flist_get(flist_iterator_t flist_iterator);
+flist_data_t flist_get(flist_iterator_t flist_iterator);
 
 #endif // !FORWARD_LIST_H
