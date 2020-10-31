@@ -4,6 +4,8 @@ extern "C" {
 #include "forward_list.h"
 }
 
+typedef struct flist_node *flist_node_t;
+
 struct flist_node
 {
 	void *data;
@@ -68,25 +70,32 @@ TEST(forward_list, empty) {
 	flist_free(flist);
 }
 
-TEST(forward_list, flist_node) {
+TEST(forward_list, flist_iterator) {
 	flist_t flist = flist_init();
 	ASSERT_NE(flist, nullptr);
 	ASSERT_EQ(flist->head, nullptr);
 
+	flist_iterator_t it = flist_begin(flist);
+	ASSERT_EQ(it, nullptr);
+
 	for (int i = 0; i < 5; i++) {
 		flist_push_front(flist, &i, sizeof(int));
 	}
-	ASSERT_NE(flist, nullptr);
+	ASSERT_NE(flist->head, nullptr);
 
-	flist_node_t node = flist_front(flist);
-	ASSERT_NE(node, nullptr);
+	it = flist_begin(flist);
+	ASSERT_NE(it, nullptr);
 
-	for (int i = 4; node; i--) {
-		auto x = (int *)flist_node_data(node);
+	for (int i = 4; it != flist_end(flist); i--) {
+		auto x = (int *)flist_get(it);
 		ASSERT_EQ(*x, i);
-		node = flist_node_next(node);
+		it = flist_next(it);
 	}
-	ASSERT_EQ(node, nullptr);
+	ASSERT_EQ(it, nullptr);
+
+	it = flist_begin(flist);
+	it = flist_advance(it, 5);
+	ASSERT_EQ(it, flist_end(flist));
 
 	flist_free(flist);
 }

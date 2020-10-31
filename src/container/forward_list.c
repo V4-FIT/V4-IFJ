@@ -4,6 +4,8 @@
 
 #include "forward_list.h"
 
+typedef struct flist_node *flist_node_t;
+
 struct flist_node
 {
 	void *data;
@@ -60,6 +62,15 @@ void flist_pop_front(flist_t flist) {
 	}
 }
 
+void *flist_front(flist_t flist) {
+	assert(flist);
+	if (flist->head) {
+		return flist->head->data;
+	} else {
+		return NULL;
+	}
+}
+
 void flist_clear(flist_t flist) {
 	assert(flist);
 	while (flist->head) {
@@ -73,19 +84,32 @@ void flist_free(flist_t flist) {
 	free(flist);
 }
 
-flist_node_t flist_front(flist_t flist) {
+flist_iterator_t flist_begin(flist_t flist) {
 	assert(flist);
 	return flist->head;
 }
 
-flist_node_t flist_node_next(flist_node_t flist_node) {
-	assert(flist_node);
-	return flist_node->next;
+flist_iterator_t flist_end(flist_t flist) {
+	return NULL;
 }
 
-void* flist_node_data(flist_node_t flist_node) {
-	if (flist_node) {
-		return flist_node->data;
+flist_iterator_t flist_next(flist_iterator_t flist_iterator) {
+	if (flist_iterator) {
+		return flist_iterator->next;
+	}
+	return NULL;
+}
+
+flist_iterator_t flist_advance(flist_iterator_t flist_iterator, size_t distance) {
+	for (size_t i = 0; i < distance; i++) {
+		flist_iterator = flist_next(flist_iterator);
+	}
+	return flist_iterator;
+}
+
+void* flist_get(flist_iterator_t flist_iterator) {
+	if (flist_iterator) {
+		return flist_iterator->data;
 	}
 	return NULL;
 }

@@ -4,73 +4,101 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+/**
+ * @brief	Handle for the forward list
+*/
 typedef struct flist *flist_t;
 
-typedef struct flist_node *flist_node_t;
+/**
+ * @brief	handle for a forward list iterator
+*/
+typedef struct flist_node *flist_iterator_t;
 
 /**
- * Allocates and initializes a forward list
- * @return the initialized forward list
+ * @brief	Allocates and initializes a forward list
+ * @return	the initialized forward list
  */
 flist_t flist_init();
 
 /**
- * Checks if the list is empty
+ * @brief	Checks if the list is empty
  * @param	flist
  * @return	true when empty
  */
 bool flist_empty(flist_t flist);
 
 /**
- * Inserts a new node to the front of the list
+ * @brief	Inserts a new node to the front of the list
  * @param	flist
- * @param [in]	*data		The memory area to copy from
- * @param [in]	data_size	The number of bytes to copy
- * @return true on success, false on allocation error
+ * @param	*data		The memory area to copy from
+ * @param	data_size	The number of bytes to copy
+ * @return	true on success, false on allocation error
  */
 bool flist_push_front(flist_t flist, void *data, size_t data_size);
 
 /**
- * Deletes a node from the front of the list
+ * @brief	Deletes a node from the front of the list
  * @param	flist
  */
 void flist_pop_front(flist_t flist);
 
 /**
- * Deletes all nodes from the list
+ * @brief	Returns the data at the front of the list
+ * @param	flist 
+ * @return	pointer to the data at the front or NULL if the list is empty
+*/
+void *flist_front(flist_t flist);
+
+/**
+ * @brief	Deletes all nodes from the list
  * @param	flist
- * @note	Invalidates all flist_node_t references
+ * @note	Invalidates all iterators
  */
 void flist_clear(flist_t flist);
 
 /**
- * Free the allocated list and delete all nodes
+ * @brief	Free the allocated list and delete all nodes
  * @param	flist
- * @note	Invalidates flist and all flist_node_t references 
+ * @note	Invalidates flist and all iterators
  */
 void flist_free(flist_t flist);
 
 /**
- * Initializes flist_node_t
+ * @brief	Returns and iterator to the beginning
  * @param	flist
- * @return	node at front of the list or NULL if the list is empty
+ * @return	iterator to the first element, if the flist is empty the returned iterator will be equal to flist_end(flist)
  */
-flist_node_t flist_front(flist_t flist);
+flist_iterator_t flist_begin(flist_t flist);
 
 /**
- * Advances the node to the next one in the list
- * @param	flist_node
- * @return	the next node in the list or NULL if we reached the end
- * @note	calling this function on an unitialized flist_node is an error
+ * @brief	Returns and iterator to the end
+ * @param	flist
+ * @return	iterator to the element following the last element
  */
-flist_node_t flist_node_next(flist_node_t flist_node);
+flist_iterator_t flist_end(flist_t flist);
 
 /**
- * Access the data from the node
- * @param	flist_node
- * @return	a pointer to the data of flist_node or NULL if flist_node is also NULL
- * @note	calling this function on an unitialized flist_node is an error
+ * @brief	Increment an iterator
+ * @param	flist_iterator
+ * @return	the next iterator in the list or flist_end(flist) if we reached the end
+ * @note	calling this function on an unitialized flist_iterator is an error
  */
-void *flist_node_data(flist_node_t flist_node);
+flist_iterator_t flist_next(flist_iterator_t flist_iterator);
+
+/**
+ * @brief	Advances an iterator by given distance
+ * @param	flist_iterator
+ * @return	the nth iterator in the list or flist_end(flist) if we reached the end
+ * @note	calling this function on an unitialized flist_iterator is an error
+ */
+flist_iterator_t flist_advance(flist_iterator_t flist_iterator, size_t distance);
+
+/**
+ * @brief	Access the data from the iterator
+ * @param	flist_iterator
+ * @return	a pointer to the iterator data or NULL if iterator isn't pointing to a valid element
+ * @note	calling this function on an iterator pointing to an invalid element is an error
+ */
+void *flist_get(flist_iterator_t flist_iterator);
 
 #endif // !FORWARD_LIST_H
