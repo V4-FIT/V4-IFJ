@@ -9,10 +9,16 @@
 */
 typedef struct flist *flist_t;
 
+typedef struct flist_node *flist_node_t;
+
 /**
  * @brief	handle for a forward list iterator
 */
-typedef struct flist_node *flist_iterator_t;
+typedef struct flist_iterator
+{
+	flist_node_t ptr;
+	flist_t flist;
+} flist_iterator_t;
 
 /**
  * @brief	void pointer typedef for generic data
@@ -21,13 +27,14 @@ typedef void *flist_data_t;
 
 /**
  * @brief	Allocates and initializes a forward list
- * @return	the initialized forward list
+ * @return	the initialized forward list or NULL if allocation fails
  */
-flist_t flist_init();
+flist_t flist_init(size_t data_size);
 
 /**
  * @brief	Checks if the list is empty
  * @param	flist
+ * @param	data_size	The size of the data to be stored in bytes
  * @return	true when empty
  */
 bool flist_empty(flist_t flist);
@@ -35,11 +42,17 @@ bool flist_empty(flist_t flist);
 /**
  * @brief	Inserts a new node to the front of the list
  * @param	flist
- * @param	*data		The memory area to copy from
- * @param	data_size	The number of bytes to copy
+ * @param	data		The memory area to copy from
  * @return	true on success, false on allocation error
  */
-bool flist_push_front(flist_t flist, flist_data_t data, size_t data_size);
+bool flist_push_front(flist_t flist, flist_data_t data);
+
+/**
+ * @brief	Allocates memory for a new node at the front of the list
+ * @param	flist
+ * @return	iterator to the inserted element or flist_end(flist) iterator if init failed
+ */
+flist_iterator_t flist_init_front(flist_t flist);
 
 /**
  * @brief	Deletes a node from the front of the list
@@ -88,7 +101,7 @@ flist_iterator_t flist_end(flist_t flist);
  * @return	the next iterator in the list or flist_end(flist) if we reached the end
  * @note	calling this function on an unitialized flist_iterator is an error
  */
-flist_iterator_t flist_next(flist_iterator_t flist_iterator);
+flist_iterator_t flist_it_next(flist_iterator_t flist_iterator);
 
 /**
  * @brief	Advances an iterator by given distance
@@ -96,7 +109,14 @@ flist_iterator_t flist_next(flist_iterator_t flist_iterator);
  * @return	the nth iterator in the list or flist_end(flist) if we reached the end
  * @note	calling this function on an unitialized flist_iterator is an error
  */
-flist_iterator_t flist_advance(flist_iterator_t flist_iterator, size_t distance);
+flist_iterator_t flist_it_advance(flist_iterator_t flist_iterator, size_t distance);
+
+/**
+ * @brief	flist_iterator != flist_end_iterator
+ * @param	flist_iterator 
+ * @return	return true if the iterator is valid
+*/
+bool flist_it_valid(flist_iterator_t flist_iterator);
 
 /**
  * @brief	Access the data from the iterator
@@ -105,5 +125,13 @@ flist_iterator_t flist_advance(flist_iterator_t flist_iterator, size_t distance)
  * @note	calling this function on an iterator pointing to an invalid element is an error
  */
 flist_data_t flist_get(flist_iterator_t flist_iterator);
+
+/**
+ * @brief	Copy data into the list node
+ * @param	flist_iterator
+ * @param	*data		The memory area to copy from
+ * @note	calling this function on an iterator pointing to an invalid element is an error
+ */
+void flist_set(flist_iterator_t flist_iterator, flist_data_t data);
 
 #endif // !FORWARD_LIST_H
