@@ -14,7 +14,7 @@ typedef struct flist_node *flist_node_t;
 /**
  * @brief	handle for a forward list iterator
 */
-typedef struct flist_iterator
+typedef struct iterator
 {
 	flist_node_t ptr;
 	flist_t flist;
@@ -97,41 +97,41 @@ flist_iterator_t flist_end(flist_t flist);
 
 /**
  * @brief	Increment an iterator
- * @param	flist_iterator
+ * @param	iterator
  * @return	the next iterator in the list or flist_end(flist) if we reached the end
- * @note	calling this function on an unitialized flist_iterator is an error
+ * @note	calling this function on an unitialized iterator is an error
  */
-flist_iterator_t flist_it_next(flist_iterator_t flist_iterator);
+flist_iterator_t flist_it_next(flist_iterator_t iterator);
 
 /**
  * @brief	Advances an iterator by given distance
- * @param	flist_iterator
+ * @param	iterator
  * @return	the nth iterator in the list or flist_end(flist) if we reached the end
- * @note	calling this function on an unitialized flist_iterator is an error
+ * @note	calling this function on an unitialized iterator is an error
  */
-flist_iterator_t flist_it_advance(flist_iterator_t flist_iterator, size_t distance);
+flist_iterator_t flist_it_advance(flist_iterator_t iterator, size_t distance);
 
 /**
- * @brief	flist_iterator != flist_end_iterator
- * @param	flist_iterator 
+ * @brief	iterator != flist_end_iterator
+ * @param	iterator 
  * @return	return true if the iterator is valid
 */
-bool flist_it_valid(flist_iterator_t flist_iterator);
+bool flist_it_valid(flist_iterator_t iterator);
 
 /**
  * @brief	Access the data from the iterator
- * @param	flist_iterator
+ * @param	iterator
  * @return	a pointer to the iterator data or NULL if iterator isn't pointing to a valid element
  * @note	calling this function on an iterator pointing to an invalid element is an error
  */
-flist_data_t flist_get(flist_iterator_t flist_iterator);
+flist_data_t flist_get(flist_iterator_t iterator);
 
 /**
  * @brief	Copy data into the list node
- * @param	flist_iterator
+ * @param	iterator
  * @param	*data		The memory area to copy from
  * @note	calling this function on an iterator pointing to an invalid element is an error
  */
-void flist_set(flist_iterator_t flist_iterator, flist_data_t data);
+void flist_set(flist_iterator_t iterator, flist_data_t data);
 
 #endif // !FORWARD_LIST_H

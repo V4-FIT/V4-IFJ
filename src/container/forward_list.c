@@ -96,44 +96,44 @@ void flist_free(flist_t flist) {
 	free(flist);
 }
 
-inline flist_iterator_t flist_begin(flist_t flist) {
+flist_iterator_t flist_begin(flist_t flist) {
 	assert(flist);
 	flist_iterator_t it = { flist->head, flist };
 	return it;
 }
 
-inline flist_iterator_t flist_end(flist_t flist) {
+flist_iterator_t flist_end(flist_t flist) {
 	flist_iterator_t it = { NULL, flist };
 	return it;
 }
 
-flist_iterator_t flist_it_next(flist_iterator_t flist_iterator) {
-	if (flist_iterator.ptr) {
-		flist_iterator.ptr = flist_iterator.ptr->next;
-		return flist_iterator;
+flist_iterator_t flist_it_next(flist_iterator_t it) {
+	if (it.ptr) {
+		it.ptr = it.ptr->next;
+		return it;
 	}
-	return flist_iterator;
+	return it;
 }
 
-flist_iterator_t flist_it_advance(flist_iterator_t flist_iterator, size_t distance) {
+flist_iterator_t flist_it_advance(flist_iterator_t it, size_t distance) {
 	for (size_t i = 0; i < distance; i++) {
-		flist_iterator = flist_it_next(flist_iterator);
+		it = flist_it_next(it);
 	}
-	return flist_iterator;
+	return it;
 }
 
-inline bool flist_it_valid(flist_iterator_t it) {
+bool flist_it_valid(flist_iterator_t it) {
 	return it.ptr != NULL;
 }
 
-flist_data_t flist_get(flist_iterator_t flist_iterator) {
-	if (flist_iterator.ptr) {
-		return flist_iterator.ptr->data;
+flist_data_t flist_get(flist_iterator_t it) {
+	if (it.ptr) {
+		return it.ptr->data;
 	}
 	return NULL;
 }
 
-void flist_set(flist_iterator_t flist_iterator, flist_data_t data) {
-	assert(flist_iterator.ptr);
-	memcpy(flist_iterator.ptr->data, data, flist_iterator.flist->data_size);
+void flist_set(flist_iterator_t it, flist_data_t data) {
+	assert(it.ptr);
+	memcpy(it.ptr->data, data, it.flist->data_size);
 }

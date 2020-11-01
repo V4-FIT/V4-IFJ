@@ -4,8 +4,6 @@ extern "C" {
 #include "forward_list.h"
 }
 
-typedef struct flist_node *flist_node_t;
-
 struct flist_node
 {
 	void *data;
