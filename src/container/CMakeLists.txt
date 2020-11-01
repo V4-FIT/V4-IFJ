@@ -2,6 +2,7 @@
 set(SOURCES
     char_sequence.c
 	forward_list.c
+	hash_map.c
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
