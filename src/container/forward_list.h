@@ -82,14 +82,14 @@ void flist_clear(flist_t flist);
 void flist_free(flist_t flist);
 
 /**
- * @brief	Returns and iterator to the beginning
+ * @brief	Returns an iterator to the beginning
  * @param	flist
  * @return	iterator to the first element, if the flist is empty the returned iterator will be equal to flist_end(flist)
  */
 flist_iterator_t flist_begin(flist_t flist);
 
 /**
- * @brief	Returns and iterator to the end
+ * @brief	Returns an iterator to the end
  * @param	flist
  * @return	iterator to the element following the last element
  */
@@ -129,7 +129,7 @@ flist_data_t flist_get(flist_iterator_t iterator);
 /**
  * @brief	Copy data into the list node
  * @param	iterator
- * @param	*data		The memory area to copy from
+ * @param	data		The memory area to copy from
  * @note	calling this function on an iterator pointing to an invalid element is an error
  */
 void flist_set(flist_iterator_t iterator, flist_data_t data);
