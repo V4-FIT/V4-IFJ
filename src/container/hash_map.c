@@ -21,7 +21,7 @@ struct hmap
 struct hmap_item
 {
 	hmap_key_t key;
-	hmap_value_t value;
+	void *value;
 	hmap_item_t next;
 };
 
@@ -142,7 +142,7 @@ hmap_iterator_t hmap_find_add(hmap_t hmap, hmap_key_t key) {
 	return it;
 }
 
-hmap_iterator_t hmap_insert(hmap_t hmap, hmap_key_t key, hmap_value_t value) {
+hmap_iterator_t hmap_insert(hmap_t hmap, hmap_key_t key, void *value) {
 	assert(hmap && key && value);
 	hmap_iterator_t it = hmap_find_add(hmap, key);
 	if (!hmap_it_eq(it, hmap_end(hmap))) {
@@ -154,12 +154,22 @@ hmap_iterator_t hmap_insert(hmap_t hmap, hmap_key_t key, hmap_value_t value) {
 hmap_iterator_t hmap_erase(hmap_iterator_t it) {
 	assert(hmap_it_valid(it));
 	hmap_iterator_t ret = hmap_it_next(it);
+	hmap_t hmap = it.hmap;
+	size_t idx = it.bucket_idx;
 
-	hmap_item_t item = it.ptr;
-	it.ptr = it.ptr->next;
-	free((void *)item->key);
-	free(item->value);
-	free(item);
+	if (hmap->buckets[idx] == it.ptr) {
+		hmap->buckets[idx] = it.ptr->next;
+	} else {
+		hmap_iterator_t it_prev = { .ptr = hmap->buckets[idx], .hmap = hmap, .bucket_idx = idx };
+		while (it_prev.ptr->next != it.ptr) {
+			it_prev.ptr = it_prev.ptr->next;
+		}
+		it_prev.ptr->next = it.ptr->next;
+	}
+
+	free((void *)it.ptr->key);
+	free(it.ptr->value);
+	free(it.ptr);
 	it.hmap->size--;
 
 	return ret;
@@ -241,12 +251,12 @@ hmap_key_t hmap_get_key(hmap_iterator_t it) {
 	return it.ptr->key;
 }
 
-hmap_value_t hmap_get_value(hmap_iterator_t it) {
+void *hmap_get_value(hmap_iterator_t it) {
 	assert(hmap_it_valid(it));
 	return it.ptr->value;
 }
 
-void hmap_set_value(hmap_iterator_t it, hmap_value_t value) {
+void hmap_set_value(hmap_iterator_t it, void *value) {
 	assert(hmap_it_valid(it) && value);
 	memcpy(it.ptr->value, value, it.hmap->value_size);
 }

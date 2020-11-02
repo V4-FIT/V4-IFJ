@@ -14,11 +14,6 @@ typedef struct hmap *hmap_t;
 typedef const char *hmap_key_t;
 
 /**
- * @brief	void pointer typedef for generic value
-*/
-typedef void *hmap_value_t;
-
-/**
  * @brief	handle for hash map item
 */
 typedef struct hmap_item *hmap_item_t;
@@ -71,7 +66,7 @@ hmap_iterator_t hmap_find_add(hmap_t hmap, hmap_key_t key);
  * @param	value	the value to insert or assign
  * @return iterator to an element with key equivalent to key or hmap end iterator if insertion failed
 */
-hmap_iterator_t hmap_insert(hmap_t hmap, hmap_key_t key, hmap_value_t value);
+hmap_iterator_t hmap_insert(hmap_t hmap, hmap_key_t key, void *value);
 
 /**
  * @brief	Removes specified element from the container
@@ -143,7 +138,7 @@ hmap_key_t hmap_get_key(hmap_iterator_t iterator);
  * @return	a pointer to the value
  * @note	calling this function on an invalidated iterator is an error
 */
-hmap_value_t hmap_get_value(hmap_iterator_t iterator);
+void *hmap_get_value(hmap_iterator_t iterator);
 
 /**
  * @brief	Copy the value data into the element
@@ -151,6 +146,6 @@ hmap_value_t hmap_get_value(hmap_iterator_t iterator);
  * @param	value	the memory area to copy from
  * @note	calling thsi function on an ivalidate iterator is an error
 */
-void hmap_set_value(hmap_iterator_t iterator, hmap_value_t value);
+void hmap_set_value(hmap_iterator_t iterator, void *value);
 
 #endif // !HASH_MAP_H
