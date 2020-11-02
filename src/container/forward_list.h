@@ -21,11 +21,6 @@ typedef struct iterator
 } flist_iterator_t;
 
 /**
- * @brief	void pointer typedef for generic data
-*/
-typedef void *flist_data_t;
-
-/**
  * @brief	Allocates and initializes a forward list
  * @return	the initialized forward list or NULL if allocation fails
  */
@@ -45,7 +40,7 @@ bool flist_empty(flist_t flist);
  * @param	data		The memory area to copy from
  * @return	true on success, false on allocation error
  */
-bool flist_push_front(flist_t flist, flist_data_t data);
+bool flist_push_front(flist_t flist, void *data);
 
 /**
  * @brief	Allocates memory for a new node at the front of the list
@@ -65,7 +60,7 @@ void flist_pop_front(flist_t flist);
  * @param	flist 
  * @return	pointer to the data at the front or NULL if the list is empty
 */
-flist_data_t flist_front(flist_t flist);
+void *flist_front(flist_t flist);
 
 /**
  * @brief	Deletes all nodes from the list
@@ -124,7 +119,7 @@ bool flist_it_valid(flist_iterator_t iterator);
  * @return	a pointer to the iterator data or NULL if iterator isn't pointing to a valid element
  * @note	calling this function on an iterator pointing to an invalid element is an error
  */
-flist_data_t flist_get(flist_iterator_t iterator);
+void *flist_get(flist_iterator_t iterator);
 
 /**
  * @brief	Copy data into the list node
@@ -132,6 +127,6 @@ flist_data_t flist_get(flist_iterator_t iterator);
  * @param	data		The memory area to copy from
  * @note	calling this function on an iterator pointing to an invalid element is an error
  */
-void flist_set(flist_iterator_t iterator, flist_data_t data);
+void flist_set(flist_iterator_t iterator, void *data);
 
 #endif // !FORWARD_LIST_H

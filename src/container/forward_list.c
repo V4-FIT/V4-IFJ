@@ -8,7 +8,7 @@
 
 struct flist_node
 {
-	flist_data_t data;
+	void *data;
 	flist_node_t next;
 };
 
@@ -36,7 +36,7 @@ bool flist_empty(flist_t flist) {
 	return flist->head == NULL;
 }
 
-bool flist_push_front(flist_t flist, flist_data_t data) {
+bool flist_push_front(flist_t flist, void *data) {
 	flist_iterator_t it = flist_init_front(flist);
 	if (!flist_it_valid(it)) {
 		return false;
@@ -74,7 +74,7 @@ void flist_pop_front(flist_t flist) {
 	}
 }
 
-flist_data_t flist_front(flist_t flist) {
+void *flist_front(flist_t flist) {
 	assert(flist);
 	if (flist->head) {
 		return flist->head->data;
@@ -126,14 +126,14 @@ bool flist_it_valid(flist_iterator_t it) {
 	return it.ptr != NULL;
 }
 
-flist_data_t flist_get(flist_iterator_t it) {
+void *flist_get(flist_iterator_t it) {
 	if (it.ptr) {
 		return it.ptr->data;
 	}
 	return NULL;
 }
 
-void flist_set(flist_iterator_t it, flist_data_t data) {
+void flist_set(flist_iterator_t it, void *data) {
 	assert(it.ptr);
 	memcpy(it.ptr->data, data, it.flist->data_size);
 }
