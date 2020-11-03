@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 
 #include "scanner_states.h"
 #include "char_sequence.h"
@@ -115,10 +116,10 @@ scanner_state_t s_start(token_t token, int c) {
 			}
 
 		default:
-			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')){
+			if (isalpha(c)){
 				return S_IDENTIF;
 			}
-			if (c >= '1' && c <= '9') {
+			if (isdigit(c)) { //special case for 0 handled above
 				return S_DEC_LIT;
 			}
 			token->type = TK_ERROR;
@@ -325,7 +326,7 @@ scanner_state_t s_escape_seq(token_t token, int c) {
 }
 
 scanner_state_t s_hex1(token_t token, int c) {
-	if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')){
+	if (isxdigit(c)){
 		if (charseq_push_back(token->value,c)) {
 			return S_HEX2;
 		} else {
@@ -346,7 +347,7 @@ scanner_state_t s_hex2(token_t token, int c) {
 	}
 }
 scanner_state_t s_underscore(token_t token, int c) {
-	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_')) { //oof
+	if (isalnum(c) || (c == '_')) { 
 		if (charseq_push_back(token->value,c)) {
 			return S_IDENTIF;
 		} else {
@@ -401,8 +402,11 @@ scanner_state_t s_zero(token_t token, int c) {
 				token->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
+		case '0':
+			token->type = TK_ERROR;
+			return S_END;
 		default:
-			if (c >= '1' && c <= '9'){
+			if (isdigit(c)){
 				return S_DEC_LIT;
 			} else {
 				ungetc(c,stdin);
@@ -430,7 +434,7 @@ scanner_state_t s_dec_lit(token_t token, int c) {
 				return S_END;
 			}
 		default:
-			if (c >= '1' && c <= '9'){
+			if (isdigit(c)){
 				return S_DEC_LIT;
 			} else {
 				ungetc(c,stdin);
@@ -441,7 +445,7 @@ scanner_state_t s_dec_lit(token_t token, int c) {
 }
 
 scanner_state_t s_float_sci_lit(token_t token, int c) {
-	if (c >= '0' && c <= '9') {
+	if (isdigit(c)) {
 		if (charseq_push_back(token->value,c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
@@ -466,7 +470,7 @@ scanner_state_t s_float_lit(token_t token, int c) {
 					return S_END;
 				}
 		default:
-			if (c >= '0' && c <= '9') {
+			if (isdigit(c)) {
 				if (charseq_push_back(token->value,c)) {
 					return S_FLOAT_LIT;
 				} else {
@@ -482,7 +486,7 @@ scanner_state_t s_float_lit(token_t token, int c) {
 }
 
 scanner_state_t s_float_exp1(token_t token, int c) { //TODO:FIX
-	if (c >= '0' && c <= '9') {
+	if (isdigit(c)) {
 		if (charseq_push_back(token->value,c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
@@ -503,7 +507,7 @@ scanner_state_t s_float_exp1(token_t token, int c) { //TODO:FIX
 }
 
 scanner_state_t s_float_exp2(token_t token, int c) {
-	if (c >= '0' && c <= '9') {
+	if (isdigit(c)) {
 		if (charseq_push_back(token->value,c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
@@ -517,7 +521,7 @@ scanner_state_t s_float_exp2(token_t token, int c) {
 }
 
 scanner_state_t s_float_point(token_t token, int c) {
-	if (c >= '0' && c <= '9'){
+	if (isdigit(c)){
 		if (charseq_push_back(token->value,c)) {
 			return S_FLOAT_LIT;
 		} else {
@@ -531,7 +535,7 @@ scanner_state_t s_float_point(token_t token, int c) {
 }
 
 scanner_state_t s_hex_lit1(token_t token, int c){
-	if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')){
+	if (isxdigit(c)){
 		if (charseq_push_back(token->value,c)) {
 			return S_HEX_LIT2;
 		} else {
@@ -545,7 +549,7 @@ scanner_state_t s_hex_lit1(token_t token, int c){
 }
 
 scanner_state_t s_hex_lit2(token_t token, int c){ //TODO: refactor when tested
-	if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')){
+	if (isxdigit(c)){
 		if (charseq_push_back(token->value,c)) {
 			return S_HEX_LIT2;
 		} else {
@@ -617,7 +621,7 @@ scanner_state_t s_bin_lit2(token_t token, int c){ //TODO: refactor when tested
 }
 
 scanner_state_t s_identif(token_t token, int c){
-	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_')) { //oof
+	if (isalnum(c) || (c == '_')) {
 		if (charseq_push_back(token->value,c)) {
 				return S_IDENTIF;
 			} else {
