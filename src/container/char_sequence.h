@@ -38,6 +38,12 @@ size_t charseq_len(charseq_t charseq);
 char const *charseq_data(charseq_t charseq);
 
 /**
+ * Clear the char sequence data
+ * @param charseq
+ */
+void charseq_clear(charseq_t charseq);
+
+/**
  * Free the allocated char sequence
  * @param charseq
  * @note Invalidates all pointers pointing to char sequence data

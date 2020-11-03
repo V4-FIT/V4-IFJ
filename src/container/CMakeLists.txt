@@ -1,6 +1,6 @@
 # V4-IFJ/src/container/CMakeLists.txt
 set(SOURCES
-    char_sequence.c
+  char_sequence.c
 	forward_list.c
 	hash_map.c
 )
