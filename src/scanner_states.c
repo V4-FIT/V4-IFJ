@@ -4,6 +4,8 @@
 #include "scanner_states.h"
 #include "char_sequence.h"
 
+// TODO: Underscores for numbers
+
 state_fun_ptr_t state_map[] = {
 		[S_START] = &s_start,
 		[S_PIPE] = &s_pipe,
@@ -454,7 +456,7 @@ scanner_state_t s_float_sci_lit(token_t token, int c) {
 		}
 	} else {
 		ungetc(c,stdin);
-		token->type = TK_FLOAT_LIT; 
+		token->type = TK_FLOAT_SCI_LIT;
 		return S_END;
 	}
 }
@@ -485,7 +487,7 @@ scanner_state_t s_float_lit(token_t token, int c) {
 	}
 }
 
-scanner_state_t s_float_exp1(token_t token, int c) { //TODO:FIX
+scanner_state_t s_float_exp1(token_t token, int c) {
 	if (isdigit(c)) {
 		if (charseq_push_back(token->value,c)) {
 			return S_FLOAT_SCI_LIT;
@@ -559,6 +561,7 @@ scanner_state_t s_hex_lit2(token_t token, int c){ //TODO: refactor when tested
 	} else {
 		ungetc(c,stdin);
 		token->type = TK_HEX_LIT; //TK_INT
+		return S_END;
 	}
 }
 

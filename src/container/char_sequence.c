@@ -70,7 +70,12 @@ char const *charseq_data(charseq_t charseq) {
 }
 
 void charseq_clear(charseq_t charseq) {
+	if (charseq == NULL) {
+		return;
+	}
+
 	memset(charseq->data,'\0',charseq->len);
+	charseq->len = 0;
 }
 
 void charseq_free(charseq_t charseq) {
