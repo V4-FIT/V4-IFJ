@@ -35,11 +35,16 @@ typedef enum
 	S_DEC_LIT,
 	S_FLOAT_SCI_LIT,
 	S_FLOAT_LIT,
-	S_FLOAT_EXP,
+	S_FLOAT_EXP1,
+	S_FLOAT_EXP2,
 	S_FLOAT_POINT,
-	S_HEX_LIT,
-	S_OCT_LIT,
-	S_BIN_LIT,
+	S_HEX_LIT1,
+	S_HEX_LIT2,
+	S_OCT_LIT1,
+	S_OCT_LIT2,
+	S_BIN_LIT1,
+	S_BIN_LIT2,
+	S_IDENTIF,
 	S_END // special case -> returns the completed token
 } scanner_state_t;
 
@@ -69,11 +74,16 @@ scanner_state_t s_zero(token_t token, int c);
 scanner_state_t s_dec_lit(token_t token, int c);
 scanner_state_t s_float_sci_lit(token_t token, int c);
 scanner_state_t s_float_lit(token_t token, int c);
-scanner_state_t s_float_exp(token_t token, int c);
+scanner_state_t s_float_exp1(token_t token, int c);
+scanner_state_t s_float_exp2(token_t token, int c);
 scanner_state_t s_float_point(token_t token, int c);
-scanner_state_t s_hex_lit(token_t token, int c);
-scanner_state_t s_oct_lit(token_t token, int c);
-scanner_state_t s_bin_lit(token_t token, int c);
+scanner_state_t s_hex_lit1(token_t token, int c);
+scanner_state_t s_hex_lit2(token_t token, int c);
+scanner_state_t s_oct_lit1(token_t token, int c);
+scanner_state_t s_oct_lit2(token_t token, int c);
+scanner_state_t s_bin_lit1(token_t token, int c);
+scanner_state_t s_bin_lit2(token_t token, int c);
+scanner_state_t s_identif(token_t token, int c);
 
 extern state_fun_ptr_t state_map[];
 

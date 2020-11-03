@@ -1,11 +1,13 @@
 #ifndef IFJ_TOKENS_H
 #define IFJ_TOKENS_H
 
+#include "char_sequence.h"
 
 /*tokens produced by scanner*/
 typedef enum
 {
-	TK_ERROR,
+	TK_ERROR, //lexical error
+	TK_INTERNAL_ERROR, //malloc errors
 	TK_STR_LIT,
 	TK_EOL,
 	TK_R_PARANTHESIS,
@@ -40,8 +42,22 @@ typedef enum
 	TK_HEX_LIT,
 	TK_OCT_LIT,
 	TK_BIN_LIT,
-	TK_UNDERSCORE
-	//TODO KEYWORD,IDENTIFIER,RESERVED
+	TK_UNDERSCORE,
+	TK_ZERO,
+	//keywords:
+	TK_PACKAGE,
+	TK_FUNC,
+	TK_MAIN,
+	TK_RETURN,
+	TK_IF,
+	TK_ELSE,
+	TK_FOR,
+	TK_TRUE,
+	TK_FALSE,
+	TK_INT,
+	TK_FLOAT64,
+	TK_STRING,
+	TK_BOOL
 } token_type_t;
 
 
@@ -49,7 +65,7 @@ typedef enum
 typedef struct Token
 {
 	token_type_t type;
-	char *value;
+	charseq_t value;
 } *token_t;
 
 

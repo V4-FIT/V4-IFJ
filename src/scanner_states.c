@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "scanner_states.h"
+#include "char_sequence.h"
 
 state_fun_ptr_t state_map[] = {
 		[S_START] = &s_start,
@@ -18,24 +19,34 @@ state_fun_ptr_t state_map[] = {
 		[S_SL_COMMENT] = &s_sl_comment,
 		[S_ML_COMMENT1] = &s_ml_comment1,
 		[S_ML_COMMENT2] = &s_ml_comment2,
-//		[S_STR_LIT] = &s_str_lit,
-//		[S_ESCAPE_SEQ] = &s_escape_seq,
-//		[S_HEX1] = &s_hex1,
-//		[S_HEX2] = &s_hex2,
-//		[S_UNDERSCORE] = &s_underscore,
-//		[S_ZERO] = &s_zero,
-//		[S_DEC_LIT] = &s_dec_lit,
-//		[S_FLOAT_SCI_LIT] = &s_float_sci_lit,
-//		[S_FLOAT_LIT] = &s_float_lit,
-//		[S_FLOAT_EXP] = &s_float_exp,
-//		[S_FLOAT_POINT] = &s_float_point,
-//		[S_HEX_LIT] = &s_hex_lit,
-//		[S_OCT_LIT] = &s_oct_lit,
-//		[S_BIN_LIT] = &s_bin_lit
+		[S_STR_LIT] = &s_str_lit,
+		[S_ESCAPE_SEQ] = &s_escape_seq,
+		[S_HEX1] = &s_hex1,
+		[S_HEX2] = &s_hex2,
+		[S_UNDERSCORE] = &s_underscore,
+		[S_ZERO] = &s_zero,
+		[S_DEC_LIT] = &s_dec_lit,
+		[S_FLOAT_SCI_LIT] = &s_float_sci_lit,
+		[S_FLOAT_LIT] = &s_float_lit,
+		[S_FLOAT_EXP1] = &s_float_exp1,
+		[S_FLOAT_EXP2] = &s_float_exp2,
+		[S_FLOAT_POINT] = &s_float_point,
+		[S_HEX_LIT1] = &s_hex_lit1,
+		[S_HEX_LIT2] = &s_hex_lit2,
+		[S_OCT_LIT1] = &s_oct_lit1,
+		[S_OCT_LIT2] = &s_oct_lit2,
+		[S_BIN_LIT1] = &s_bin_lit1,
+		[S_BIN_LIT2] = &s_bin_lit2,
+		[S_IDENTIF] = &s_identif
 };
 
 scanner_state_t s_start(token_t token, int c) {
 	switch (c) {
+		// whitespace skip
+		case ' ':
+		case '\t':
+			return S_START;
+
 		// end cases
 		case '\n':
 			token->type = TK_EOL;
@@ -85,8 +96,31 @@ scanner_state_t s_start(token_t token, int c) {
 			return S_STAR;
 		case '/':
 			return S_SLASH;
+		case '\"':
+			return S_STR_LIT;
+
+		case '0':
+			if (charseq_push_back(token->value,c)) {
+				return S_ZERO;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}		
+		case '_':
+			if (charseq_push_back(token->value,c)) {
+				return S_UNDERSCORE;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
 
 		default:
+			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')){
+				return S_IDENTIF;
+			}
+			if (c >= '1' && c <= '9') {
+				return S_DEC_LIT;
+			}
 			token->type = TK_ERROR;
 			return S_END;
 	}
@@ -208,9 +242,8 @@ scanner_state_t s_slash(token_t token, int c) {
 scanner_state_t s_sl_comment(token_t token, int c) {
 	switch (c) {
 		case EOF:
-			ungetc(c, stdin); // this falls trough intentionally
 		case '\n':
-			// do not send token for comment
+			ungetc(c, stdin); 
 			return S_START;
 		default:
 			return S_SL_COMMENT;
@@ -241,19 +274,361 @@ scanner_state_t s_ml_comment2(token_t token, int c) {
 	}
 }
 
-// TODO
+scanner_state_t s_str_lit(token_t token, int c) {
+	switch (c) {
+		case '\\':
+			if (charseq_push_back(token->value,c)) {
+				return S_ESCAPE_SEQ;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;	
+			}
+		case '\"':
+			token->type = TK_STR_LIT;
+			token->value = NULL;
+			return S_END;
+		default:
+			if (c < ' ') { //includes all unprintables, EOL and EOF
+				token->type = TK_ERROR;
+				return S_END;
+			} else if (charseq_push_back(token->value,c)) {
+				return S_STR_LIT;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+	}
+}
+scanner_state_t s_escape_seq(token_t token, int c) {
+	switch (c) {
+		case 'n':
+		case 't':
+		case '\\':
+		case '\"':
+			if (charseq_push_back(token->value,c)) {
+				return S_STR_LIT;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		case 'x':
+			if (charseq_push_back(token->value,c)) {
+				return S_HEX1;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		default:
+			token->type = TK_ERROR;
+			return S_END;
+	}
+}
 
-scanner_state_t s_str_lit(token_t token, int c);
-scanner_state_t s_escape_seq(token_t token, int c);
-scanner_state_t s_hex1(token_t token, int c);
-scanner_state_t s_hex2(token_t token, int c);
-scanner_state_t s_underscore(token_t token, int c);
-scanner_state_t s_zero(token_t token, int c);
-scanner_state_t s_dec_lit(token_t token, int c);
-scanner_state_t s_float_sci_lit(token_t token, int c);
-scanner_state_t s_float_lit(token_t token, int c);
-scanner_state_t s_float_exp(token_t token, int c);
-scanner_state_t s_float_point(token_t token, int c);
-scanner_state_t s_hex_lit(token_t token, int c);
-scanner_state_t s_oct_lit(token_t token, int c);
-scanner_state_t s_bin_lit(token_t token, int c);
+scanner_state_t s_hex1(token_t token, int c) {
+	if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')){
+		if (charseq_push_back(token->value,c)) {
+			return S_HEX2;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		token->type = TK_ERROR;
+		return S_END;
+	}
+}
+scanner_state_t s_hex2(token_t token, int c) {
+	scanner_state_t return_val = s_hex1(token,c); //only difference is in return value so we use logic from s_hex1
+	if (return_val == S_HEX2){
+		return S_STR_LIT;
+	} else {
+		return return_val;
+	}
+}
+scanner_state_t s_underscore(token_t token, int c) {
+	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_')) { //oof
+		if (charseq_push_back(token->value,c)) {
+			return S_IDENTIF;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		ungetc(c,stdin);
+		token->type = TK_UNDERSCORE;
+		return S_END;
+	}
+}
+
+scanner_state_t s_zero(token_t token, int c) {
+	switch (c) {
+		case '.':
+			if (charseq_push_back(token->value,c)) {
+				return S_FLOAT_POINT;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		case 'b':
+		case 'B':
+			if (charseq_push_back(token->value,c)) {
+				return S_BIN_LIT1;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		case 'o':
+		case 'O':
+			if (charseq_push_back(token->value,c)) {
+				return S_OCT_LIT1;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		case 'x':
+		case 'X':
+			if (charseq_push_back(token->value,c)) {
+				return S_HEX_LIT2;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		case 'e': //TODO: check if 0e123 is valid
+		case 'E':
+			if (charseq_push_back(token->value,c)) {
+				return S_FLOAT_EXP1;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		default:
+			if (c >= '1' && c <= '9'){
+				return S_DEC_LIT;
+			} else {
+				ungetc(c,stdin);
+				token->type = TK_ZERO; //TK_INT
+				return S_END;
+			}
+	}
+}
+
+scanner_state_t s_dec_lit(token_t token, int c) {
+	switch (c) {
+		case '.':
+			if (charseq_push_back(token->value,c)) {
+				return S_FLOAT_POINT;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		case 'e':
+		case 'E':
+			if (charseq_push_back(token->value,c)) {
+				return S_FLOAT_EXP1;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		default:
+			if (c >= '1' && c <= '9'){
+				return S_DEC_LIT;
+			} else {
+				ungetc(c,stdin);
+				token->type = TK_DEC_LIT; //TK_INT
+				return S_END;
+			}
+	}
+}
+
+scanner_state_t s_float_sci_lit(token_t token, int c) {
+	if (c >= '0' && c <= '9') {
+		if (charseq_push_back(token->value,c)) {
+			return S_FLOAT_SCI_LIT;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		ungetc(c,stdin);
+		token->type = TK_FLOAT_LIT; 
+		return S_END;
+	}
+}
+
+scanner_state_t s_float_lit(token_t token, int c) {
+	switch (c) {
+		case 'e':
+		case 'E':
+			if (charseq_push_back(token->value,c)) {
+					return S_FLOAT_EXP1;
+				} else {
+					token->type = TK_INTERNAL_ERROR;
+					return S_END;
+				}
+		default:
+			if (c >= '0' && c <= '9') {
+				if (charseq_push_back(token->value,c)) {
+					return S_FLOAT_LIT;
+				} else {
+					token->type = TK_INTERNAL_ERROR;
+					return S_END;
+				}
+			} else {
+				ungetc(c,stdin);
+				token->type = TK_FLOAT_LIT; 
+				return S_END;
+			}
+	}
+}
+
+scanner_state_t s_float_exp1(token_t token, int c) { //TODO:FIX
+	if (c >= '0' && c <= '9') {
+		if (charseq_push_back(token->value,c)) {
+			return S_FLOAT_SCI_LIT;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else if (c == '-' || c == '+') {
+		if (charseq_push_back(token->value,c)) {
+			return S_FLOAT_EXP2;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		token->type = TK_ERROR;
+		return S_END;
+	}
+}
+
+scanner_state_t s_float_exp2(token_t token, int c) {
+	if (c >= '0' && c <= '9') {
+		if (charseq_push_back(token->value,c)) {
+			return S_FLOAT_SCI_LIT;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		token->type = TK_ERROR;
+		return S_END;
+	}
+}
+
+scanner_state_t s_float_point(token_t token, int c) {
+	if (c >= '0' && c <= '9'){
+		if (charseq_push_back(token->value,c)) {
+			return S_FLOAT_LIT;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		token->type = TK_ERROR;
+		return S_END;
+	}
+}
+
+scanner_state_t s_hex_lit1(token_t token, int c){
+	if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')){
+		if (charseq_push_back(token->value,c)) {
+			return S_HEX_LIT2;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		token->type = TK_ERROR;
+		return S_END;
+	}
+}
+
+scanner_state_t s_hex_lit2(token_t token, int c){ //TODO: refactor when tested
+	if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')){
+		if (charseq_push_back(token->value,c)) {
+			return S_HEX_LIT2;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		ungetc(c,stdin);
+		token->type = TK_HEX_LIT; //TK_INT
+	}
+}
+
+scanner_state_t s_oct_lit1(token_t token, int c) {
+	if (c >= '0' && c <= '7'){
+		if (charseq_push_back(token->value,c)) {
+			return S_OCT_LIT2;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		token->type = TK_ERROR;
+		return S_END;
+	}
+}
+
+scanner_state_t s_oct_lit2(token_t token, int c) { //TODO: refactor when tested
+	if (c >= '0' && c <= '7'){
+		if (charseq_push_back(token->value,c)) {
+			return S_OCT_LIT2;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+			ungetc(c,stdin);
+			token->type = TK_OCT_LIT; //TK_INT
+			return S_END;
+	}
+}
+
+scanner_state_t s_bin_lit1(token_t token, int c) {
+	if (c == '0' || c == '1'){
+		if (charseq_push_back(token->value,c)) {
+			return S_BIN_LIT2;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		token->type = TK_ERROR;
+		return S_END;
+	}
+}
+
+scanner_state_t s_bin_lit2(token_t token, int c){ //TODO: refactor when tested
+	if (c == '0' || c == '1'){
+		if (charseq_push_back(token->value,c)) {
+			return S_BIN_LIT2;
+		} else {
+			token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		ungetc(c,stdin);
+		token->type = TK_BIN_LIT; //TK_INT
+		return S_END;
+	}
+}
+
+scanner_state_t s_identif(token_t token, int c){
+	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_')) { //oof
+		if (charseq_push_back(token->value,c)) {
+				return S_IDENTIF;
+			} else {
+				token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+	} else {
+		ungetc(c,stdin);
+		//TODO
+		//token->type = hash table magic 
+		return S_END;
+	}
+
+}
