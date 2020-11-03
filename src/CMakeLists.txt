@@ -1,3 +1,4 @@
+# V4-IFJ/src/CMakeLists.txt
 set(SOURCES
 	main.c
 	scanner.c

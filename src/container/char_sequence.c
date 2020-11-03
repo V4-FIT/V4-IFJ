@@ -19,6 +19,10 @@ struct CharSequence
  * @return true on success, false on allocation error
  */
 bool charseq_mayresize(charseq_t charseq) {
+  if (charseq == NULL) {
+		return false;
+	}
+  
 	if ((charseq->len + 1) == charseq->mem_size) {
 		size_t oldsize = charseq->mem_size;
 		charseq->mem_size *= GROWTH_FACTOR;
@@ -44,6 +48,7 @@ charseq_t charseq_init() {
 
 	charseq->data = calloc(INITIAL_ALLOC_SIZE, sizeof(char));
 	if (charseq->data == NULL) {
+		free(charseq);
 		return NULL;
 	}
 
@@ -70,15 +75,19 @@ char const *charseq_data(charseq_t charseq) {
 }
 
 void charseq_clear(charseq_t charseq) {
-	if (charseq == NULL) {
+	if (charseq == NULL || charseq->data == NULL) {
 		return;
 	}
 
-	memset(charseq->data,'\0',charseq->len);
+	memset(charseq->data, '\0', charseq->len);
 	charseq->len = 0;
 }
 
 void charseq_free(charseq_t charseq) {
+  if (charseq == NULL) {
+		return;
+	}
+  
 	if (charseq->data != NULL) {
 		free(charseq->data);
 	}
