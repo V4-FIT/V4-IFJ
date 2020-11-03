@@ -69,6 +69,10 @@ char const *charseq_data(charseq_t charseq) {
 	return charseq->data;
 }
 
+void charseq_clear(charseq_t charseq) {
+	memset(charseq->data,'\0',charseq->len);
+}
+
 void charseq_free(charseq_t charseq) {
 	if (charseq->data != NULL) {
 		free(charseq->data);
