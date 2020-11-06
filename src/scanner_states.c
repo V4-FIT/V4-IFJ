@@ -385,8 +385,13 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 		case 'x':
 		case 'X':
 			return S_HEX_LIT2;
-		case 'e': //TODO: check if 0e123 is valid
+		case 'e':
 		case 'E':
+			// prepend a zero to be a valid float 0e123
+			if (!charseq_push_back(scanner->charseq, '0')) {
+				scanner->token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
 			if (charseq_push_back(scanner->charseq, c)) {
 				return S_FLOAT_EXP1;
 			} else {
@@ -450,8 +455,11 @@ scanner_state_t s_float_sci_lit(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, stdin);
 		scanner->token->type = TK_FLOAT_LIT;
-		// TODO: Convert to 64 bit float from scientific notation
-		scanner->token->param.c = charseq_data(scanner->charseq);
+		char *endptr;
+		scanner->token->param.f = strtod(charseq_data(scanner->charseq), &endptr);
+		if (*endptr != '\0') {
+			scanner->token->type = TK_INTERNAL_ERROR;
+		}
 		return S_END;
 	}
 }
@@ -477,8 +485,11 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 			} else {
 				ungetc(c, stdin);
 				scanner->token->type = TK_FLOAT_LIT;
-				// TODO: Convert to 64 bit float
-				scanner->token->param.c = charseq_data(scanner->charseq);
+				char *endptr;
+				scanner->token->param.f = strtod(charseq_data(scanner->charseq), &endptr);
+				if (*endptr != '\0') {
+					scanner->token->type = TK_INTERNAL_ERROR;
+				}
 				return S_END;
 			}
 	}

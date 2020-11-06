@@ -35,7 +35,6 @@ void scanner_retrieve_token(scanner_t scanner, token_t token) {
 		state = state_map[state](scanner, getc(stdin));
 	}
 
-	// TODO: Conversion functions -> call from final states
 	// TODO: Add keyword table - Kevin
 }
 
