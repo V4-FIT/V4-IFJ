@@ -6,7 +6,8 @@
 
 // TODO: Underscores for numbers
 
-struct Scanner {
+struct Scanner
+{
 	charseq_t charseq;
 	token_t token;
 };
@@ -108,14 +109,14 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 			return S_STR_LIT;
 
 		case '0':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_ZERO;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
 				return S_END;
-			}		
+			}
 		case '_':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_UNDERSCORE;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
@@ -123,7 +124,7 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 			}
 
 		default:
-			if (isalpha(c)){
+			if (isalpha(c)) {
 				return S_IDENTIF;
 			}
 			if (isdigit(c)) { //special case for 0 handled above
@@ -251,7 +252,7 @@ scanner_state_t s_sl_comment(scanner_t scanner, int c) {
 	switch (c) {
 		case EOF:
 		case '\n':
-			ungetc(c, stdin); 
+			ungetc(c, stdin);
 			return S_START;
 		default:
 			return S_SL_COMMENT;
@@ -285,11 +286,11 @@ scanner_state_t s_ml_comment2(scanner_t scanner, int c) {
 scanner_state_t s_str_lit(scanner_t scanner, int c) {
 	switch (c) {
 		case '\\':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_ESCAPE_SEQ;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
-				return S_END;	
+				return S_END;
 			}
 		case '\"':
 			scanner->token->type = TK_STR_LIT;
@@ -299,7 +300,7 @@ scanner_state_t s_str_lit(scanner_t scanner, int c) {
 			if (c < ' ') { //includes all unprintables, EOL and EOF
 				scanner->token->type = TK_ERROR;
 				return S_END;
-			} else if (charseq_push_back(scanner->charseq,c)) {
+			} else if (charseq_push_back(scanner->charseq, c)) {
 				return S_STR_LIT;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
@@ -307,20 +308,21 @@ scanner_state_t s_str_lit(scanner_t scanner, int c) {
 			}
 	}
 }
+
 scanner_state_t s_escape_seq(scanner_t scanner, int c) {
 	switch (c) {
 		case 'n':
 		case 't':
 		case '\\':
 		case '\"':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_STR_LIT;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
 		case 'x':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_HEX1;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
@@ -333,8 +335,8 @@ scanner_state_t s_escape_seq(scanner_t scanner, int c) {
 }
 
 scanner_state_t s_hex1(scanner_t scanner, int c) {
-	if (isxdigit(c)){
-		if (charseq_push_back(scanner->charseq,c)) {
+	if (isxdigit(c)) {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_HEX2;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
@@ -345,24 +347,26 @@ scanner_state_t s_hex1(scanner_t scanner, int c) {
 		return S_END;
 	}
 }
+
 scanner_state_t s_hex2(scanner_t scanner, int c) {
-	scanner_state_t return_val = s_hex1(scanner,c); //only difference is in return value so we use logic from s_hex1
-	if (return_val == S_HEX2){
+	scanner_state_t return_val = s_hex1(scanner, c); //only difference is in return value so we use logic from s_hex1
+	if (return_val == S_HEX2) {
 		return S_STR_LIT;
 	} else {
 		return return_val;
 	}
 }
+
 scanner_state_t s_underscore(scanner_t scanner, int c) {
-	if (isalnum(c) || (c == '_')) { 
-		if (charseq_push_back(scanner->charseq,c)) {
+	if (isalnum(c) || (c == '_')) {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_IDENTIF;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		ungetc(c,stdin);
+		ungetc(c, stdin);
 		scanner->token->type = TK_UNDERSCORE;
 		return S_END;
 	}
@@ -371,7 +375,7 @@ scanner_state_t s_underscore(scanner_t scanner, int c) {
 scanner_state_t s_zero(scanner_t scanner, int c) {
 	switch (c) {
 		case '.':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_FLOAT_POINT;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
@@ -379,7 +383,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 			}
 		case 'b':
 		case 'B':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_BIN_LIT1;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
@@ -387,7 +391,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 			}
 		case 'o':
 		case 'O':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_OCT_LIT1;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
@@ -395,7 +399,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 			}
 		case 'x':
 		case 'X':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_HEX_LIT2;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
@@ -403,7 +407,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 			}
 		case 'e': //TODO: check if 0e123 is valid
 		case 'E':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_FLOAT_EXP1;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
@@ -413,10 +417,10 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 			scanner->token->type = TK_ERROR;
 			return S_END;
 		default:
-			if (isdigit(c)){
+			if (isdigit(c)) {
 				return S_DEC_LIT;
 			} else {
-				ungetc(c,stdin);
+				ungetc(c, stdin);
 				scanner->token->type = TK_ZERO; //TK_INT
 				return S_END;
 			}
@@ -426,7 +430,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 	switch (c) {
 		case '.':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_FLOAT_POINT;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
@@ -434,17 +438,17 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 			}
 		case 'e':
 		case 'E':
-			if (charseq_push_back(scanner->charseq,c)) {
+			if (charseq_push_back(scanner->charseq, c)) {
 				return S_FLOAT_EXP1;
 			} else {
 				scanner->token->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
 		default:
-			if (isdigit(c)){
+			if (isdigit(c)) {
 				return S_DEC_LIT;
 			} else {
-				ungetc(c,stdin);
+				ungetc(c, stdin);
 				scanner->token->type = TK_DEC_LIT; //TK_INT
 				return S_END;
 			}
@@ -453,14 +457,14 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 
 scanner_state_t s_float_sci_lit(scanner_t scanner, int c) {
 	if (isdigit(c)) {
-		if (charseq_push_back(scanner->charseq,c)) {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		ungetc(c,stdin);
+		ungetc(c, stdin);
 		scanner->token->type = TK_FLOAT_SCI_LIT;
 		return S_END;
 	}
@@ -470,22 +474,22 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 	switch (c) {
 		case 'e':
 		case 'E':
-			if (charseq_push_back(scanner->charseq,c)) {
-					return S_FLOAT_EXP1;
-				} else {
-					scanner->token->type = TK_INTERNAL_ERROR;
-					return S_END;
-				}
+			if (charseq_push_back(scanner->charseq, c)) {
+				return S_FLOAT_EXP1;
+			} else {
+				scanner->token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
 		default:
 			if (isdigit(c)) {
-				if (charseq_push_back(scanner->charseq,c)) {
+				if (charseq_push_back(scanner->charseq, c)) {
 					return S_FLOAT_LIT;
 				} else {
 					scanner->token->type = TK_INTERNAL_ERROR;
 					return S_END;
 				}
 			} else {
-				ungetc(c,stdin);
+				ungetc(c, stdin);
 				scanner->token->type = TK_FLOAT_LIT;
 				return S_END;
 			}
@@ -494,14 +498,14 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 
 scanner_state_t s_float_exp1(scanner_t scanner, int c) {
 	if (isdigit(c)) {
-		if (charseq_push_back(scanner->charseq,c)) {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else if (c == '-' || c == '+') {
-		if (charseq_push_back(scanner->charseq,c)) {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_FLOAT_EXP2;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
@@ -515,7 +519,7 @@ scanner_state_t s_float_exp1(scanner_t scanner, int c) {
 
 scanner_state_t s_float_exp2(scanner_t scanner, int c) {
 	if (isdigit(c)) {
-		if (charseq_push_back(scanner->charseq,c)) {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
@@ -528,8 +532,8 @@ scanner_state_t s_float_exp2(scanner_t scanner, int c) {
 }
 
 scanner_state_t s_float_point(scanner_t scanner, int c) {
-	if (isdigit(c)){
-		if (charseq_push_back(scanner->charseq,c)) {
+	if (isdigit(c)) {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_FLOAT_LIT;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
@@ -541,9 +545,9 @@ scanner_state_t s_float_point(scanner_t scanner, int c) {
 	}
 }
 
-scanner_state_t s_hex_lit1(scanner_t scanner, int c){
-	if (isxdigit(c)){
-		if (charseq_push_back(scanner->charseq,c)) {
+scanner_state_t s_hex_lit1(scanner_t scanner, int c) {
+	if (isxdigit(c)) {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_HEX_LIT2;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
@@ -555,24 +559,24 @@ scanner_state_t s_hex_lit1(scanner_t scanner, int c){
 	}
 }
 
-scanner_state_t s_hex_lit2(scanner_t scanner, int c){ //TODO: refactor when tested
-	if (isxdigit(c)){
-		if (charseq_push_back(scanner->charseq,c)) {
+scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tested
+	if (isxdigit(c)) {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_HEX_LIT2;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		ungetc(c,stdin);
+		ungetc(c, stdin);
 		scanner->token->type = TK_HEX_LIT; //TK_INT
 		return S_END;
 	}
 }
 
 scanner_state_t s_oct_lit1(scanner_t scanner, int c) {
-	if (c >= '0' && c <= '7'){
-		if (charseq_push_back(scanner->charseq,c)) {
+	if (c >= '0' && c <= '7') {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_OCT_LIT2;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
@@ -585,23 +589,23 @@ scanner_state_t s_oct_lit1(scanner_t scanner, int c) {
 }
 
 scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tested
-	if (c >= '0' && c <= '7'){
-		if (charseq_push_back(scanner->charseq,c)) {
+	if (c >= '0' && c <= '7') {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_OCT_LIT2;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-			ungetc(c,stdin);
-			scanner->token->type = TK_OCT_LIT; //TK_INT
-			return S_END;
+		ungetc(c, stdin);
+		scanner->token->type = TK_OCT_LIT; //TK_INT
+		return S_END;
 	}
 }
 
 scanner_state_t s_bin_lit1(scanner_t scanner, int c) {
-	if (c == '0' || c == '1'){
-		if (charseq_push_back(scanner->charseq,c)) {
+	if (c == '0' || c == '1') {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_BIN_LIT2;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
@@ -613,31 +617,31 @@ scanner_state_t s_bin_lit1(scanner_t scanner, int c) {
 	}
 }
 
-scanner_state_t s_bin_lit2(scanner_t scanner, int c){ //TODO: refactor when tested
-	if (c == '0' || c == '1'){
-		if (charseq_push_back(scanner->charseq,c)) {
+scanner_state_t s_bin_lit2(scanner_t scanner, int c) { //TODO: refactor when tested
+	if (c == '0' || c == '1') {
+		if (charseq_push_back(scanner->charseq, c)) {
 			return S_BIN_LIT2;
 		} else {
 			scanner->token->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		ungetc(c,stdin);
+		ungetc(c, stdin);
 		scanner->token->type = TK_BIN_LIT; //TK_INT
 		return S_END;
 	}
 }
 
-scanner_state_t s_identif(scanner_t scanner, int c){
+scanner_state_t s_identif(scanner_t scanner, int c) {
 	if (isalnum(c) || (c == '_')) {
-		if (charseq_push_back(scanner->charseq,c)) {
-				return S_IDENTIF;
-			} else {
-				scanner->token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+		if (charseq_push_back(scanner->charseq, c)) {
+			return S_IDENTIF;
+		} else {
+			scanner->token->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
 	} else {
-		ungetc(c,stdin);
+		ungetc(c, stdin);
 		//TODO
 		//scanner->token->type = hash table magic
 		return S_END;

@@ -4,7 +4,8 @@
 #include "scanner_states.h"
 #include "char_sequence.h"
 
-struct Scanner {
+struct Scanner
+{
 	charseq_t charseq;
 	token_t token;
 };
