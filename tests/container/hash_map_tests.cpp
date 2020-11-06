@@ -25,7 +25,6 @@ TEST(hash_map, initialization) {
 	EXPECT_EQ(hmap->size, 0);
 	EXPECT_EQ(hmap->value_size, 1);
 	EXPECT_EQ(hmap->bucket_count, 100);
-	ASSERT_NE(hmap->buckets, nullptr);
 	for (size_t i = 0; i < hmap->bucket_count; i++) {
 		EXPECT_EQ(hmap->buckets[i], nullptr);
 	}
