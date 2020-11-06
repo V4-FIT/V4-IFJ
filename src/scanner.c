@@ -4,12 +4,30 @@
 #include "scanner_states.h"
 #include "char_sequence.h"
 
+// Private
+
 struct Scanner
 {
 	charseq_t charseq;
 	token_t token; // used for referencing the current token between states
 	char buf_escape[ESCAPE_SEQUENCE_BUFFER_SIZE];
 };
+
+// Private (kinda) -> [not static] used only in scanner_states.c without public interface
+
+token_t get_tok(scanner_t scanner) {
+	return scanner->token;
+}
+
+charseq_t get_charseq(scanner_t scanner) {
+	return scanner->charseq;
+}
+
+char *get_buf_escape(scanner_t scanner) {
+	return scanner->buf_escape;
+}
+
+// Public
 
 scanner_t scanner_init() {
 	scanner_t scanner = calloc(1, sizeof(struct Scanner));
