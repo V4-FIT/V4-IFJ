@@ -107,14 +107,9 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 			return S_SLASH;
 		case '\"':
 			return S_STR_LIT;
-
 		case '0':
-			if (charseq_push_back(scanner->charseq, c)) {
-				return S_ZERO;
-			} else {
-				scanner->token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+			return S_ZERO;
+
 		case '_':
 			if (charseq_push_back(scanner->charseq, c)) {
 				return S_UNDERSCORE;
@@ -383,28 +378,13 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 			}
 		case 'b':
 		case 'B':
-			if (charseq_push_back(scanner->charseq, c)) {
-				return S_BIN_LIT1;
-			} else {
-				scanner->token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+			return S_BIN_LIT1;
 		case 'o':
 		case 'O':
-			if (charseq_push_back(scanner->charseq, c)) {
-				return S_OCT_LIT1;
-			} else {
-				scanner->token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+			return S_OCT_LIT1;
 		case 'x':
 		case 'X':
-			if (charseq_push_back(scanner->charseq, c)) {
-				return S_HEX_LIT2;
-			} else {
-				scanner->token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+			return S_HEX_LIT2;
 		case 'e': //TODO: check if 0e123 is valid
 		case 'E':
 			if (charseq_push_back(scanner->charseq, c)) {
@@ -419,8 +399,8 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 				return S_END;
 			} else {
 				ungetc(c, stdin);
-				scanner->token->type = TK_DEC_LIT; //TK_INT
-				scanner->token->param.d = 0;
+				scanner->token->type = TK_INT_LIT;
+				scanner->token->param.i = 0;
 				return S_END;
 			}
 	}
@@ -448,9 +428,12 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 				return S_DEC_LIT;
 			} else {
 				ungetc(c, stdin);
-				scanner->token->type = TK_DEC_LIT; //TK_INT
-				// TODO: Convert to 64 bit signed int
-				scanner->token->param.c = charseq_data(scanner->charseq);
+				scanner->token->type = TK_INT_LIT;
+				char *endptr;
+				scanner->token->param.i = (int64_t)strtoll(charseq_data(scanner->charseq), &endptr, 10);
+				if (*endptr != '\0') {
+					scanner->token->type = TK_INTERNAL_ERROR;
+				}
 				return S_END;
 			}
 	}
@@ -574,9 +557,12 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		}
 	} else {
 		ungetc(c, stdin);
-		scanner->token->type = TK_DEC_LIT; //TK_INT
-		// TODO: Convert to 64 bit signed int with base 16
-		scanner->token->param.c = charseq_data(scanner->charseq);
+		scanner->token->type = TK_INT_LIT;
+		char *endptr;
+		scanner->token->param.i = (int64_t)strtoll(charseq_data(scanner->charseq), &endptr, 16);
+		if (*endptr != '\0') {
+			scanner->token->type = TK_INTERNAL_ERROR;
+		}
 		return S_END;
 	}
 }
@@ -605,9 +591,12 @@ scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		}
 	} else {
 		ungetc(c, stdin);
-		scanner->token->type = TK_DEC_LIT; //TK_INT
-		// TODO: Convert to 64 bit signed int with base 8
-		scanner->token->param.c = charseq_data(scanner->charseq);
+		scanner->token->type = TK_INT_LIT;
+		char *endptr;
+		scanner->token->param.i = (int64_t)strtoll(charseq_data(scanner->charseq), &endptr, 8);
+		if (*endptr != '\0') {
+			scanner->token->type = TK_INTERNAL_ERROR;
+		}
 		return S_END;
 	}
 }
@@ -636,9 +625,12 @@ scanner_state_t s_bin_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		}
 	} else {
 		ungetc(c, stdin);
-		scanner->token->type = TK_DEC_LIT; //TK_INT
-		// TODO: Convert to 64 bit signed int with base 2
-		scanner->token->param.c = charseq_data(scanner->charseq);
+		scanner->token->type = TK_INT_LIT;
+		char *endptr;
+		scanner->token->param.i = (int64_t)strtoll(charseq_data(scanner->charseq), &endptr, 2);
+		if (*endptr != '\0') {
+			scanner->token->type = TK_INTERNAL_ERROR;
+		}
 		return S_END;
 	}
 }

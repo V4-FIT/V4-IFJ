@@ -36,7 +36,7 @@ typedef enum
 	TK_TIMES,
 	TK_SLASH,
 	TK_DIVIDE,
-	TK_DEC_LIT,
+	TK_INT_LIT,
 	TK_FLOAT_LIT,
 	TK_UNDERSCORE,
 	//keywords:
@@ -62,7 +62,7 @@ typedef struct Token
 	token_type_t type;
 	union TokenParam {
 		const char *c;
-		int64_t d;
+		int64_t i;
 		double f;
 	} param;
 } *token_t;

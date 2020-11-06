@@ -36,7 +36,6 @@ void scanner_retrieve_token(scanner_t scanner, token_t token) {
 	}
 
 	// TODO: Conversion functions -> call from final states
-	// TODO: Generalize tokens to int and float
 	// TODO: Add keyword table - Kevin
 }
 
