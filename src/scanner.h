@@ -9,6 +9,7 @@ typedef struct Scanner *scanner_t;
 
 /**
  * Initialises the scanner
+ * @param stream file stream to scan from
  * @return the initialized scanner or NULL on error
  */
 scanner_t scanner_init(FILE *stream);
