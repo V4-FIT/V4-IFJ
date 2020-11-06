@@ -122,6 +122,10 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 				return S_IDENTIF;
 			}
 			if (isdigit(c)) { //special case for 0 handled above
+				if (!charseq_push_back(get_charseq(scanner), c)) {
+					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					return S_END;
+				}
 				return S_DEC_LIT;
 			}
 			get_tok(scanner)->type = TK_ERROR;
@@ -428,6 +432,10 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 			}
 		default:
 			if (isdigit(c)) {
+				if (!charseq_push_back(get_charseq(scanner), c)) {
+					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					return S_END;
+				}
 				return S_DEC_LIT;
 			} else {
 				ungetc(c, stdin);
