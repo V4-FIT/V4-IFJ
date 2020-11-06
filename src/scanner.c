@@ -7,7 +7,7 @@
 struct Scanner
 {
 	charseq_t charseq;
-	token_t token;
+	token_t token; // used for referencing the current token between states
 };
 
 scanner_t scanner_init() {
