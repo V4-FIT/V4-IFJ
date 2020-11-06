@@ -65,7 +65,11 @@ typedef enum
 typedef struct Token
 {
 	token_type_t type;
-	charseq_t value;
+	union TokenParam {
+		char *c;
+		int d;
+		double f;
+	} param;
 } *token_t;
 
 
