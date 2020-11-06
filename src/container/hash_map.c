@@ -26,7 +26,7 @@ struct hmap_item
 };
 
 // 32-bit FNV-1a hashing algorithm
-uint32_t hmap_hash(hmap_key_t key) {
+static uint32_t hmap_hash(hmap_key_t key) {
 	uint32_t hash = FNV_BASE;
 	for (const uint8_t *p = (const uint8_t *)key; *p != '\0'; p++) {
 		hash ^= *p;
@@ -36,12 +36,12 @@ uint32_t hmap_hash(hmap_key_t key) {
 }
 
 // return true if keys are equal
-bool hmap_key_eq(hmap_key_t lhs, hmap_key_t rhs) {
+static bool hmap_key_eq(hmap_key_t lhs, hmap_key_t rhs) {
 	return !strcmp(lhs, rhs);
 }
 
 // return an allocated item or NULL if allocation fails
-hmap_item_t hmap_item_init(hmap_key_t key, size_t value_size) {
+static hmap_item_t hmap_item_init(hmap_key_t key, size_t value_size) {
 	assert(key);
 	hmap_item_t item = malloc(sizeof(struct hmap_item));
 	if (item == NULL) {

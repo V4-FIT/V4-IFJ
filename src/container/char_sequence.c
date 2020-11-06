@@ -18,11 +18,11 @@ struct CharSequence
  * @param charseq the char sequence to be resized
  * @return true on success, false on allocation error
  */
-bool charseq_mayresize(charseq_t charseq) {
-  if (charseq == NULL) {
+static bool charseq_mayresize(charseq_t charseq) {
+	if (charseq == NULL) {
 		return false;
 	}
-  
+
 	if ((charseq->len + 1) == charseq->mem_size) {
 		size_t oldsize = charseq->mem_size;
 		charseq->mem_size *= GROWTH_FACTOR;
@@ -84,10 +84,10 @@ void charseq_clear(charseq_t charseq) {
 }
 
 void charseq_free(charseq_t charseq) {
-  if (charseq == NULL) {
+	if (charseq == NULL) {
 		return;
 	}
-  
+
 	if (charseq->data != NULL) {
 		free(charseq->data);
 	}
