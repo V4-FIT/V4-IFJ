@@ -8,6 +8,7 @@ struct Scanner
 {
 	charseq_t charseq;
 	token_t token; // used for referencing the current token between states
+	char buf_escape[ESCAPE_SEQUENCE_BUFFER_SIZE];
 };
 
 scanner_t scanner_init() {

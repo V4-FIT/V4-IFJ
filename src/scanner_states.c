@@ -10,6 +10,7 @@ struct Scanner
 {
 	charseq_t charseq;
 	token_t token;
+	char buf_escape[ESCAPE_SEQUENCE_BUFFER_SIZE];
 };
 
 state_fun_ptr_t state_map[] = {
@@ -281,12 +282,7 @@ scanner_state_t s_ml_comment2(scanner_t scanner, int c) {
 scanner_state_t s_str_lit(scanner_t scanner, int c) {
 	switch (c) {
 		case '\\':
-			if (charseq_push_back(scanner->charseq, c)) {
-				return S_ESCAPE_SEQ;
-			} else {
-				scanner->token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+			return S_ESCAPE_SEQ;
 		case '\"':
 			scanner->token->type = TK_STR_LIT;
 			scanner->token->param.c = charseq_data(scanner->charseq);
@@ -310,6 +306,11 @@ scanner_state_t s_escape_seq(scanner_t scanner, int c) {
 		case 't':
 		case '\\':
 		case '\"':
+			// add backslash to make these escape sequences valid
+			if (!charseq_push_back(scanner->charseq, '\\')) {
+				scanner->token->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
 			if (charseq_push_back(scanner->charseq, c)) {
 				return S_STR_LIT;
 			} else {
@@ -317,12 +318,7 @@ scanner_state_t s_escape_seq(scanner_t scanner, int c) {
 				return S_END;
 			}
 		case 'x':
-			if (charseq_push_back(scanner->charseq, c)) {
-				return S_HEX1;
-			} else {
-				scanner->token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+			return S_HEX1;
 		default:
 			scanner->token->type = TK_ERROR;
 			return S_END;
@@ -331,12 +327,8 @@ scanner_state_t s_escape_seq(scanner_t scanner, int c) {
 
 scanner_state_t s_hex1(scanner_t scanner, int c) {
 	if (isxdigit(c)) {
-		if (charseq_push_back(scanner->charseq, c)) {
-			return S_HEX2;
-		} else {
-			scanner->token->type = TK_INTERNAL_ERROR;
-			return S_END;
-		}
+		scanner->buf_escape[0] = (char)c;
+		return S_HEX2;
 	} else {
 		scanner->token->type = TK_ERROR;
 		return S_END;
@@ -344,12 +336,20 @@ scanner_state_t s_hex1(scanner_t scanner, int c) {
 }
 
 scanner_state_t s_hex2(scanner_t scanner, int c) {
-	scanner_state_t return_val = s_hex1(scanner, c); //only difference is in return value so we use logic from s_hex1
-	if (return_val == S_HEX2) {
-		return S_STR_LIT;
+	if (isxdigit(c)) {
+		scanner->buf_escape[1] = (char)c;
 	} else {
-		return return_val;
+		scanner->token->type = TK_ERROR;
+		return S_END;
 	}
+
+	char subst = (char)strtol(scanner->buf_escape, NULL, 16);
+	if (!charseq_push_back(scanner->charseq, subst)) {
+		scanner->token->type = TK_INTERNAL_ERROR;
+		return S_END;
+	}
+
+	return S_STR_LIT;
 }
 
 scanner_state_t s_underscore(scanner_t scanner, int c) {

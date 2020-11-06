@@ -3,6 +3,8 @@
 
 #include "tokens.h"
 
+#define ESCAPE_SEQUENCE_BUFFER_SIZE 3
+
 typedef struct Scanner *scanner_t;
 
 /**
