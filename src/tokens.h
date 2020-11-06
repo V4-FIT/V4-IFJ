@@ -66,7 +66,7 @@ typedef struct Token
 {
 	token_type_t type;
 	union TokenParam {
-		char *c;
+		const char *c;
 		int d;
 		double f;
 	} param;

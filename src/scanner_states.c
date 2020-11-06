@@ -294,7 +294,7 @@ scanner_state_t s_str_lit(scanner_t scanner, int c) {
 			}
 		case '\"':
 			scanner->token->type = TK_STR_LIT;
-			scanner->charseq = NULL;
+			scanner->token->param.c = charseq_data(scanner->charseq);
 			return S_END;
 		default:
 			if (c < ' ') { //includes all unprintables, EOL and EOF
@@ -413,12 +413,10 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 				scanner->token->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
-		case '0':
-			scanner->token->type = TK_ERROR;
-			return S_END;
 		default:
 			if (isdigit(c)) {
-				return S_DEC_LIT;
+				scanner->token->type = TK_ERROR;
+				return S_END;
 			} else {
 				ungetc(c, stdin);
 				scanner->token->type = TK_ZERO; //TK_INT
@@ -642,8 +640,8 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 		}
 	} else {
 		ungetc(c, stdin);
-		//TODO
-		//scanner->token->type = hash table magic
+		// TODO
+		// scanner->token->param->somenewtypeprobably = hash table magic
 		return S_END;
 	}
 

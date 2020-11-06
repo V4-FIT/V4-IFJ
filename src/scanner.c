@@ -36,8 +36,6 @@ void scanner_retrieve_token(scanner_t scanner, token_t token) {
 	}
 
 	// TODO: Conversion functions -> call from final states
-	// TODO: Transform scanner to object
-	// TODO: Change token->value to uion which contains {int, double, char*}
 	// TODO: Generalize tokens to int and float
 	// TODO: Add keyword table - Kevin
 }
