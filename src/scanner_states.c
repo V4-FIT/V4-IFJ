@@ -6,6 +6,11 @@
 
 // TODO: Underscores for numbers
 
+// defined in scanner.c
+token_t get_tok(scanner_t scanner);
+charseq_t get_charseq(scanner_t scanner);
+char *get_buf_escape(scanner_t scanner);
+
 state_fun_ptr_t state_map[] = {
 		[S_START] = &s_start,
 		[S_PIPE] = &s_pipe,
@@ -43,7 +48,7 @@ state_fun_ptr_t state_map[] = {
 		[S_IDENTIF] = &s_identif
 };
 
-scanner_state_t s_start(token_t token, int c) {
+scanner_state_t s_start(scanner_t scanner, int c) {
 	switch (c) {
 		// whitespace skip
 		case ' ':
@@ -52,28 +57,28 @@ scanner_state_t s_start(token_t token, int c) {
 
 		// end cases
 		case '\n':
-			token->type = TK_EOL;
+			get_tok(scanner)->type = TK_EOL;
 			return S_END;
 		case ')':
-			token->type = TK_R_PARANTHESIS;
+			get_tok(scanner)->type = TK_R_PARANTHESIS;
 			return S_END;
 		case '(':
-			token->type = TK_L_PARANTHESIS;
+			get_tok(scanner)->type = TK_L_PARANTHESIS;
 			return S_END;
 		case EOF:
-			token->type = TK_EOF;
+			get_tok(scanner)->type = TK_EOF;
 			return S_END;
 		case ',':
-			token->type = TK_SEPARATOR;
+			get_tok(scanner)->type = TK_SEPARATOR;
 			return S_END;
 		case ';':
-			token->type = TK_SEMICOLON;
+			get_tok(scanner)->type = TK_SEMICOLON;
 			return S_END;
 		case '}':
-			token->type = TK_R_CURLY;
+			get_tok(scanner)->type = TK_R_CURLY;
 			return S_END;
 		case '{':
-			token->type = TK_L_CURLY;
+			get_tok(scanner)->type = TK_L_CURLY;
 			return S_END;
 
 		// intermediate cases
@@ -101,161 +106,160 @@ scanner_state_t s_start(token_t token, int c) {
 			return S_SLASH;
 		case '\"':
 			return S_STR_LIT;
-
 		case '0':
-			if (charseq_push_back(token->value,c)) {
-				return S_ZERO;
-			} else {
-				token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}		
+			return S_ZERO;
+
 		case '_':
-			if (charseq_push_back(token->value,c)) {
+			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_UNDERSCORE;
 			} else {
-				token->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
 
 		default:
-			if (isalpha(c)){
+			if (isalpha(c)) {
 				return S_IDENTIF;
 			}
 			if (isdigit(c)) { //special case for 0 handled above
+				if (!charseq_push_back(get_charseq(scanner), c)) {
+					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					return S_END;
+				}
 				return S_DEC_LIT;
 			}
-			token->type = TK_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
 			return S_END;
 	}
 }
 
-scanner_state_t s_pipe(token_t token, int c) {
+scanner_state_t s_pipe(scanner_t scanner, int c) {
 	if (c == '|') {
-		token->type = TK_OR;
+		get_tok(scanner)->type = TK_OR;
 	} else {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 	}
 	return S_END;
 }
 
-scanner_state_t s_ampersand(token_t token, int c) {
+scanner_state_t s_ampersand(scanner_t scanner, int c) {
 	if (c == '&') {
-		token->type = TK_AND;
+		get_tok(scanner)->type = TK_AND;
 	} else {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 	}
 	return S_END;
 }
 
-scanner_state_t s_colon(token_t token, int c) {
+scanner_state_t s_colon(scanner_t scanner, int c) {
 	if (c == '=') {
-		token->type = TK_VAR_INNIT;
+		get_tok(scanner)->type = TK_VAR_INNIT;
 	} else {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 	}
 	return S_END;
 }
 
-scanner_state_t s_assign(token_t token, int c) {
+scanner_state_t s_assign(scanner_t scanner, int c) {
 	if (c == '=') {
-		token->type = TK_EQUAL;
+		get_tok(scanner)->type = TK_EQUAL;
 	} else {
-		token->type = TK_ASSIGN;
+		get_tok(scanner)->type = TK_ASSIGN;
 		ungetc(c, stdin);
 	}
 	return S_END;
 }
 
-scanner_state_t s_less(token_t token, int c) {
+scanner_state_t s_less(scanner_t scanner, int c) {
 	if (c == '=') {
-		token->type = TK_LESS_EQUAL;
+		get_tok(scanner)->type = TK_LESS_EQUAL;
 	} else {
-		token->type = TK_LESS;
+		get_tok(scanner)->type = TK_LESS;
 		ungetc(c, stdin);
 	}
 	return S_END;
 }
 
-scanner_state_t s_greater(token_t token, int c) {
+scanner_state_t s_greater(scanner_t scanner, int c) {
 	if (c == '=') {
-		token->type = TK_GREATER_EQUAL;
+		get_tok(scanner)->type = TK_GREATER_EQUAL;
 	} else {
-		token->type = TK_GREATER;
+		get_tok(scanner)->type = TK_GREATER;
 		ungetc(c, stdin);
 	}
 	return S_END;
 }
 
-scanner_state_t s_not(token_t token, int c) {
+scanner_state_t s_not(scanner_t scanner, int c) {
 	if (c == '=') {
-		token->type = TK_NOT_EQUAL;
+		get_tok(scanner)->type = TK_NOT_EQUAL;
 	} else {
-		token->type = TK_NOT;
+		get_tok(scanner)->type = TK_NOT;
 		ungetc(c, stdin);
 	}
 	return S_END;
 }
 
-scanner_state_t s_plus(token_t token, int c) {
+scanner_state_t s_plus(scanner_t scanner, int c) {
 	if (c == '=') {
-		token->type = TK_INC;
+		get_tok(scanner)->type = TK_INCREMENT;
 	} else {
-		token->type = TK_PLUS;
+		get_tok(scanner)->type = TK_PLUS;
 		ungetc(c, stdin);
 	}
 	return S_END;
 }
 
-scanner_state_t s_minus(token_t token, int c) {
+scanner_state_t s_minus(scanner_t scanner, int c) {
 	if (c == '=') {
-		token->type = TK_DEC;
+		get_tok(scanner)->type = TK_DECREMENT;
 	} else {
-		token->type = TK_MINUS;
+		get_tok(scanner)->type = TK_MINUS;
 		ungetc(c, stdin);
 	}
 	return S_END;
 }
 
-scanner_state_t s_star(token_t token, int c) {
+scanner_state_t s_star(scanner_t scanner, int c) {
 	if (c == '=') {
-		token->type = TK_TIMES;
+		get_tok(scanner)->type = TK_TIMES;
 	} else {
-		token->type = TK_STAR;
+		get_tok(scanner)->type = TK_STAR;
 		ungetc(c, stdin);
 	}
 	return S_END;
 }
 
-scanner_state_t s_slash(token_t token, int c) {
+scanner_state_t s_slash(scanner_t scanner, int c) {
 	switch (c) {
 		case '=':
-			token->type = TK_DIVIDE;
+			get_tok(scanner)->type = TK_DIVIDE;
 			return S_END;
 		case '/':
 			return S_SL_COMMENT;
 		case '*':
 			return S_ML_COMMENT1;
 		default:
-			token->type = TK_SLASH;
+			get_tok(scanner)->type = TK_SLASH;
 			ungetc(c, stdin);
 			return S_END;
 	}
 }
 
-scanner_state_t s_sl_comment(token_t token, int c) {
+scanner_state_t s_sl_comment(scanner_t scanner, int c) {
 	switch (c) {
 		case EOF:
 		case '\n':
-			ungetc(c, stdin); 
+			ungetc(c, stdin);
 			return S_START;
 		default:
 			return S_SL_COMMENT;
 	}
 }
 
-scanner_state_t s_ml_comment1(token_t token, int c) {
+scanner_state_t s_ml_comment1(scanner_t scanner, int c) {
 	if (c == EOF) {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 		return S_END;
 	} else if (c == '*') {
 		return S_ML_COMMENT2;
@@ -263,9 +267,9 @@ scanner_state_t s_ml_comment1(token_t token, int c) {
 	return S_ML_COMMENT1;
 }
 
-scanner_state_t s_ml_comment2(token_t token, int c) {
+scanner_state_t s_ml_comment2(scanner_t scanner, int c) {
 	if (c == EOF) {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 		return S_END;
 	} else if (c == '*') {
 		return S_ML_COMMENT2;
@@ -277,364 +281,389 @@ scanner_state_t s_ml_comment2(token_t token, int c) {
 	}
 }
 
-scanner_state_t s_str_lit(token_t token, int c) {
+scanner_state_t s_str_lit(scanner_t scanner, int c) {
 	switch (c) {
 		case '\\':
-			if (charseq_push_back(token->value,c)) {
-				return S_ESCAPE_SEQ;
-			} else {
-				token->type = TK_INTERNAL_ERROR;
-				return S_END;	
-			}
+			return S_ESCAPE_SEQ;
 		case '\"':
-			token->type = TK_STR_LIT;
-			token->value = NULL;
+			get_tok(scanner)->type = TK_STR_LIT;
+			get_tok(scanner)->param.c = charseq_data(get_charseq(scanner));
 			return S_END;
 		default:
 			if (c < ' ') { //includes all unprintables, EOL and EOF
-				token->type = TK_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
 				return S_END;
-			} else if (charseq_push_back(token->value,c)) {
+			} else if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_STR_LIT;
 			} else {
-				token->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
 	}
 }
-scanner_state_t s_escape_seq(token_t token, int c) {
+
+scanner_state_t s_escape_seq(scanner_t scanner, int c) {
 	switch (c) {
 		case 'n':
 		case 't':
 		case '\\':
 		case '\"':
-			if (charseq_push_back(token->value,c)) {
+			// add backslash to make these escape sequences valid
+			if (!charseq_push_back(get_charseq(scanner), '\\')) {
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_STR_LIT;
 			} else {
-				token->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
 		case 'x':
-			if (charseq_push_back(token->value,c)) {
-				return S_HEX1;
-			} else {
-				token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+			return S_HEX1;
 		default:
-			token->type = TK_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
 			return S_END;
 	}
 }
 
-scanner_state_t s_hex1(token_t token, int c) {
-	if (isxdigit(c)){
-		if (charseq_push_back(token->value,c)) {
-			return S_HEX2;
-		} else {
-			token->type = TK_INTERNAL_ERROR;
-			return S_END;
-		}
+scanner_state_t s_hex1(scanner_t scanner, int c) {
+	if (isxdigit(c)) {
+		get_buf_escape(scanner)[0] = (char)c;
+		return S_HEX2;
 	} else {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 		return S_END;
 	}
 }
-scanner_state_t s_hex2(token_t token, int c) {
-	scanner_state_t return_val = s_hex1(token,c); //only difference is in return value so we use logic from s_hex1
-	if (return_val == S_HEX2){
-		return S_STR_LIT;
+
+scanner_state_t s_hex2(scanner_t scanner, int c) {
+	if (isxdigit(c)) {
+		get_buf_escape(scanner)[1] = (char)c;
 	} else {
-		return return_val;
+		get_tok(scanner)->type = TK_ERROR;
+		return S_END;
 	}
+
+	char subst = (char)strtol(get_buf_escape(scanner), NULL, 16);
+	if (!charseq_push_back(get_charseq(scanner), subst)) {
+		get_tok(scanner)->type = TK_INTERNAL_ERROR;
+		return S_END;
+	}
+
+	return S_STR_LIT;
 }
-scanner_state_t s_underscore(token_t token, int c) {
-	if (isalnum(c) || (c == '_')) { 
-		if (charseq_push_back(token->value,c)) {
+
+scanner_state_t s_underscore(scanner_t scanner, int c) {
+	if (isalnum(c) || (c == '_')) {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_IDENTIF;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		ungetc(c,stdin);
-		token->type = TK_UNDERSCORE;
+		ungetc(c, stdin);
+		get_tok(scanner)->type = TK_UNDERSCORE;
 		return S_END;
 	}
 }
 
-scanner_state_t s_zero(token_t token, int c) {
+scanner_state_t s_zero(scanner_t scanner, int c) {
 	switch (c) {
 		case '.':
-			if (charseq_push_back(token->value,c)) {
+			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_FLOAT_POINT;
 			} else {
-				token->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
 		case 'b':
 		case 'B':
-			if (charseq_push_back(token->value,c)) {
-				return S_BIN_LIT1;
-			} else {
-				token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+			return S_BIN_LIT1;
 		case 'o':
 		case 'O':
-			if (charseq_push_back(token->value,c)) {
-				return S_OCT_LIT1;
-			} else {
-				token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+			return S_OCT_LIT1;
 		case 'x':
 		case 'X':
-			if (charseq_push_back(token->value,c)) {
-				return S_HEX_LIT2;
-			} else {
-				token->type = TK_INTERNAL_ERROR;
+			return S_HEX_LIT2;
+		case 'e':
+		case 'E':
+			// prepend a zero to be a valid float 0e123
+			if (!charseq_push_back(get_charseq(scanner), '0')) {
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
-		case 'e': //TODO: check if 0e123 is valid
-		case 'E':
-			if (charseq_push_back(token->value,c)) {
+			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_FLOAT_EXP1;
 			} else {
-				token->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
-		case '0':
-			token->type = TK_ERROR;
-			return S_END;
 		default:
-			if (isdigit(c)){
-				return S_DEC_LIT;
+			if (isdigit(c)) {
+				get_tok(scanner)->type = TK_ERROR;
+				return S_END;
 			} else {
-				ungetc(c,stdin);
-				token->type = TK_ZERO; //TK_INT
+				ungetc(c, stdin);
+				get_tok(scanner)->type = TK_INT_LIT;
+				get_tok(scanner)->param.i = 0;
 				return S_END;
 			}
 	}
 }
 
-scanner_state_t s_dec_lit(token_t token, int c) {
+scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 	switch (c) {
 		case '.':
-			if (charseq_push_back(token->value,c)) {
+			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_FLOAT_POINT;
 			} else {
-				token->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
 		case 'e':
 		case 'E':
-			if (charseq_push_back(token->value,c)) {
+			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_FLOAT_EXP1;
 			} else {
-				token->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
 		default:
-			if (isdigit(c)){
+			if (isdigit(c)) {
+				if (!charseq_push_back(get_charseq(scanner), c)) {
+					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					return S_END;
+				}
 				return S_DEC_LIT;
 			} else {
-				ungetc(c,stdin);
-				token->type = TK_DEC_LIT; //TK_INT
+				ungetc(c, stdin);
+				get_tok(scanner)->type = TK_INT_LIT;
+				char *endptr;
+				get_tok(scanner)->param.i = (int64_t)strtoll(charseq_data(get_charseq(scanner)), &endptr, 10);
+				if (*endptr != '\0') {
+					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				}
 				return S_END;
 			}
 	}
 }
 
-scanner_state_t s_float_sci_lit(token_t token, int c) {
+scanner_state_t s_float_sci_lit(scanner_t scanner, int c) {
 	if (isdigit(c)) {
-		if (charseq_push_back(token->value,c)) {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		ungetc(c,stdin);
-		token->type = TK_FLOAT_SCI_LIT;
+		ungetc(c, stdin);
+		get_tok(scanner)->type = TK_FLOAT_LIT;
+		char *endptr;
+		get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
+		if (*endptr != '\0') {
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+		}
 		return S_END;
 	}
 }
 
-scanner_state_t s_float_lit(token_t token, int c) {
+scanner_state_t s_float_lit(scanner_t scanner, int c) {
 	switch (c) {
 		case 'e':
 		case 'E':
-			if (charseq_push_back(token->value,c)) {
-					return S_FLOAT_EXP1;
-				} else {
-					token->type = TK_INTERNAL_ERROR;
-					return S_END;
-				}
+			if (charseq_push_back(get_charseq(scanner), c)) {
+				return S_FLOAT_EXP1;
+			} else {
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
 		default:
 			if (isdigit(c)) {
-				if (charseq_push_back(token->value,c)) {
+				if (charseq_push_back(get_charseq(scanner), c)) {
 					return S_FLOAT_LIT;
 				} else {
-					token->type = TK_INTERNAL_ERROR;
+					get_tok(scanner)->type = TK_INTERNAL_ERROR;
 					return S_END;
 				}
 			} else {
-				ungetc(c,stdin);
-				token->type = TK_FLOAT_LIT; 
+				ungetc(c, stdin);
+				get_tok(scanner)->type = TK_FLOAT_LIT;
+				char *endptr;
+				get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
+				if (*endptr != '\0') {
+					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				}
 				return S_END;
 			}
 	}
 }
 
-scanner_state_t s_float_exp1(token_t token, int c) {
+scanner_state_t s_float_exp1(scanner_t scanner, int c) {
 	if (isdigit(c)) {
-		if (charseq_push_back(token->value,c)) {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else if (c == '-' || c == '+') {
-		if (charseq_push_back(token->value,c)) {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_FLOAT_EXP2;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 		return S_END;
 	}
 }
 
-scanner_state_t s_float_exp2(token_t token, int c) {
+scanner_state_t s_float_exp2(scanner_t scanner, int c) {
 	if (isdigit(c)) {
-		if (charseq_push_back(token->value,c)) {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 		return S_END;
 	}
 }
 
-scanner_state_t s_float_point(token_t token, int c) {
-	if (isdigit(c)){
-		if (charseq_push_back(token->value,c)) {
+scanner_state_t s_float_point(scanner_t scanner, int c) {
+	if (isdigit(c)) {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_FLOAT_LIT;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 		return S_END;
 	}
 }
 
-scanner_state_t s_hex_lit1(token_t token, int c){
-	if (isxdigit(c)){
-		if (charseq_push_back(token->value,c)) {
+scanner_state_t s_hex_lit1(scanner_t scanner, int c) {
+	if (isxdigit(c)) {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_HEX_LIT2;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 		return S_END;
 	}
 }
 
-scanner_state_t s_hex_lit2(token_t token, int c){ //TODO: refactor when tested
-	if (isxdigit(c)){
-		if (charseq_push_back(token->value,c)) {
+scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tested
+	if (isxdigit(c)) {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_HEX_LIT2;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		ungetc(c,stdin);
-		token->type = TK_HEX_LIT; //TK_INT
+		ungetc(c, stdin);
+		get_tok(scanner)->type = TK_INT_LIT;
+		char *endptr;
+		get_tok(scanner)->param.i = (int64_t)strtoll(charseq_data(get_charseq(scanner)), &endptr, 16);
+		if (*endptr != '\0') {
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+		}
 		return S_END;
 	}
 }
 
-scanner_state_t s_oct_lit1(token_t token, int c) {
-	if (c >= '0' && c <= '7'){
-		if (charseq_push_back(token->value,c)) {
+scanner_state_t s_oct_lit1(scanner_t scanner, int c) {
+	if (c >= '0' && c <= '7') {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_OCT_LIT2;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		token->type = TK_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
 		return S_END;
 	}
 }
 
-scanner_state_t s_oct_lit2(token_t token, int c) { //TODO: refactor when tested
-	if (c >= '0' && c <= '7'){
-		if (charseq_push_back(token->value,c)) {
+scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tested
+	if (c >= '0' && c <= '7') {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_OCT_LIT2;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-			ungetc(c,stdin);
-			token->type = TK_OCT_LIT; //TK_INT
-			return S_END;
-	}
-}
-
-scanner_state_t s_bin_lit1(token_t token, int c) {
-	if (c == '0' || c == '1'){
-		if (charseq_push_back(token->value,c)) {
-			return S_BIN_LIT2;
-		} else {
-			token->type = TK_INTERNAL_ERROR;
-			return S_END;
+		ungetc(c, stdin);
+		get_tok(scanner)->type = TK_INT_LIT;
+		char *endptr;
+		get_tok(scanner)->param.i = (int64_t)strtoll(charseq_data(get_charseq(scanner)), &endptr, 8);
+		if (*endptr != '\0') {
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 		}
-	} else {
-		token->type = TK_ERROR;
 		return S_END;
 	}
 }
 
-scanner_state_t s_bin_lit2(token_t token, int c){ //TODO: refactor when tested
-	if (c == '0' || c == '1'){
-		if (charseq_push_back(token->value,c)) {
+scanner_state_t s_bin_lit1(scanner_t scanner, int c) {
+	if (c == '0' || c == '1') {
+		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_BIN_LIT2;
 		} else {
-			token->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 			return S_END;
 		}
 	} else {
-		ungetc(c,stdin);
-		token->type = TK_BIN_LIT; //TK_INT
+		get_tok(scanner)->type = TK_ERROR;
 		return S_END;
 	}
 }
 
-scanner_state_t s_identif(token_t token, int c){
+scanner_state_t s_bin_lit2(scanner_t scanner, int c) { //TODO: refactor when tested
+	if (c == '0' || c == '1') {
+		if (charseq_push_back(get_charseq(scanner), c)) {
+			return S_BIN_LIT2;
+		} else {
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
+	} else {
+		ungetc(c, stdin);
+		get_tok(scanner)->type = TK_INT_LIT;
+		char *endptr;
+		get_tok(scanner)->param.i = (int64_t)strtoll(charseq_data(get_charseq(scanner)), &endptr, 2);
+		if (*endptr != '\0') {
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+		}
+		return S_END;
+	}
+}
+
+scanner_state_t s_identif(scanner_t scanner, int c) {
 	if (isalnum(c) || (c == '_')) {
-		if (charseq_push_back(token->value,c)) {
-				return S_IDENTIF;
-			} else {
-				token->type = TK_INTERNAL_ERROR;
-				return S_END;
-			}
+		if (charseq_push_back(get_charseq(scanner), c)) {
+			return S_IDENTIF;
+		} else {
+			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			return S_END;
+		}
 	} else {
-		ungetc(c,stdin);
-		//TODO
-		//token->type = hash table magic 
+		ungetc(c, stdin);
+		// TODO
+		// get_tok(scanner)->param->somenewtypeprobably = hash table magic
 		return S_END;
 	}
 

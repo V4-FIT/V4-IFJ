@@ -56,12 +56,12 @@ charseq_t charseq_init() {
 	return charseq;
 }
 
-bool charseq_push_back(charseq_t charseq, char c) {
+bool charseq_push_back(charseq_t charseq, int c) {
 	if (!charseq_mayresize(charseq)) {
 		return false;
 	}
 
-	charseq->data[charseq->len++] = c;
+	charseq->data[charseq->len++] = (char)c;
 
 	return true;
 }

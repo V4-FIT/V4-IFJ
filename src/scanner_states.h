@@ -7,6 +7,7 @@
 #define IFJ_SCANNER_STATES_H
 
 #include "tokens.h"
+#include "scanner.h"
 
 /*states of the scanner finite state machine*/
 typedef enum
@@ -48,42 +49,42 @@ typedef enum
 	S_END // special case -> returns the completed token
 } scanner_state_t;
 
-typedef scanner_state_t (*state_fun_ptr_t)(token_t, int);
+typedef scanner_state_t (*state_fun_ptr_t)(scanner_t, int);
 
-scanner_state_t s_start(token_t token, int c);
-scanner_state_t s_pipe(token_t token, int c);
-scanner_state_t s_ampersand(token_t token, int c);
-scanner_state_t s_colon(token_t token, int c);
-scanner_state_t s_assign(token_t token, int c);
-scanner_state_t s_less(token_t token, int c);
-scanner_state_t s_greater(token_t token, int c);
-scanner_state_t s_not(token_t token, int c);
-scanner_state_t s_plus(token_t token, int c);
-scanner_state_t s_minus(token_t token, int c);
-scanner_state_t s_star(token_t token, int c);
-scanner_state_t s_slash(token_t token, int c);
-scanner_state_t s_sl_comment(token_t token, int c);
-scanner_state_t s_ml_comment1(token_t token, int c);
-scanner_state_t s_ml_comment2(token_t token, int c);
-scanner_state_t s_str_lit(token_t token, int c);
-scanner_state_t s_escape_seq(token_t token, int c);
-scanner_state_t s_hex1(token_t token, int c);
-scanner_state_t s_hex2(token_t token, int c);
-scanner_state_t s_underscore(token_t token, int c);
-scanner_state_t s_zero(token_t token, int c);
-scanner_state_t s_dec_lit(token_t token, int c);
-scanner_state_t s_float_sci_lit(token_t token, int c);
-scanner_state_t s_float_lit(token_t token, int c);
-scanner_state_t s_float_exp1(token_t token, int c);
-scanner_state_t s_float_exp2(token_t token, int c);
-scanner_state_t s_float_point(token_t token, int c);
-scanner_state_t s_hex_lit1(token_t token, int c);
-scanner_state_t s_hex_lit2(token_t token, int c);
-scanner_state_t s_oct_lit1(token_t token, int c);
-scanner_state_t s_oct_lit2(token_t token, int c);
-scanner_state_t s_bin_lit1(token_t token, int c);
-scanner_state_t s_bin_lit2(token_t token, int c);
-scanner_state_t s_identif(token_t token, int c);
+scanner_state_t s_start(scanner_t scanner, int c);
+scanner_state_t s_pipe(scanner_t scanner, int c);
+scanner_state_t s_ampersand(scanner_t scanner, int c);
+scanner_state_t s_colon(scanner_t scanner, int c);
+scanner_state_t s_assign(scanner_t scanner, int c);
+scanner_state_t s_less(scanner_t scanner, int c);
+scanner_state_t s_greater(scanner_t scanner, int c);
+scanner_state_t s_not(scanner_t scanner, int c);
+scanner_state_t s_plus(scanner_t scanner, int c);
+scanner_state_t s_minus(scanner_t scanner, int c);
+scanner_state_t s_star(scanner_t scanner, int c);
+scanner_state_t s_slash(scanner_t scanner, int c);
+scanner_state_t s_sl_comment(scanner_t scanner, int c);
+scanner_state_t s_ml_comment1(scanner_t scanner, int c);
+scanner_state_t s_ml_comment2(scanner_t scanner, int c);
+scanner_state_t s_str_lit(scanner_t scanner, int c);
+scanner_state_t s_escape_seq(scanner_t scanner, int c);
+scanner_state_t s_hex1(scanner_t scanner, int c);
+scanner_state_t s_hex2(scanner_t scanner, int c);
+scanner_state_t s_underscore(scanner_t scanner, int c);
+scanner_state_t s_zero(scanner_t scanner, int c);
+scanner_state_t s_dec_lit(scanner_t scanner, int c);
+scanner_state_t s_float_sci_lit(scanner_t scanner, int c);
+scanner_state_t s_float_lit(scanner_t scanner, int c);
+scanner_state_t s_float_exp1(scanner_t scanner, int c);
+scanner_state_t s_float_exp2(scanner_t scanner, int c);
+scanner_state_t s_float_point(scanner_t scanner, int c);
+scanner_state_t s_hex_lit1(scanner_t scanner, int c);
+scanner_state_t s_hex_lit2(scanner_t scanner, int c);
+scanner_state_t s_oct_lit1(scanner_t scanner, int c);
+scanner_state_t s_oct_lit2(scanner_t scanner, int c);
+scanner_state_t s_bin_lit1(scanner_t scanner, int c);
+scanner_state_t s_bin_lit2(scanner_t scanner, int c);
+scanner_state_t s_identif(scanner_t scanner, int c);
 
 extern state_fun_ptr_t state_map[];
 

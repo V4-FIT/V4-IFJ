@@ -11,7 +11,7 @@ typedef struct CharSequence *charseq_t;
 
 /**
  * Allocates and initializes a char sequence
- * @return the initialized char sequence
+ * @return the initialized char sequence or NULL on error
  */
 charseq_t charseq_init();
 
@@ -21,7 +21,7 @@ charseq_t charseq_init();
  * @param c character to be appended
  * @return true on success, false on allocation error
  */
-bool charseq_push_back(charseq_t charseq, char c);
+bool charseq_push_back(charseq_t charseq, int c);
 
 /**
  * Getter for the char sequence length
