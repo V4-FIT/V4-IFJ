@@ -1,6 +1,8 @@
 #ifndef IFJ_TOKENS_H
 #define IFJ_TOKENS_H
 
+#include <stdint.h>
+
 #include "char_sequence.h"
 
 /*tokens produced by scanner*/
@@ -62,7 +64,7 @@ typedef struct Token
 	token_type_t type;
 	union TokenParam {
 		const char *c;
-		int64_t i;
+		uint64_t i;
 		double f;
 	} param;
 } *token_t;
