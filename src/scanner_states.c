@@ -204,7 +204,7 @@ scanner_state_t s_not(scanner_t scanner, int c) {
 
 scanner_state_t s_plus(scanner_t scanner, int c) {
 	if (c == '=') {
-		scanner->token->type = TK_INC;
+		scanner->token->type = TK_INCREMENT;
 	} else {
 		scanner->token->type = TK_PLUS;
 		ungetc(c, stdin);
@@ -214,7 +214,7 @@ scanner_state_t s_plus(scanner_t scanner, int c) {
 
 scanner_state_t s_minus(scanner_t scanner, int c) {
 	if (c == '=') {
-		scanner->token->type = TK_DEC;
+		scanner->token->type = TK_DECREMENT;
 	} else {
 		scanner->token->type = TK_MINUS;
 		ungetc(c, stdin);
@@ -419,7 +419,8 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 				return S_END;
 			} else {
 				ungetc(c, stdin);
-				scanner->token->type = TK_ZERO; //TK_INT
+				scanner->token->type = TK_DEC_LIT; //TK_INT
+				scanner->token->param.d = 0;
 				return S_END;
 			}
 	}
@@ -448,6 +449,8 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 			} else {
 				ungetc(c, stdin);
 				scanner->token->type = TK_DEC_LIT; //TK_INT
+				// TODO: Convert to 64 bit signed int
+				scanner->token->param.c = charseq_data(scanner->charseq);
 				return S_END;
 			}
 	}
@@ -463,7 +466,9 @@ scanner_state_t s_float_sci_lit(scanner_t scanner, int c) {
 		}
 	} else {
 		ungetc(c, stdin);
-		scanner->token->type = TK_FLOAT_SCI_LIT;
+		scanner->token->type = TK_FLOAT_LIT;
+		// TODO: Convert to 64 bit float from scientific notation
+		scanner->token->param.c = charseq_data(scanner->charseq);
 		return S_END;
 	}
 }
@@ -489,6 +494,8 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 			} else {
 				ungetc(c, stdin);
 				scanner->token->type = TK_FLOAT_LIT;
+				// TODO: Convert to 64 bit float
+				scanner->token->param.c = charseq_data(scanner->charseq);
 				return S_END;
 			}
 	}
@@ -567,7 +574,9 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		}
 	} else {
 		ungetc(c, stdin);
-		scanner->token->type = TK_HEX_LIT; //TK_INT
+		scanner->token->type = TK_DEC_LIT; //TK_INT
+		// TODO: Convert to 64 bit signed int with base 16
+		scanner->token->param.c = charseq_data(scanner->charseq);
 		return S_END;
 	}
 }
@@ -596,7 +605,9 @@ scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		}
 	} else {
 		ungetc(c, stdin);
-		scanner->token->type = TK_OCT_LIT; //TK_INT
+		scanner->token->type = TK_DEC_LIT; //TK_INT
+		// TODO: Convert to 64 bit signed int with base 8
+		scanner->token->param.c = charseq_data(scanner->charseq);
 		return S_END;
 	}
 }
@@ -625,7 +636,9 @@ scanner_state_t s_bin_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		}
 	} else {
 		ungetc(c, stdin);
-		scanner->token->type = TK_BIN_LIT; //TK_INT
+		scanner->token->type = TK_DEC_LIT; //TK_INT
+		// TODO: Convert to 64 bit signed int with base 2
+		scanner->token->param.c = charseq_data(scanner->charseq);
 		return S_END;
 	}
 }

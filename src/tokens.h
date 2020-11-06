@@ -29,35 +29,30 @@ typedef enum
 	TK_NOT,
 	TK_NOT_EQUAL,
 	TK_PLUS,
-	TK_INC,
+	TK_INCREMENT,
 	TK_MINUS,
-	TK_DEC,
+	TK_DECREMENT,
 	TK_STAR,
 	TK_TIMES,
 	TK_SLASH,
 	TK_DIVIDE,
 	TK_DEC_LIT,
-	TK_FLOAT_SCI_LIT,
 	TK_FLOAT_LIT,
-	TK_HEX_LIT,
-	TK_OCT_LIT,
-	TK_BIN_LIT,
 	TK_UNDERSCORE,
-	TK_ZERO,
 	//keywords:
-	TK_PACKAGE,
-	TK_FUNC,
-	TK_MAIN,
-	TK_RETURN,
-	TK_IF,
-	TK_ELSE,
-	TK_FOR,
-	TK_TRUE,
-	TK_FALSE,
-	TK_INT,
-	TK_FLOAT64,
-	TK_STRING,
-	TK_BOOL
+	TK_KEYW_PACKAGE,
+	TK_KEYW_FUNC,
+	TK_KEYW_MAIN,
+	TK_KEYW_RETURN,
+	TK_KEYW_IF,
+	TK_KEYW_ELSE,
+	TK_KEYW_FOR,
+	TK_KEYW_TRUE,
+	TK_KEYW_FALSE,
+	TK_KEYW_INT,
+	TK_KEYW_FLOAT64,
+	TK_KEYW_STRING,
+	TK_KEYW_BOOL
 } token_type_t;
 
 
@@ -67,7 +62,7 @@ typedef struct Token
 	token_type_t type;
 	union TokenParam {
 		const char *c;
-		int d;
+		int64_t d;
 		double f;
 	} param;
 } *token_t;
