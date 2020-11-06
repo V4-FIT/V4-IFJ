@@ -8,6 +8,7 @@
 
 struct Scanner
 {
+	FILE *stream;
 	charseq_t charseq;
 	token_t token; // used for referencing the current token between states
 	char buf_escape[ESCAPE_SEQUENCE_BUFFER_SIZE];
@@ -29,7 +30,7 @@ char *get_buf_escape(scanner_t scanner) {
 
 // Public
 
-scanner_t scanner_init() {
+scanner_t scanner_init(FILE *stream) {
 	scanner_t scanner = calloc(1, sizeof(struct Scanner));
 	if (scanner == NULL) {
 		return NULL;
@@ -41,6 +42,7 @@ scanner_t scanner_init() {
 		return NULL;
 	}
 
+	scanner->stream = stream;
 	scanner->token = NULL;
 	return scanner;
 }
@@ -51,7 +53,7 @@ void scanner_retrieve_token(scanner_t scanner, token_t token) {
 
 	scanner_state_t state = S_START;
 	while (state != S_END) {
-		state = state_map[state](scanner, getc(stdin));
+		state = state_map[state](scanner, getc(scanner->stream));
 	}
 
 	// TODO: Add keyword table - Kevin
