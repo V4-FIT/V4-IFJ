@@ -287,7 +287,7 @@ scanner_state_t s_str_lit(scanner_t scanner, int c) {
 			return S_ESCAPE_SEQ;
 		case '\"':
 			get_tok(scanner)->type = TK_STR_LIT;
-			get_tok(scanner)->param.c = charseq_data(get_charseq(scanner));
+			get_tok(scanner)->param.s = charseq_data(get_charseq(scanner));
 			return S_END;
 		default:
 			if (c < ' ') { //includes all unprintables, EOL and EOF
@@ -305,14 +305,21 @@ scanner_state_t s_str_lit(scanner_t scanner, int c) {
 scanner_state_t s_escape_seq(scanner_t scanner, int c) {
 	switch (c) {
 		case 'n':
-		case 't':
-		case '\\':
-		case '\"':
-			// add backslash to make these escape sequences valid
-			if (!charseq_push_back(get_charseq(scanner), '\\')) {
+			if (charseq_push_back(get_charseq(scanner), '\n')) {
+				return S_STR_LIT;
+			} else {
 				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
+		case 't':
+			if (charseq_push_back(get_charseq(scanner), '\t')) {
+				return S_STR_LIT;
+			} else {
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		case '\\':
+		case '\"':
 			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_STR_LIT;
 			} else {
