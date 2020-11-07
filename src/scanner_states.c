@@ -37,8 +37,7 @@ state_fun_ptr_t state_map[] = {
 		[S_DEC_LIT] = &s_dec_lit,
 		[S_FLOAT_SCI_LIT] = &s_float_sci_lit,
 		[S_FLOAT_LIT] = &s_float_lit,
-		[S_FLOAT_EXP1] = &s_float_exp1,
-		[S_FLOAT_EXP2] = &s_float_exp2,
+		[S_FLOAT_EXP] = &s_float_exp,
 		[S_FLOAT_POINT] = &s_float_point,
 		[S_HEX_LIT1] = &s_hex_lit1,
 		[S_HEX_LIT2] = &s_hex_lit2,
@@ -396,7 +395,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 				return S_END;
 			}
 			if (charseq_push_back(get_charseq(scanner), c)) {
-				return S_FLOAT_EXP1;
+				return S_FLOAT_EXP;
 			} else {
 				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
@@ -426,7 +425,7 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 		case 'e':
 		case 'E':
 			if (charseq_push_back(get_charseq(scanner), c)) {
-				return S_FLOAT_EXP1;
+				return S_FLOAT_EXP;
 			} else {
 				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
@@ -476,7 +475,7 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 		case 'e':
 		case 'E':
 			if (charseq_push_back(get_charseq(scanner), c)) {
-				return S_FLOAT_EXP1;
+				return S_FLOAT_EXP;
 			} else {
 				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
@@ -502,29 +501,8 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 	}
 }
 
-scanner_state_t s_float_exp1(scanner_t scanner, int c) {
-	if (isdigit(c)) {
-		if (charseq_push_back(get_charseq(scanner), c)) {
-			return S_FLOAT_SCI_LIT;
-		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
-			return S_END;
-		}
-	} else if (c == '-' || c == '+') {
-		if (charseq_push_back(get_charseq(scanner), c)) {
-			return S_FLOAT_EXP2;
-		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
-			return S_END;
-		}
-	} else {
-		get_tok(scanner)->type = TK_ERROR;
-		return S_END;
-	}
-}
-
-scanner_state_t s_float_exp2(scanner_t scanner, int c) {
-	if (isdigit(c)) {
+scanner_state_t s_float_exp(scanner_t scanner, int c) {
+	if (isdigit(c) || c == '-' || c == '+') {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
