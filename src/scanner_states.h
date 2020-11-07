@@ -36,8 +36,7 @@ typedef enum
 	S_DEC_LIT,
 	S_FLOAT_SCI_LIT,
 	S_FLOAT_LIT,
-	S_FLOAT_EXP1,
-	S_FLOAT_EXP2,
+	S_FLOAT_EXP,
 	S_FLOAT_POINT,
 	S_HEX_LIT1,
 	S_HEX_LIT2,
@@ -75,8 +74,7 @@ scanner_state_t s_zero(scanner_t scanner, int c);
 scanner_state_t s_dec_lit(scanner_t scanner, int c);
 scanner_state_t s_float_sci_lit(scanner_t scanner, int c);
 scanner_state_t s_float_lit(scanner_t scanner, int c);
-scanner_state_t s_float_exp1(scanner_t scanner, int c);
-scanner_state_t s_float_exp2(scanner_t scanner, int c);
+scanner_state_t s_float_exp(scanner_t scanner, int c);
 scanner_state_t s_float_point(scanner_t scanner, int c);
 scanner_state_t s_hex_lit1(scanner_t scanner, int c);
 scanner_state_t s_hex_lit2(scanner_t scanner, int c);

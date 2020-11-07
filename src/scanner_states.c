@@ -7,6 +7,7 @@
 // TODO: Underscores for numbers
 
 // defined in scanner.c
+FILE *get_stream(scanner_t scanner);
 token_t get_tok(scanner_t scanner);
 charseq_t get_charseq(scanner_t scanner);
 char *get_buf_escape(scanner_t scanner);
@@ -36,8 +37,7 @@ state_fun_ptr_t state_map[] = {
 		[S_DEC_LIT] = &s_dec_lit,
 		[S_FLOAT_SCI_LIT] = &s_float_sci_lit,
 		[S_FLOAT_LIT] = &s_float_lit,
-		[S_FLOAT_EXP1] = &s_float_exp1,
-		[S_FLOAT_EXP2] = &s_float_exp2,
+		[S_FLOAT_EXP] = &s_float_exp,
 		[S_FLOAT_POINT] = &s_float_point,
 		[S_HEX_LIT1] = &s_hex_lit1,
 		[S_HEX_LIT2] = &s_hex_lit2,
@@ -165,7 +165,7 @@ scanner_state_t s_assign(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_EQUAL;
 	} else {
 		get_tok(scanner)->type = TK_ASSIGN;
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
 }
@@ -175,7 +175,7 @@ scanner_state_t s_less(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_LESS_EQUAL;
 	} else {
 		get_tok(scanner)->type = TK_LESS;
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
 }
@@ -185,7 +185,7 @@ scanner_state_t s_greater(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_GREATER_EQUAL;
 	} else {
 		get_tok(scanner)->type = TK_GREATER;
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
 }
@@ -195,7 +195,7 @@ scanner_state_t s_not(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_NOT_EQUAL;
 	} else {
 		get_tok(scanner)->type = TK_NOT;
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
 }
@@ -205,7 +205,7 @@ scanner_state_t s_plus(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_INCREMENT;
 	} else {
 		get_tok(scanner)->type = TK_PLUS;
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
 }
@@ -215,7 +215,7 @@ scanner_state_t s_minus(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_DECREMENT;
 	} else {
 		get_tok(scanner)->type = TK_MINUS;
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
 }
@@ -225,7 +225,7 @@ scanner_state_t s_star(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_TIMES;
 	} else {
 		get_tok(scanner)->type = TK_STAR;
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
 }
@@ -241,7 +241,7 @@ scanner_state_t s_slash(scanner_t scanner, int c) {
 			return S_ML_COMMENT1;
 		default:
 			get_tok(scanner)->type = TK_SLASH;
-			ungetc(c, stdin);
+			ungetc(c, get_stream(scanner));
 			return S_END;
 	}
 }
@@ -250,7 +250,7 @@ scanner_state_t s_sl_comment(scanner_t scanner, int c) {
 	switch (c) {
 		case EOF:
 		case '\n':
-			ungetc(c, stdin);
+			ungetc(c, get_stream(scanner));
 			return S_START;
 		default:
 			return S_SL_COMMENT;
@@ -287,7 +287,7 @@ scanner_state_t s_str_lit(scanner_t scanner, int c) {
 			return S_ESCAPE_SEQ;
 		case '\"':
 			get_tok(scanner)->type = TK_STR_LIT;
-			get_tok(scanner)->param.c = charseq_data(get_charseq(scanner));
+			get_tok(scanner)->param.s = charseq_data(get_charseq(scanner));
 			return S_END;
 		default:
 			if (c < ' ') { //includes all unprintables, EOL and EOF
@@ -305,14 +305,21 @@ scanner_state_t s_str_lit(scanner_t scanner, int c) {
 scanner_state_t s_escape_seq(scanner_t scanner, int c) {
 	switch (c) {
 		case 'n':
-		case 't':
-		case '\\':
-		case '\"':
-			// add backslash to make these escape sequences valid
-			if (!charseq_push_back(get_charseq(scanner), '\\')) {
+			if (charseq_push_back(get_charseq(scanner), '\n')) {
+				return S_STR_LIT;
+			} else {
 				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
 			}
+		case 't':
+			if (charseq_push_back(get_charseq(scanner), '\t')) {
+				return S_STR_LIT;
+			} else {
+				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				return S_END;
+			}
+		case '\\':
+		case '\"':
 			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_STR_LIT;
 			} else {
@@ -363,7 +370,7 @@ scanner_state_t s_underscore(scanner_t scanner, int c) {
 			return S_END;
 		}
 	} else {
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_UNDERSCORE;
 		return S_END;
 	}
@@ -386,7 +393,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 			return S_OCT_LIT1;
 		case 'x':
 		case 'X':
-			return S_HEX_LIT2;
+			return S_HEX_LIT1;
 		case 'e':
 		case 'E':
 			// prepend a zero to be a valid float 0e123
@@ -395,7 +402,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 				return S_END;
 			}
 			if (charseq_push_back(get_charseq(scanner), c)) {
-				return S_FLOAT_EXP1;
+				return S_FLOAT_EXP;
 			} else {
 				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
@@ -405,7 +412,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 				get_tok(scanner)->type = TK_ERROR;
 				return S_END;
 			} else {
-				ungetc(c, stdin);
+				ungetc(c, get_stream(scanner));
 				get_tok(scanner)->type = TK_INT_LIT;
 				get_tok(scanner)->param.i = 0u;
 				return S_END;
@@ -425,7 +432,7 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 		case 'e':
 		case 'E':
 			if (charseq_push_back(get_charseq(scanner), c)) {
-				return S_FLOAT_EXP1;
+				return S_FLOAT_EXP;
 			} else {
 				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
@@ -438,7 +445,7 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 				}
 				return S_DEC_LIT;
 			} else {
-				ungetc(c, stdin);
+				ungetc(c, get_stream(scanner));
 				get_tok(scanner)->type = TK_INT_LIT;
 				char *endptr;
 				get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 10);
@@ -459,7 +466,7 @@ scanner_state_t s_float_sci_lit(scanner_t scanner, int c) {
 			return S_END;
 		}
 	} else {
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_FLOAT_LIT;
 		char *endptr;
 		get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
@@ -475,7 +482,7 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 		case 'e':
 		case 'E':
 			if (charseq_push_back(get_charseq(scanner), c)) {
-				return S_FLOAT_EXP1;
+				return S_FLOAT_EXP;
 			} else {
 				get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				return S_END;
@@ -489,7 +496,7 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 					return S_END;
 				}
 			} else {
-				ungetc(c, stdin);
+				ungetc(c, get_stream(scanner));
 				get_tok(scanner)->type = TK_FLOAT_LIT;
 				char *endptr;
 				get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
@@ -501,29 +508,8 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 	}
 }
 
-scanner_state_t s_float_exp1(scanner_t scanner, int c) {
-	if (isdigit(c)) {
-		if (charseq_push_back(get_charseq(scanner), c)) {
-			return S_FLOAT_SCI_LIT;
-		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
-			return S_END;
-		}
-	} else if (c == '-' || c == '+') {
-		if (charseq_push_back(get_charseq(scanner), c)) {
-			return S_FLOAT_EXP2;
-		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
-			return S_END;
-		}
-	} else {
-		get_tok(scanner)->type = TK_ERROR;
-		return S_END;
-	}
-}
-
-scanner_state_t s_float_exp2(scanner_t scanner, int c) {
-	if (isdigit(c)) {
+scanner_state_t s_float_exp(scanner_t scanner, int c) {
+	if (isdigit(c) || c == '-' || c == '+') {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
@@ -573,7 +559,7 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 			return S_END;
 		}
 	} else {
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
 		char *endptr;
 		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 16);
@@ -607,7 +593,7 @@ scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 			return S_END;
 		}
 	} else {
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
 		char *endptr;
 		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 8);
@@ -641,7 +627,7 @@ scanner_state_t s_bin_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 			return S_END;
 		}
 	} else {
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
 		char *endptr;
 		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 2);
@@ -661,7 +647,7 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 			return S_END;
 		}
 	} else {
-		ungetc(c, stdin);
+		ungetc(c, get_stream(scanner));
 		// TODO
 		// get_tok(scanner)->param->somenewtypeprobably = hash table magic
 		return S_END;
