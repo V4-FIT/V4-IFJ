@@ -352,7 +352,7 @@ scanner_state_t s_hex2(scanner_t scanner, int c) {
 		return S_END;
 	}
 
-	char subst = (char)strtol(get_buf_escape(scanner), NULL, 16);
+	char subst = (char)strtoul(get_buf_escape(scanner), NULL, 16);
 	if (!charseq_push_back(get_charseq(scanner), subst)) {
 		get_tok(scanner)->type = TK_INTERNAL_ERROR;
 		return S_END;
@@ -414,7 +414,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 			} else {
 				ungetc(c, get_stream(scanner));
 				get_tok(scanner)->type = TK_INT_LIT;
-				get_tok(scanner)->param.i = 0;
+				get_tok(scanner)->param.i = 0u;
 				return S_END;
 			}
 	}
@@ -448,7 +448,7 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 				ungetc(c, get_stream(scanner));
 				get_tok(scanner)->type = TK_INT_LIT;
 				char *endptr;
-				get_tok(scanner)->param.i = (int64_t)strtoll(charseq_data(get_charseq(scanner)), &endptr, 10);
+				get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 10);
 				if (*endptr != '\0') {
 					get_tok(scanner)->type = TK_INTERNAL_ERROR;
 				}
@@ -562,7 +562,7 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
 		char *endptr;
-		get_tok(scanner)->param.i = (int64_t)strtoll(charseq_data(get_charseq(scanner)), &endptr, 16);
+		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 16);
 		if (*endptr != '\0') {
 			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 		}
@@ -596,7 +596,7 @@ scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
 		char *endptr;
-		get_tok(scanner)->param.i = (int64_t)strtoll(charseq_data(get_charseq(scanner)), &endptr, 8);
+		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 8);
 		if (*endptr != '\0') {
 			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 		}
@@ -630,7 +630,7 @@ scanner_state_t s_bin_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
 		char *endptr;
-		get_tok(scanner)->param.i = (int64_t)strtoll(charseq_data(get_charseq(scanner)), &endptr, 2);
+		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 2);
 		if (*endptr != '\0') {
 			get_tok(scanner)->type = TK_INTERNAL_ERROR;
 		}
