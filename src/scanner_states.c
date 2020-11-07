@@ -387,7 +387,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 			return S_OCT_LIT1;
 		case 'x':
 		case 'X':
-			return S_HEX_LIT2;
+			return S_HEX_LIT1;
 		case 'e':
 		case 'E':
 			// prepend a zero to be a valid float 0e123
