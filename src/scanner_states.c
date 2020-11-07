@@ -121,14 +121,20 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 
 		default:
 			if (isalpha(c)) {
-				return S_IDENTIF;
-			}
-			if (isdigit(c)) { //special case for 0 handled above
-				if (!charseq_push_back(get_charseq(scanner), c)) {
+				if (charseq_push_back(get_charseq(scanner), c)) {
+					return S_IDENTIF;
+				} else {
 					get_tok(scanner)->type = TK_INTERNAL_ERROR;
 					return S_END;
 				}
-				return S_DEC_LIT;
+			}
+			if (isdigit(c)) { //special case for 0 handled above
+				if (charseq_push_back(get_charseq(scanner), c)) {
+					return S_DEC_LIT;
+				} else {
+					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					return S_END;
+				}
 			}
 			get_tok(scanner)->type = TK_ERROR;
 			return S_END;
@@ -652,10 +658,10 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 		ungetc(c, get_stream(scanner));
 		hmap_iterator_t it = hmap_find(get_keyw_tok_map(scanner), charseq_data(get_charseq(scanner)));
 		if (hmap_it_eq(it, hmap_end(get_keyw_tok_map(scanner)))) {
-			get_tok(scanner)->type = *(token_type_t *)hmap_get_value(it);
-		} else {
 			get_tok(scanner)->type = TK_IDENTIFIER;
 			get_tok(scanner)->param.s = charseq_data(get_charseq(scanner));
+		} else {
+			get_tok(scanner)->type = *(token_type_t *)hmap_get_value(it);
 		}
 		return S_END;
 	}
