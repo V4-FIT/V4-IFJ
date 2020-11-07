@@ -35,6 +35,7 @@ TEST(hash_map, find_empty) {
 	hmap_t hmap = hmap_init(100, 1);
 	hmap_iterator_t it = hmap_find(hmap, "key");
 	EXPECT_TRUE(hmap_it_eq(it, hmap_end(hmap)));
+	hmap_free(hmap);
 }
 
 TEST(hash_map, find_add) {
@@ -111,6 +112,5 @@ TEST(hash_map, insert_hash_collision) {
 	hmap_clear(hmap);
 	EXPECT_TRUE(hmap_it_eq(hmap_begin(hmap), hmap_end(hmap)));
 	EXPECT_EQ(hmap_size(hmap), 0);
-
 	hmap_free(hmap);
 }
