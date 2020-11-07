@@ -1,5 +1,3 @@
-#include <gtest/gtest.h>
-
 #include "scanner_tests.h"
 
 TEST_F(ScannerTest, float_literal_zero) {

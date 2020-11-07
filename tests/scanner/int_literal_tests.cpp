@@ -1,5 +1,3 @@
-#include <gtest/gtest.h>
-
 #include "scanner_tests.h"
 
 TEST_F(ScannerTest, dec_zero) {
@@ -121,4 +119,36 @@ TEST_F(ScannerTest, hex_literal_prefix) {
 
 	scanner_retrieve_token(scanner, token);
 	EXPECT_EQ(token->type, TK_EOF);
+}
+
+TEST_F(ScannerTest, hex_literal_lowercase) {
+	fprintf(stream, "0x00ff");
+
+	scanner_retrieve_token(scanner, token);
+	ASSERT_EQ(token->type, TK_INT_LIT);
+	EXPECT_EQ(token->param.i, 255);
+
+	scanner_retrieve_token(scanner, token);
+	EXPECT_EQ(token->type, TK_EOF);
+}
+
+TEST_F(ScannerTest, bin_literal_lex_error_offbyone) {
+	fprintf(stream, "0b2");
+
+	scanner_retrieve_token(scanner, token);
+	ASSERT_EQ(token->type, TK_ERROR);
+}
+
+TEST_F(ScannerTest, oct_literal_lex_error_offbyone) {
+	fprintf(stream, "0o8");
+
+	scanner_retrieve_token(scanner, token);
+	ASSERT_EQ(token->type, TK_ERROR);
+}
+
+TEST_F(ScannerTest, hex_literal_lex_error_offbyone) {
+	fprintf(stream, "0xG");
+
+	scanner_retrieve_token(scanner, token);
+	ASSERT_EQ(token->type, TK_ERROR);
 }

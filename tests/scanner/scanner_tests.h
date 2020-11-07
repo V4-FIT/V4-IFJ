@@ -2,6 +2,7 @@
 #define IFJ_COMMON_H
 
 #include <cstdio>
+#include <gtest/gtest.h>
 
 extern "C" {
 #include "scanner.h"
