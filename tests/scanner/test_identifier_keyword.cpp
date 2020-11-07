@@ -1,4 +1,4 @@
-#include "scanner_tests.h"
+#include "test_scanner.h"
 
 TEST_F(ScannerTest, identifier_blank) {
 	fprintf(stream, "_");

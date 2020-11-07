@@ -1,4 +1,4 @@
-#include "scanner_tests.h"
+#include "test_scanner.h"
 
 TEST_F(ScannerTest, float_literal_zero) {
 	fprintf(stream, "0.25");
