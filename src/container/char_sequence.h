@@ -4,9 +4,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define INITIAL_ALLOC_SIZE 16
-#define GROWTH_FACTOR 2
-
 typedef struct CharSequence *charseq_t;
 
 /**

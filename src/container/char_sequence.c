@@ -4,6 +4,9 @@
 
 ////// Private
 
+#define INITIAL_ALLOC_SIZE 16
+#define GROWTH_FACTOR 2
+
 // define the struct here to hide the interface
 struct CharSequence
 {
