@@ -59,29 +59,29 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 			return S_START;
 
 		// end cases
-		case '\n':
-			get_tok(scanner)->type = TK_EOL;
+		case '(':
+			get_tok(scanner)->type = TK_L_PARENTHESIS;
 			return S_END;
 		case ')':
 			get_tok(scanner)->type = TK_R_PARENTHESIS;
 			return S_END;
-		case '(':
-			get_tok(scanner)->type = TK_L_PARENTHESIS;
-			return S_END;
-		case EOF:
-			get_tok(scanner)->type = TK_EOF;
-			return S_END;
-		case ',':
-			get_tok(scanner)->type = TK_SEPARATOR;
-			return S_END;
-		case ';':
-			get_tok(scanner)->type = TK_SEMICOLON;
+		case '{':
+			get_tok(scanner)->type = TK_L_CURLY;
 			return S_END;
 		case '}':
 			get_tok(scanner)->type = TK_R_CURLY;
 			return S_END;
-		case '{':
-			get_tok(scanner)->type = TK_L_CURLY;
+		case ',':
+			get_tok(scanner)->type = TK_COMMA;
+			return S_END;
+		case ';':
+			get_tok(scanner)->type = TK_SEMICOLON;
+			return S_END;
+		case '\n':
+			get_tok(scanner)->type = TK_EOL;
+			return S_END;
+		case EOF:
+			get_tok(scanner)->type = TK_EOF;
 			return S_END;
 
 		// intermediate cases

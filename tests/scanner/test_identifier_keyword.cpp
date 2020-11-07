@@ -1,16 +1,5 @@
 #include "test_scanner.h"
 
-TEST_F(ScannerTest, identifier_blank) {
-	fprintf(stream, "_");
-	rewind(stream);
-
-	scanner_retrieve_token(scanner, token);
-	ASSERT_EQ(token->type, TK_UNDERSCORE);
-
-	scanner_retrieve_token(scanner, token);
-	EXPECT_EQ(token->type, TK_EOF);
-}
-
 TEST_F(ScannerTest, identifier1) {
 	fprintf(stream, "a");
 	rewind(stream);

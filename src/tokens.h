@@ -17,7 +17,7 @@ typedef enum
 	TK_R_PARENTHESIS,
 	TK_L_CURLY,
 	TK_R_CURLY,
-	TK_SEPARATOR,
+	TK_COMMA,
 	TK_SEMICOLON,
 	TK_EOL,
 
@@ -34,11 +34,11 @@ typedef enum
 
 	// Relational operators
 	TK_EQUAL,
+	TK_NOT_EQUAL,
 	TK_LESS,
 	TK_LESS_EQUAL,
 	TK_GREATER,
 	TK_GREATER_EQUAL,
-	TK_NOT_EQUAL,
 
 	// Logical operators
 	TK_OR,
