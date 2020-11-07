@@ -11,20 +11,18 @@ extern "C" {
 
 class ScannerTest : public testing::Test {
 public:
-	FILE *stream = tmpfile();
+	FILE *stream;
 	scanner_t scanner;
 	token_t token;
 
-	~ScannerTest() override {
-		fclose(stream);
-	}
-
 	virtual void SetUp() {
+		stream = tmpfile();
 		scanner = scanner_init(stream);
 		token = new struct Token;
 	}
 
 	virtual void TearDown() {
+		fclose(stream);
 		scanner_free(scanner);
 		delete token;
 	}
