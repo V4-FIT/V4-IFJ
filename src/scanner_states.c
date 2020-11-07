@@ -4,6 +4,7 @@
 #include "scanner_states.h"
 #include "char_sequence.h"
 #include "hash_map.h"
+#include "error.h"
 
 // TODO: Underscores for numbers
 
@@ -115,7 +116,8 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_UNDERSCORE;
 			} else {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 
@@ -124,7 +126,8 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 				if (charseq_push_back(get_charseq(scanner), c)) {
 					return S_IDENTIF;
 				} else {
-					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					get_tok(scanner)->type = TK_ERROR;
+					get_tok(scanner)->param.i = ERROR_MISC;
 					return S_END;
 				}
 			}
@@ -132,11 +135,13 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 				if (charseq_push_back(get_charseq(scanner), c)) {
 					return S_DEC_LIT;
 				} else {
-					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					get_tok(scanner)->type = TK_ERROR;
+					get_tok(scanner)->param.i = ERROR_MISC;
 					return S_END;
 				}
 			}
 			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_LEX;
 			return S_END;
 	}
 }
@@ -146,6 +151,7 @@ scanner_state_t s_pipe(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_OR;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 	}
 	return S_END;
 }
@@ -155,6 +161,7 @@ scanner_state_t s_ampersand(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_AND;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 	}
 	return S_END;
 }
@@ -164,6 +171,7 @@ scanner_state_t s_colon(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_VAR_INIT;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 	}
 	return S_END;
 }
@@ -268,6 +276,7 @@ scanner_state_t s_sl_comment(scanner_t scanner, int c) {
 scanner_state_t s_ml_comment1(scanner_t scanner, int c) {
 	if (c == EOF) {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
 	} else if (c == '*') {
 		return S_ML_COMMENT2;
@@ -278,6 +287,7 @@ scanner_state_t s_ml_comment1(scanner_t scanner, int c) {
 scanner_state_t s_ml_comment2(scanner_t scanner, int c) {
 	if (c == EOF) {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
 	} else if (c == '*') {
 		return S_ML_COMMENT2;
@@ -300,11 +310,13 @@ scanner_state_t s_str_lit(scanner_t scanner, int c) {
 		default:
 			if (c < ' ') { //includes all unprintables, EOL and EOF
 				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_LEX;
 				return S_END;
 			} else if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_STR_LIT;
 			} else {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 	}
@@ -316,14 +328,16 @@ scanner_state_t s_escape_seq(scanner_t scanner, int c) {
 			if (charseq_push_back(get_charseq(scanner), '\n')) {
 				return S_STR_LIT;
 			} else {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 		case 't':
 			if (charseq_push_back(get_charseq(scanner), '\t')) {
 				return S_STR_LIT;
 			} else {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 		case '\\':
@@ -331,13 +345,15 @@ scanner_state_t s_escape_seq(scanner_t scanner, int c) {
 			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_STR_LIT;
 			} else {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 		case 'x':
 			return S_HEX1;
 		default:
 			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_LEX;
 			return S_END;
 	}
 }
@@ -348,6 +364,7 @@ scanner_state_t s_hex1(scanner_t scanner, int c) {
 		return S_HEX2;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
 	}
 }
@@ -357,12 +374,14 @@ scanner_state_t s_hex2(scanner_t scanner, int c) {
 		get_buf_escape(scanner)[1] = (char)c;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
 	}
 
 	char subst = (char)strtoul(get_buf_escape(scanner), NULL, 16);
 	if (!charseq_push_back(get_charseq(scanner), subst)) {
-		get_tok(scanner)->type = TK_INTERNAL_ERROR;
+		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_MISC;
 		return S_END;
 	}
 
@@ -374,7 +393,8 @@ scanner_state_t s_underscore(scanner_t scanner, int c) {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_IDENTIF;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
@@ -390,7 +410,8 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_FLOAT_POINT;
 			} else {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 		case 'b':
@@ -406,18 +427,21 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 		case 'E':
 			// prepend a zero to be a valid float 0e123
 			if (!charseq_push_back(get_charseq(scanner), '0')) {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_FLOAT_EXP;
 			} else {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 		default:
 			if (isdigit(c)) {
 				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_LEX;
 				return S_END;
 			} else {
 				ungetc(c, get_stream(scanner));
@@ -434,7 +458,8 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_FLOAT_POINT;
 			} else {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 		case 'e':
@@ -442,13 +467,15 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_FLOAT_EXP;
 			} else {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 		default:
 			if (isdigit(c)) {
 				if (!charseq_push_back(get_charseq(scanner), c)) {
-					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					get_tok(scanner)->type = TK_ERROR;
+					get_tok(scanner)->param.i = ERROR_MISC;
 					return S_END;
 				}
 				return S_DEC_LIT;
@@ -458,7 +485,8 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 				char *endptr;
 				get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 10);
 				if (*endptr != '\0') {
-					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					get_tok(scanner)->type = TK_ERROR;
+					get_tok(scanner)->param.i = ERROR_MISC;
 				}
 				return S_END;
 			}
@@ -470,7 +498,8 @@ scanner_state_t s_float_sci_lit(scanner_t scanner, int c) {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
@@ -479,7 +508,8 @@ scanner_state_t s_float_sci_lit(scanner_t scanner, int c) {
 		char *endptr;
 		get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
 		if (*endptr != '\0') {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 		}
 		return S_END;
 	}
@@ -492,7 +522,8 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 			if (charseq_push_back(get_charseq(scanner), c)) {
 				return S_FLOAT_EXP;
 			} else {
-				get_tok(scanner)->type = TK_INTERNAL_ERROR;
+				get_tok(scanner)->type = TK_ERROR;
+				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
 		default:
@@ -500,7 +531,8 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 				if (charseq_push_back(get_charseq(scanner), c)) {
 					return S_FLOAT_LIT;
 				} else {
-					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					get_tok(scanner)->type = TK_ERROR;
+					get_tok(scanner)->param.i = ERROR_MISC;
 					return S_END;
 				}
 			} else {
@@ -509,7 +541,8 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 				char *endptr;
 				get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
 				if (*endptr != '\0') {
-					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					get_tok(scanner)->type = TK_ERROR;
+					get_tok(scanner)->param.i = ERROR_MISC;
 				}
 				return S_END;
 			}
@@ -521,11 +554,13 @@ scanner_state_t s_float_exp(scanner_t scanner, int c) {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_FLOAT_SCI_LIT;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
 	}
 }
@@ -535,11 +570,13 @@ scanner_state_t s_float_point(scanner_t scanner, int c) {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_FLOAT_LIT;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
 	}
 }
@@ -549,11 +586,13 @@ scanner_state_t s_hex_lit1(scanner_t scanner, int c) {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_HEX_LIT2;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
 	}
 }
@@ -563,7 +602,8 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_HEX_LIT2;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
@@ -572,7 +612,8 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		char *endptr;
 		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 16);
 		if (*endptr != '\0') {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 		}
 		return S_END;
 	}
@@ -583,11 +624,13 @@ scanner_state_t s_oct_lit1(scanner_t scanner, int c) {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_OCT_LIT2;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
 	}
 }
@@ -597,7 +640,8 @@ scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_OCT_LIT2;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
@@ -606,7 +650,8 @@ scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		char *endptr;
 		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 8);
 		if (*endptr != '\0') {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 		}
 		return S_END;
 	}
@@ -617,11 +662,13 @@ scanner_state_t s_bin_lit1(scanner_t scanner, int c) {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_BIN_LIT2;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
 	}
 }
@@ -631,7 +678,8 @@ scanner_state_t s_bin_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_BIN_LIT2;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
@@ -640,7 +688,8 @@ scanner_state_t s_bin_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 		char *endptr;
 		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 2);
 		if (*endptr != '\0') {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 		}
 		return S_END;
 	}
@@ -651,7 +700,8 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_IDENTIF;
 		} else {
-			get_tok(scanner)->type = TK_INTERNAL_ERROR;
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
 	} else {
