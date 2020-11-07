@@ -16,6 +16,10 @@ struct Scanner
 
 // Private (kinda) -> [not static] used only in scanner_states.c without public interface
 
+FILE *get_stream(scanner_t scanner) {
+	return scanner->stream;
+}
+
 token_t get_tok(scanner_t scanner) {
 	return scanner->token;
 }
