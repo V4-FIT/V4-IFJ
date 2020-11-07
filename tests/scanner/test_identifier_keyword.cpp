@@ -1,6 +1,6 @@
 #include "test_scanner.h"
 
-TEST_F(ScannerTest, identifier1) {
+TEST_F(ScannerTest, identifier_1) {
 	fprintf(stream, "a");
 	rewind(stream);
 
@@ -12,7 +12,7 @@ TEST_F(ScannerTest, identifier1) {
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
-TEST_F(ScannerTest, identifier2) {
+TEST_F(ScannerTest, identifier_2) {
 	fprintf(stream, "_x9 __");
 	rewind(stream);
 

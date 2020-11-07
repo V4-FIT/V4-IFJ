@@ -148,12 +148,22 @@ TEST_F(ScannerTest, hex_literal_lowercase) {
  * Lexical error tests
  */
 
+TEST_F(ScannerTest, int_literal_lex_error_leading_zeroes) {
+	fprintf(stream, "02");
+	rewind(stream);
+
+	scanner_retrieve_token(scanner, token);
+	ASSERT_EQ(token->type, TK_ERROR);
+	ASSERT_EQ(token->param.i, 1);
+}
+
 TEST_F(ScannerTest, bin_literal_lex_error_offbyone) {
 	fprintf(stream, "0b2");
 	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
+	ASSERT_EQ(token->param.i, 1);
 }
 
 TEST_F(ScannerTest, oct_literal_lex_error_offbyone) {
@@ -162,6 +172,7 @@ TEST_F(ScannerTest, oct_literal_lex_error_offbyone) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
+	ASSERT_EQ(token->param.i, 1);
 }
 
 TEST_F(ScannerTest, hex_literal_lex_error_offbyone) {
@@ -170,4 +181,5 @@ TEST_F(ScannerTest, hex_literal_lex_error_offbyone) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
+	ASSERT_EQ(token->param.i, 1);
 }

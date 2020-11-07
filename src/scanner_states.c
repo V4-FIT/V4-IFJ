@@ -265,8 +265,8 @@ scanner_state_t s_slash(scanner_t scanner, int c) {
 scanner_state_t s_sl_comment(scanner_t scanner, int c) {
 	switch (c) {
 		case EOF:
-		case '\n':
 			ungetc(c, get_stream(scanner));
+		case '\n':
 			return S_START;
 		default:
 			return S_SL_COMMENT;
