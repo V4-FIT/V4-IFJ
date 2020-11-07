@@ -3,6 +3,7 @@
 
 #include "scanner_states.h"
 #include "char_sequence.h"
+#include "hash_map.h"
 
 // TODO: Underscores for numbers
 
@@ -10,6 +11,7 @@
 FILE *get_stream(scanner_t scanner);
 token_t get_tok(scanner_t scanner);
 charseq_t get_charseq(scanner_t scanner);
+hmap_t get_keyw_tok_map(scanner_t scanner);
 char *get_buf_escape(scanner_t scanner);
 
 state_fun_ptr_t state_map[] = {
@@ -119,14 +121,20 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 
 		default:
 			if (isalpha(c)) {
-				return S_IDENTIF;
-			}
-			if (isdigit(c)) { //special case for 0 handled above
-				if (!charseq_push_back(get_charseq(scanner), c)) {
+				if (charseq_push_back(get_charseq(scanner), c)) {
+					return S_IDENTIF;
+				} else {
 					get_tok(scanner)->type = TK_INTERNAL_ERROR;
 					return S_END;
 				}
-				return S_DEC_LIT;
+			}
+			if (isdigit(c)) { //special case for 0 handled above
+				if (charseq_push_back(get_charseq(scanner), c)) {
+					return S_DEC_LIT;
+				} else {
+					get_tok(scanner)->type = TK_INTERNAL_ERROR;
+					return S_END;
+				}
 			}
 			get_tok(scanner)->type = TK_ERROR;
 			return S_END;
@@ -153,7 +161,7 @@ scanner_state_t s_ampersand(scanner_t scanner, int c) {
 
 scanner_state_t s_colon(scanner_t scanner, int c) {
 	if (c == '=') {
-		get_tok(scanner)->type = TK_VAR_INNIT;
+		get_tok(scanner)->type = TK_VAR_INIT;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 	}
@@ -648,8 +656,13 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 		}
 	} else {
 		ungetc(c, get_stream(scanner));
-		// TODO
-		// get_tok(scanner)->param->somenewtypeprobably = hash table magic
+		hmap_iterator_t it = hmap_find(get_keyw_tok_map(scanner), charseq_data(get_charseq(scanner)));
+		if (hmap_it_eq(it, hmap_end(get_keyw_tok_map(scanner)))) {
+			get_tok(scanner)->type = TK_IDENTIFIER;
+			get_tok(scanner)->param.s = charseq_data(get_charseq(scanner));
+		} else {
+			get_tok(scanner)->type = *(token_type_t *)hmap_get_value(it);
+		}
 		return S_END;
 	}
 

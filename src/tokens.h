@@ -10,6 +10,7 @@ typedef enum
 {
 	TK_ERROR, //lexical error
 	TK_INTERNAL_ERROR, //malloc errors
+	TK_IDENTIFIER,
 	TK_STR_LIT,
 	TK_EOL,
 	TK_R_PARANTHESIS,
@@ -21,7 +22,7 @@ typedef enum
 	TK_R_CURLY,
 	TK_OR,
 	TK_AND,
-	TK_VAR_INNIT,
+	TK_VAR_INIT,
 	TK_ASSIGN,
 	TK_EQUAL,
 	TK_LESS,
@@ -70,4 +71,4 @@ typedef struct Token
 } *token_t;
 
 
-#endif // IFJ_TOKENS_H
+#endif // !IFJ_TOKENS_H

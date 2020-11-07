@@ -2,6 +2,7 @@
 
 TEST_F(ScannerTest, float_literal_zero) {
 	fprintf(stream, "0.25");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -13,6 +14,7 @@ TEST_F(ScannerTest, float_literal_zero) {
 
 TEST_F(ScannerTest, float_literal_nonzero) {
 	fprintf(stream, "2.25");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -24,6 +26,7 @@ TEST_F(ScannerTest, float_literal_nonzero) {
 
 TEST_F(ScannerTest, float_literal_exp_zero) {
 	fprintf(stream, "0e3");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -35,6 +38,7 @@ TEST_F(ScannerTest, float_literal_exp_zero) {
 
 TEST_F(ScannerTest, float_literal_exp_zero_altchar) {
 	fprintf(stream, "0E3");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -46,6 +50,7 @@ TEST_F(ScannerTest, float_literal_exp_zero_altchar) {
 
 TEST_F(ScannerTest, float_literal_exp_nonzero) {
 	fprintf(stream, "12e3");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -57,6 +62,7 @@ TEST_F(ScannerTest, float_literal_exp_nonzero) {
 
 TEST_F(ScannerTest, float_literal_exp_altchar) {
 	fprintf(stream, "12E3");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -68,6 +74,7 @@ TEST_F(ScannerTest, float_literal_exp_altchar) {
 
 TEST_F(ScannerTest, float_literal_exp_zeroexp) {
 	fprintf(stream, "0.1e0");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -79,6 +86,7 @@ TEST_F(ScannerTest, float_literal_exp_zeroexp) {
 
 TEST_F(ScannerTest, float_literal_exp_floating_zero) {
 	fprintf(stream, "0.1e3");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -90,6 +98,7 @@ TEST_F(ScannerTest, float_literal_exp_floating_zero) {
 
 TEST_F(ScannerTest, float_literal_exp_floating_nonzero) {
 	fprintf(stream, "12.1e3");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -101,6 +110,7 @@ TEST_F(ScannerTest, float_literal_exp_floating_nonzero) {
 
 TEST_F(ScannerTest, float_literal_exp_plus) {
 	fprintf(stream, "12.1e+3");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -112,6 +122,7 @@ TEST_F(ScannerTest, float_literal_exp_plus) {
 
 TEST_F(ScannerTest, float_literal_exp_minus) {
 	fprintf(stream, "12.5e-2");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
@@ -127,6 +138,7 @@ TEST_F(ScannerTest, float_literal_exp_minus) {
 
 TEST_F(ScannerTest, float_literal_lex_error_invalid_char) {
 	fprintf(stream, "0.a25");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
@@ -134,6 +146,7 @@ TEST_F(ScannerTest, float_literal_lex_error_invalid_char) {
 
 TEST_F(ScannerTest, float_literal_lex_error_invalid_exp) {
 	fprintf(stream, "0.e25");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
@@ -141,6 +154,7 @@ TEST_F(ScannerTest, float_literal_lex_error_invalid_exp) {
 
 TEST_F(ScannerTest, float_literal_lex_error_exp_eps) {
 	fprintf(stream, "0.2e");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
@@ -148,6 +162,7 @@ TEST_F(ScannerTest, float_literal_lex_error_exp_eps) {
 
 TEST_F(ScannerTest, float_literal_lex_error_exp_invalid_char) {
 	fprintf(stream, "0.2ea");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
@@ -155,6 +170,7 @@ TEST_F(ScannerTest, float_literal_lex_error_exp_invalid_char) {
 
 TEST_F(ScannerTest, float_literal_lex_error_exp_invalid_char2) {
 	fprintf(stream, "0.2e!");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
