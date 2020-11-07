@@ -2,6 +2,15 @@
 
 // ------------- Lexical Errors -------------
 
+TEST_F(ScannerTest, s_unsopported_char) {
+	fprintf(stream, "#");
+	rewind(stream);
+
+	scanner_retrieve_token(scanner, token);
+	EXPECT_EQ(token->type, TK_ERROR);
+	ASSERT_EQ(token->param.i, 1);
+}
+
 TEST_F(ScannerTest, s_pipe_lex_error) {
 	fprintf(stream, "|#");
 	rewind(stream);
@@ -22,78 +31,6 @@ TEST_F(ScannerTest, s_ampersand_lex_error) {
 
 TEST_F(ScannerTest, s_colon_lex_error) {
 	fprintf(stream, ":#");
-	rewind(stream);
-
-	scanner_retrieve_token(scanner, token);
-	EXPECT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
-}
-
-TEST_F(ScannerTest, s_assign_lex_error) {
-	fprintf(stream, "=#");
-	rewind(stream);
-
-	scanner_retrieve_token(scanner, token);
-	EXPECT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
-}
-
-TEST_F(ScannerTest, s_less_lex_error) {
-	fprintf(stream, "<#");
-	rewind(stream);
-
-	scanner_retrieve_token(scanner, token);
-	EXPECT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
-}
-
-TEST_F(ScannerTest, s_greater_lex_error) {
-	fprintf(stream, ">#");
-	rewind(stream);
-
-	scanner_retrieve_token(scanner, token);
-	EXPECT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
-}
-
-TEST_F(ScannerTest, s_not_lex_error) {
-	fprintf(stream, "!#");
-	rewind(stream);
-
-	scanner_retrieve_token(scanner, token);
-	EXPECT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
-}
-
-TEST_F(ScannerTest, s_plus_lex_error) {
-	fprintf(stream, "+#");
-	rewind(stream);
-
-	scanner_retrieve_token(scanner, token);
-	EXPECT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
-}
-
-TEST_F(ScannerTest, s_minus_lex_error) {
-	fprintf(stream, "-#");
-	rewind(stream);
-
-	scanner_retrieve_token(scanner, token);
-	EXPECT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
-}
-
-TEST_F(ScannerTest, s_star_lex_error) {
-	fprintf(stream, "*#");
-	rewind(stream);
-
-	scanner_retrieve_token(scanner, token);
-	EXPECT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
-}
-
-TEST_F(ScannerTest, s_slash_lex_error) {
-	fprintf(stream, "/+");
 	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
