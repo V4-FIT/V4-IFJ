@@ -145,3 +145,17 @@ TEST_F(ScannerTest, float_literal_lex_error_exp_eps) {
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
 }
+
+TEST_F(ScannerTest, float_literal_lex_error_exp_invalid_char) {
+	fprintf(stream, "0.2ea");
+
+	scanner_retrieve_token(scanner, token);
+	ASSERT_EQ(token->type, TK_ERROR);
+}
+
+TEST_F(ScannerTest, float_literal_lex_error_exp_invalid_char2) {
+	fprintf(stream, "0.2e!");
+
+	scanner_retrieve_token(scanner, token);
+	ASSERT_EQ(token->type, TK_ERROR);
+}
