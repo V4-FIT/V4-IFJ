@@ -3,6 +3,7 @@
 
 #include "scanner_states.h"
 #include "char_sequence.h"
+#include "hash_map.h"
 
 // TODO: Underscores for numbers
 
@@ -10,6 +11,7 @@
 FILE *get_stream(scanner_t scanner);
 token_t get_tok(scanner_t scanner);
 charseq_t get_charseq(scanner_t scanner);
+hmap_t get_key_tok_map(scanner_t scanner);
 char *get_buf_escape(scanner_t scanner);
 
 state_fun_ptr_t state_map[] = {

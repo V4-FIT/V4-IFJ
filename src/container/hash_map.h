@@ -30,7 +30,7 @@ typedef struct hmap_iterator
 
 /**
  * @brief	Allocates and initializes the hash map
- * @param	bucket_count	number of buckets to allocate 
+ * @param	bucket_count	number of buckets to allocate, check https://planetmath.org/goodhashtableprimes
  * @param	data_size		the size of the data to be store in bytes 
  * @return	the initialized hash map or NULL if allocation fails
 */
