@@ -132,6 +132,10 @@ TEST_F(ScannerTest, hex_literal_lowercase) {
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
+/**
+ * Lexical error tests
+ */
+
 TEST_F(ScannerTest, bin_literal_lex_error_offbyone) {
 	fprintf(stream, "0b2");
 
