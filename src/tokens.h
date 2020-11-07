@@ -8,8 +8,7 @@
 /*tokens produced by scanner*/
 typedef enum
 {
-	TK_ERROR, //lexical error
-	TK_INTERNAL_ERROR, //malloc errors
+	TK_ERROR,
 	TK_IDENTIFIER,
 	TK_STR_LIT,
 	TK_EOL,
