@@ -63,10 +63,10 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 			get_tok(scanner)->type = TK_EOL;
 			return S_END;
 		case ')':
-			get_tok(scanner)->type = TK_R_PARANTHESIS;
+			get_tok(scanner)->type = TK_R_PARENTHESIS;
 			return S_END;
 		case '(':
-			get_tok(scanner)->type = TK_L_PARANTHESIS;
+			get_tok(scanner)->type = TK_L_PARENTHESIS;
 			return S_END;
 		case EOF:
 			get_tok(scanner)->type = TK_EOF;
