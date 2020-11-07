@@ -11,7 +11,7 @@
 FILE *get_stream(scanner_t scanner);
 token_t get_tok(scanner_t scanner);
 charseq_t get_charseq(scanner_t scanner);
-hmap_t get_key_tok_map(scanner_t scanner);
+hmap_t get_keyw_tok_map(scanner_t scanner);
 char *get_buf_escape(scanner_t scanner);
 
 state_fun_ptr_t state_map[] = {
@@ -155,7 +155,7 @@ scanner_state_t s_ampersand(scanner_t scanner, int c) {
 
 scanner_state_t s_colon(scanner_t scanner, int c) {
 	if (c == '=') {
-		get_tok(scanner)->type = TK_VAR_INNIT;
+		get_tok(scanner)->type = TK_VAR_INIT;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 	}
@@ -650,8 +650,13 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 		}
 	} else {
 		ungetc(c, get_stream(scanner));
-		// TODO
-		// get_tok(scanner)->param->somenewtypeprobably = hash table magic
+		hmap_iterator_t it = hmap_find(get_keyw_tok_map(scanner), charseq_data(get_charseq(scanner)));
+		if (hmap_it_eq(it, hmap_end(get_keyw_tok_map(scanner)))) {
+			get_tok(scanner)->type = *(token_type_t *)hmap_get_value(it);
+		} else {
+			get_tok(scanner)->type = TK_IDENTIFIER;
+			get_tok(scanner)->param.s = charseq_data(get_charseq(scanner));
+		}
 		return S_END;
 	}
 
