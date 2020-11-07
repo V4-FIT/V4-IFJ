@@ -3,7 +3,7 @@ set(SOURCES
     main.c
     scanner.c
     scanner_states.c
-    scanner.h
+	symtable.c
 )
 
 include_directories(
