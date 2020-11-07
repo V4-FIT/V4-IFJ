@@ -2,6 +2,7 @@
 
 TEST_F(ScannerTest, expression_basic) {
 	fprintf(stream, "5 + 5");
+	rewind(stream);
 
 	// 5
 	scanner_retrieve_token(scanner, token);
@@ -23,6 +24,7 @@ TEST_F(ScannerTest, expression_basic) {
 
 TEST_F(ScannerTest, expression_basic_spaces) {
 	fprintf(stream, "\t5 \t     \t+   \t 5\t ");
+	rewind(stream);
 
 	// 5
 	scanner_retrieve_token(scanner, token);
@@ -44,6 +46,7 @@ TEST_F(ScannerTest, expression_basic_spaces) {
 
 TEST_F(ScannerTest, expression_basic_nospaces) {
 	fprintf(stream, "5+5");
+	rewind(stream);
 
 	// 5
 	scanner_retrieve_token(scanner, token);

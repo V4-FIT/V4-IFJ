@@ -2,6 +2,7 @@
 
 TEST_F(ScannerTest, string_literal_basic) {
 	fprintf(stream, "\"test\"");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_STR_LIT);
@@ -13,6 +14,7 @@ TEST_F(ScannerTest, string_literal_basic) {
 
 TEST_F(ScannerTest, string_literal_escape_replace) {
 	fprintf(stream, R"("test\x2B")");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_STR_LIT);
@@ -24,6 +26,7 @@ TEST_F(ScannerTest, string_literal_escape_replace) {
 
 TEST_F(ScannerTest, string_literal_escape_replace_lowercase) {
 	fprintf(stream, R"("test\x2b")");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_STR_LIT);
@@ -35,6 +38,7 @@ TEST_F(ScannerTest, string_literal_escape_replace_lowercase) {
 
 TEST_F(ScannerTest, string_literal_escape_whitespace) {
 	fprintf(stream, R"("test\n")");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_STR_LIT);
@@ -46,6 +50,7 @@ TEST_F(ScannerTest, string_literal_escape_whitespace) {
 
 TEST_F(ScannerTest, string_literal_escape_backslash) {
 	fprintf(stream, R"("test\\")");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_STR_LIT);
@@ -57,6 +62,7 @@ TEST_F(ScannerTest, string_literal_escape_backslash) {
 
 TEST_F(ScannerTest, string_literal_escape_quote) {
 	fprintf(stream, R"("test\"")");
+	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_STR_LIT);

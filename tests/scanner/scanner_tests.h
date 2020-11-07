@@ -11,20 +11,15 @@ extern "C" {
 
 class ScannerTest : public testing::Test {
 public:
-	char* buffer = nullptr;
-	size_t bufferSize = 0;
-	FILE* stream = open_memstream(&buffer, &bufferSize);
-
+	FILE *stream = tmpfile();
 	scanner_t scanner;
 	token_t token;
 
 	~ScannerTest() override {
 		fclose(stream);
-		free(buffer);
 	}
 
 	virtual void SetUp() {
-		fflush(stream);
 		scanner = scanner_init(stream);
 		token = new struct Token;
 	}
@@ -35,4 +30,4 @@ public:
 	}
 };
 
-#endif //IFJ_COMMON_H
+#endif // !IFJ_COMMON_H
