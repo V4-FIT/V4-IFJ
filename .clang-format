@@ -1,5 +1,4 @@
 # Generated from CLion C/C++ Code Style settings
-BasedOnStyle: LLVM
 AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: false
@@ -21,6 +20,7 @@ BraceWrapping:
   AfterClass: true
   AfterControlStatement: Never
   AfterEnum: true
+  AfterStruct: true
   AfterFunction: false
   AfterNamespace: true
   AfterUnion: true
