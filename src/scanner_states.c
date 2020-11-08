@@ -59,29 +59,29 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 			return S_START;
 
 		// end cases
-		case '\n':
-			get_tok(scanner)->type = TK_EOL;
+		case '(':
+			get_tok(scanner)->type = TK_L_PARENTHESIS;
 			return S_END;
 		case ')':
-			get_tok(scanner)->type = TK_R_PARANTHESIS;
+			get_tok(scanner)->type = TK_R_PARENTHESIS;
 			return S_END;
-		case '(':
-			get_tok(scanner)->type = TK_L_PARANTHESIS;
-			return S_END;
-		case EOF:
-			get_tok(scanner)->type = TK_EOF;
-			return S_END;
-		case ',':
-			get_tok(scanner)->type = TK_SEPARATOR;
-			return S_END;
-		case ';':
-			get_tok(scanner)->type = TK_SEMICOLON;
+		case '{':
+			get_tok(scanner)->type = TK_L_CURLY;
 			return S_END;
 		case '}':
 			get_tok(scanner)->type = TK_R_CURLY;
 			return S_END;
-		case '{':
-			get_tok(scanner)->type = TK_L_CURLY;
+		case ',':
+			get_tok(scanner)->type = TK_COMMA;
+			return S_END;
+		case ';':
+			get_tok(scanner)->type = TK_SEMICOLON;
+			return S_END;
+		case '\n':
+			get_tok(scanner)->type = TK_EOL;
+			return S_END;
+		case EOF:
+			get_tok(scanner)->type = TK_EOF;
 			return S_END;
 
 		// intermediate cases
@@ -218,7 +218,7 @@ scanner_state_t s_not(scanner_t scanner, int c) {
 
 scanner_state_t s_plus(scanner_t scanner, int c) {
 	if (c == '=') {
-		get_tok(scanner)->type = TK_INCREMENT;
+		get_tok(scanner)->type = TK_PLUS_ASSIGN;
 	} else {
 		get_tok(scanner)->type = TK_PLUS;
 		ungetc(c, get_stream(scanner));
@@ -228,7 +228,7 @@ scanner_state_t s_plus(scanner_t scanner, int c) {
 
 scanner_state_t s_minus(scanner_t scanner, int c) {
 	if (c == '=') {
-		get_tok(scanner)->type = TK_DECREMENT;
+		get_tok(scanner)->type = TK_MINUS_ASSIGN;
 	} else {
 		get_tok(scanner)->type = TK_MINUS;
 		ungetc(c, get_stream(scanner));
@@ -238,9 +238,9 @@ scanner_state_t s_minus(scanner_t scanner, int c) {
 
 scanner_state_t s_star(scanner_t scanner, int c) {
 	if (c == '=') {
-		get_tok(scanner)->type = TK_TIMES;
+		get_tok(scanner)->type = TK_MULTIPLY_ASSIGN;
 	} else {
-		get_tok(scanner)->type = TK_STAR;
+		get_tok(scanner)->type = TK_MULTIPLY;
 		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
@@ -249,14 +249,14 @@ scanner_state_t s_star(scanner_t scanner, int c) {
 scanner_state_t s_slash(scanner_t scanner, int c) {
 	switch (c) {
 		case '=':
-			get_tok(scanner)->type = TK_DIVIDE;
+			get_tok(scanner)->type = TK_DIVIDE_ASSIGN;
 			return S_END;
 		case '/':
 			return S_SL_COMMENT;
 		case '*':
 			return S_ML_COMMENT1;
 		default:
-			get_tok(scanner)->type = TK_SLASH;
+			get_tok(scanner)->type = TK_DIVIDE;
 			ungetc(c, get_stream(scanner));
 			return S_END;
 	}
@@ -265,8 +265,8 @@ scanner_state_t s_slash(scanner_t scanner, int c) {
 scanner_state_t s_sl_comment(scanner_t scanner, int c) {
 	switch (c) {
 		case EOF:
-		case '\n':
 			ungetc(c, get_stream(scanner));
+		case '\n':
 			return S_START;
 		default:
 			return S_SL_COMMENT;

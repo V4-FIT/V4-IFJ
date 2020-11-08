@@ -1,4 +1,4 @@
-#include "scanner_tests.h"
+#include "test_scanner.h"
 
 TEST_F(ScannerTest, string_literal_basic) {
 	fprintf(stream, "\"test\"");

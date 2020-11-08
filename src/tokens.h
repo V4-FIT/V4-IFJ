@@ -8,40 +8,56 @@
 /*tokens produced by scanner*/
 typedef enum
 {
+	// Special purpose
 	TK_ERROR,
-	TK_IDENTIFIER,
-	TK_STR_LIT,
-	TK_EOL,
-	TK_R_PARANTHESIS,
-	TK_L_PARANTHESIS,
 	TK_EOF,
-	TK_SEPARATOR,
-	TK_SEMICOLON,
+
+	// Separators
+	TK_L_PARENTHESIS,
+	TK_R_PARENTHESIS,
 	TK_L_CURLY,
 	TK_R_CURLY,
-	TK_OR,
-	TK_AND,
-	TK_VAR_INIT,
-	TK_ASSIGN,
+	TK_COMMA,
+	TK_SEMICOLON,
+	TK_EOL,
+
+	// Literals
+	TK_STR_LIT,
+	TK_INT_LIT,
+	TK_FLOAT_LIT,
+
+	// Arithmetic operators
+	TK_PLUS,
+	TK_MINUS,
+	TK_MULTIPLY,
+	TK_DIVIDE,
+
+	// Relational operators
 	TK_EQUAL,
+	TK_NOT_EQUAL,
 	TK_LESS,
 	TK_LESS_EQUAL,
 	TK_GREATER,
 	TK_GREATER_EQUAL,
+
+	// Logical operators
+	TK_OR,
+	TK_AND,
 	TK_NOT,
-	TK_NOT_EQUAL,
-	TK_PLUS,
-	TK_INCREMENT,
-	TK_MINUS,
-	TK_DECREMENT,
-	TK_STAR,
-	TK_TIMES,
-	TK_SLASH,
-	TK_DIVIDE,
-	TK_INT_LIT,
-	TK_FLOAT_LIT,
+
+	// Assignment operators
+	TK_VAR_INIT,
+	TK_ASSIGN,
+	TK_PLUS_ASSIGN,
+	TK_MINUS_ASSIGN,
+	TK_MULTIPLY_ASSIGN,
+	TK_DIVIDE_ASSIGN,
+
+	// Identifiers
+	TK_IDENTIFIER,
 	TK_UNDERSCORE,
-	//keywords:
+
+	// Keywords
 	TK_KEYW_PACKAGE,
 	TK_KEYW_FUNC,
 	TK_KEYW_MAIN,
@@ -62,7 +78,7 @@ typedef enum
 typedef struct Token
 {
 	token_type_t type;
-	union TokenParam {
+	union {
 		const char *s;
 		uint64_t i;
 		double f;
