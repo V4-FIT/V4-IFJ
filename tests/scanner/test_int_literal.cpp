@@ -225,7 +225,7 @@ TEST_F(ScannerTest, int_literal_lex_error_leading_zeroes) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, bin_literal_lex_error_offbyone) {
@@ -234,7 +234,7 @@ TEST_F(ScannerTest, bin_literal_lex_error_offbyone) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, oct_literal_lex_error_offbyone) {
@@ -243,7 +243,7 @@ TEST_F(ScannerTest, oct_literal_lex_error_offbyone) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, hex_literal_lex_error_offbyone) {
@@ -252,7 +252,7 @@ TEST_F(ScannerTest, hex_literal_lex_error_offbyone) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 // underscore lex errors
@@ -263,7 +263,7 @@ TEST_F(ScannerTest, int_literal_lex_error_underscore) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, dec_literal_lex_error_underscore_infix) {
@@ -272,7 +272,7 @@ TEST_F(ScannerTest, dec_literal_lex_error_underscore_infix) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, dec_literal_lex_error_underscore_postfix) {
@@ -281,7 +281,7 @@ TEST_F(ScannerTest, dec_literal_lex_error_underscore_postfix) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, bin_literal_lex_error_underscore_infix) {
@@ -290,7 +290,7 @@ TEST_F(ScannerTest, bin_literal_lex_error_underscore_infix) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, bin_literal_lex_error_underscore_postfix) {
@@ -299,7 +299,7 @@ TEST_F(ScannerTest, bin_literal_lex_error_underscore_postfix) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, oct_literal_lex_error_underscore_infix) {
@@ -308,7 +308,7 @@ TEST_F(ScannerTest, oct_literal_lex_error_underscore_infix) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, oct_literal_lex_error_underscore_postfix) {
@@ -317,7 +317,7 @@ TEST_F(ScannerTest, oct_literal_lex_error_underscore_postfix) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, hex_literal_lex_error_underscore_infix) {
@@ -326,7 +326,7 @@ TEST_F(ScannerTest, hex_literal_lex_error_underscore_infix) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
 
 TEST_F(ScannerTest, hex_literal_lex_error_underscore_postfix) {
@@ -335,5 +335,5 @@ TEST_F(ScannerTest, hex_literal_lex_error_underscore_postfix) {
 
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_ERROR);
-	ASSERT_EQ(token->param.i, 1);
+	ASSERT_EQ(token->param.i, ERROR_LEX);
 }

@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 extern "C" {
+#include "error.h"
 #include "scanner.h"
 #include "tokens.h"
 }
