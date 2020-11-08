@@ -4,7 +4,8 @@
 /**
  * Enum representing the compiler errors and their respective exit codes
  */
-enum CompilerErrors {
+enum CompilerErrors
+{
 	ERROR_LEX = 1, ///< lexical errors
 	ERROR_SYN = 2, ///< syntactic errors
 	ERROR_DEFINITION = 3, ///< redefinition of identifier or undefined identifiers

@@ -58,7 +58,7 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 		case '\t':
 			return S_START;
 
-		// end cases
+			// end cases
 		case '(':
 			get_tok(scanner)->type = TK_L_PARENTHESIS;
 			return S_END;
@@ -84,7 +84,7 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 			get_tok(scanner)->type = TK_EOF;
 			return S_END;
 
-		// intermediate cases
+			// intermediate cases
 		case '|':
 			return S_PIPE;
 		case '&':

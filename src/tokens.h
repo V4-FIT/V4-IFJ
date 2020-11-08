@@ -78,7 +78,8 @@ typedef enum
 typedef struct Token
 {
 	token_type_t type;
-	union {
+	union
+	{
 		const char *s;
 		uint64_t i;
 		double f;

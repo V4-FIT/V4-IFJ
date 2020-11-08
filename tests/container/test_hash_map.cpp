@@ -45,7 +45,7 @@ TEST(hash_map, find_add) {
 	int x = 5;
 	hmap_set_value(it, &x);
 	int *y;
-	y = (int*)hmap_get_value(it);
+	y = (int *)hmap_get_value(it);
 	EXPECT_EQ(x, *y);
 	hmap_iterator_t it2 = hmap_find(hmap, "key");
 	EXPECT_TRUE(hmap_it_eq(it, it2));
@@ -102,7 +102,7 @@ TEST(hash_map, insert_hash_collision) {
 	hmap_find_add(hmap, "e");
 	hmap_find_add(hmap, "f");
 	EXPECT_EQ(hmap_size(hmap), 6);
-	
+
 	hmap_iterator_t it = hmap_find(hmap, "c");
 	hmap_iterator_t next = hmap_it_next(it);
 	it = hmap_erase(it);
