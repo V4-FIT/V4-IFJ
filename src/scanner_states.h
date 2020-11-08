@@ -45,7 +45,7 @@ typedef enum
 	S_BIN_LIT1,
 	S_BIN_LIT2,
 	S_IDENTIF,
-	S_END // special case -> returns the completed token
+	S_END, // special case -> returns the completed token
 } scanner_state_t;
 
 typedef scanner_state_t (*state_fun_ptr_t)(scanner_t, int);

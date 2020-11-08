@@ -35,8 +35,8 @@ TEST(forward_list, push_front_1) {
 	ASSERT_NE(flist, nullptr);
 	ASSERT_EQ(flist->head, nullptr);
 
-	struct vec2 x = { 5 , 7 };
-	
+	struct vec2 x = {5, 7};
+
 	flist_push_front(flist, &x);
 	ASSERT_NE(flist, nullptr);
 	ASSERT_NE(flist->head, nullptr);

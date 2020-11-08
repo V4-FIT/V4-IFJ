@@ -39,6 +39,7 @@ TEST_F(ScannerTest, identifier_long) {
 	scanner_retrieve_token(scanner, token);
 	EXPECT_EQ(token->type, TK_EOF);
 }
+
 TEST_F(ScannerTest, keyword_package) {
 	fprintf(stream, "package");
 	rewind(stream);

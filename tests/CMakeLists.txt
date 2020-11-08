@@ -6,9 +6,9 @@ list(REMOVE_ITEM IFJ20_SRC ${CMAKE_SOURCE_DIR}/src/main.c)
 find_package(GTest REQUIRED)
 
 include_directories(
-    ${GTEST_INCLUDE_DIRS}
-    ../src
-    ../src/container
+        ${GTEST_INCLUDE_DIRS}
+        ../src
+        ../src/container
 )
 
 add_executable(tests ${SOURCES} ${IFJ20_SRC})
