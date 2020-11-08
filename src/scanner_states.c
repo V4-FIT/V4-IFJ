@@ -48,7 +48,7 @@ state_fun_ptr_t state_map[] = {
 		[S_OCT_LIT2] = &s_oct_lit2,
 		[S_BIN_LIT1] = &s_bin_lit1,
 		[S_BIN_LIT2] = &s_bin_lit2,
-		[S_IDENTIF] = &s_identif
+		[S_IDENTIF] = &s_identif,
 };
 
 scanner_state_t s_start(scanner_t scanner, int c) {

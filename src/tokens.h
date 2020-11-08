@@ -70,7 +70,7 @@ typedef enum
 	TK_KEYW_INT,
 	TK_KEYW_FLOAT64,
 	TK_KEYW_STRING,
-	TK_KEYW_BOOL
+	TK_KEYW_BOOL,
 } token_type_t;
 
 
