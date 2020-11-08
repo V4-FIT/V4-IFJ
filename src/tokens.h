@@ -75,7 +75,7 @@ typedef enum
 
 
 /*data type to represent tokens created by scanner*/
-typedef struct Token
+struct Token
 {
 	token_type_t type;
 	union
@@ -84,7 +84,8 @@ typedef struct Token
 		uint64_t i;
 		double f;
 	} param;
-} *token_t;
+};
 
+typedef struct Token *token_t;
 
 #endif // !IFJ_TOKENS_H
