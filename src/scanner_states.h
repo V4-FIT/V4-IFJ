@@ -34,16 +34,20 @@ typedef enum
 	S_UNDERSCORE,
 	S_ZERO,
 	S_DEC_LIT,
+	S_DEC_LIT_UNDERSCORE,
 	S_FLOAT_SCI_LIT,
 	S_FLOAT_LIT,
 	S_FLOAT_EXP,
 	S_FLOAT_POINT,
 	S_HEX_LIT1,
 	S_HEX_LIT2,
+	S_HEX_LIT_UNDERSCORE,
 	S_OCT_LIT1,
 	S_OCT_LIT2,
+	S_OCT_LIT_UNDERSCORE,
 	S_BIN_LIT1,
 	S_BIN_LIT2,
+	S_BIN_LIT_UNDERSCORE,
 	S_IDENTIF,
 	S_END // special case -> returns the completed token
 } scanner_state_t;
@@ -72,16 +76,20 @@ scanner_state_t s_hex2(scanner_t scanner, int c);
 scanner_state_t s_underscore(scanner_t scanner, int c);
 scanner_state_t s_zero(scanner_t scanner, int c);
 scanner_state_t s_dec_lit(scanner_t scanner, int c);
+scanner_state_t s_dec_lit_underscore(scanner_t scanner, int c);
 scanner_state_t s_float_sci_lit(scanner_t scanner, int c);
 scanner_state_t s_float_lit(scanner_t scanner, int c);
 scanner_state_t s_float_exp(scanner_t scanner, int c);
 scanner_state_t s_float_point(scanner_t scanner, int c);
 scanner_state_t s_hex_lit1(scanner_t scanner, int c);
 scanner_state_t s_hex_lit2(scanner_t scanner, int c);
+scanner_state_t s_hex_lit_underscore(scanner_t scanner, int c);
 scanner_state_t s_oct_lit1(scanner_t scanner, int c);
 scanner_state_t s_oct_lit2(scanner_t scanner, int c);
+scanner_state_t s_oct_lit_underscore(scanner_t scanner, int c);
 scanner_state_t s_bin_lit1(scanner_t scanner, int c);
 scanner_state_t s_bin_lit2(scanner_t scanner, int c);
+scanner_state_t s_bin_lit_underscore(scanner_t scanner, int c);
 scanner_state_t s_identif(scanner_t scanner, int c);
 
 extern state_fun_ptr_t state_map[];

@@ -6,8 +6,6 @@
 #include "hash_map.h"
 #include "error.h"
 
-// TODO: Underscores for numbers
-
 // defined in scanner.c
 FILE *get_stream(scanner_t scanner);
 token_t get_tok(scanner_t scanner);
@@ -38,16 +36,20 @@ state_fun_ptr_t state_map[] = {
 		[S_UNDERSCORE] = &s_underscore,
 		[S_ZERO] = &s_zero,
 		[S_DEC_LIT] = &s_dec_lit,
+		[S_DEC_LIT_UNDERSCORE] = &s_dec_lit_underscore,
 		[S_FLOAT_SCI_LIT] = &s_float_sci_lit,
 		[S_FLOAT_LIT] = &s_float_lit,
 		[S_FLOAT_EXP] = &s_float_exp,
 		[S_FLOAT_POINT] = &s_float_point,
 		[S_HEX_LIT1] = &s_hex_lit1,
 		[S_HEX_LIT2] = &s_hex_lit2,
+		[S_HEX_LIT_UNDERSCORE] = &s_hex_lit_underscore,
 		[S_OCT_LIT1] = &s_oct_lit1,
 		[S_OCT_LIT2] = &s_oct_lit2,
+		[S_OCT_LIT_UNDERSCORE] = &s_oct_lit_underscore,
 		[S_BIN_LIT1] = &s_bin_lit1,
 		[S_BIN_LIT2] = &s_bin_lit2,
+		[S_BIN_LIT_UNDERSCORE] = &s_bin_lit_underscore,
 		[S_IDENTIF] = &s_identif
 };
 
@@ -471,6 +473,8 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
+		case '_':
+			return S_DEC_LIT_UNDERSCORE;
 		default:
 			if (isdigit(c)) {
 				if (!charseq_push_back(get_charseq(scanner), c)) {
@@ -490,6 +494,21 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 				}
 				return S_END;
 			}
+	}
+}
+
+scanner_state_t s_dec_lit_underscore(scanner_t scanner, int c) {
+	if (isdigit(c)) {
+		if (charseq_push_back(get_charseq(scanner), c)) {
+			return S_DEC_LIT;
+		} else {
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
+			return S_END;
+		}
+	} else {
+		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 	}
 }
 
@@ -597,7 +616,7 @@ scanner_state_t s_hex_lit1(scanner_t scanner, int c) {
 	}
 }
 
-scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tested
+scanner_state_t s_hex_lit2(scanner_t scanner, int c) {
 	if (isxdigit(c)) {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_HEX_LIT2;
@@ -606,6 +625,8 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
+	} else if (c == '_'){
+		return S_HEX_LIT_UNDERSCORE;	
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
@@ -616,6 +637,21 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 			get_tok(scanner)->param.i = ERROR_MISC;
 		}
 		return S_END;
+	}
+}
+
+scanner_state_t s_hex_lit_underscore(scanner_t scanner, int c) {
+	if (isxdigit(c)) {
+		if (charseq_push_back(get_charseq(scanner), c)) {
+			return S_HEX_LIT2;
+		} else {
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
+			return S_END;
+		}
+	} else {
+		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 	}
 }
 
@@ -635,7 +671,7 @@ scanner_state_t s_oct_lit1(scanner_t scanner, int c) {
 	}
 }
 
-scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tested
+scanner_state_t s_oct_lit2(scanner_t scanner, int c) {
 	if (c >= '0' && c <= '7') {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_OCT_LIT2;
@@ -644,6 +680,8 @@ scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
+	} else if (c == '_') {
+		return S_OCT_LIT_UNDERSCORE;
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
@@ -657,6 +695,21 @@ scanner_state_t s_oct_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 	}
 }
 
+scanner_state_t s_oct_lit_underscore(scanner_t scanner, int c) {
+	if (c >= '0' && c <= '7') {
+		if (charseq_push_back(get_charseq(scanner), c)) {
+			return S_OCT_LIT2;
+		} else {
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
+			return S_END;
+		}
+	} else {
+		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
+	}
+}
+
 scanner_state_t s_bin_lit1(scanner_t scanner, int c) {
 	if (c == '0' || c == '1') {
 		if (charseq_push_back(get_charseq(scanner), c)) {
@@ -666,6 +719,8 @@ scanner_state_t s_bin_lit1(scanner_t scanner, int c) {
 			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
+	} else if (c == '_') {
+		return S_BIN_LIT_UNDERSCORE;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
@@ -673,7 +728,7 @@ scanner_state_t s_bin_lit1(scanner_t scanner, int c) {
 	}
 }
 
-scanner_state_t s_bin_lit2(scanner_t scanner, int c) { //TODO: refactor when tested
+scanner_state_t s_bin_lit2(scanner_t scanner, int c) {
 	if (c == '0' || c == '1') {
 		if (charseq_push_back(get_charseq(scanner), c)) {
 			return S_BIN_LIT2;
@@ -692,6 +747,21 @@ scanner_state_t s_bin_lit2(scanner_t scanner, int c) { //TODO: refactor when tes
 			get_tok(scanner)->param.i = ERROR_MISC;
 		}
 		return S_END;
+	}
+}
+
+scanner_state_t s_bin_lit_underscore(scanner_t scanner, int c) {
+	if (c == '0' || c == '1') {
+		if (charseq_push_back(get_charseq(scanner), c)) {
+			return S_BIN_LIT2;
+		} else {
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_MISC;
+			return S_END;
+		}
+	} else {
+		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
 	}
 }
 
