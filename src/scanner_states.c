@@ -50,7 +50,7 @@ state_fun_ptr_t state_map[] = {
 		[S_BIN_LIT1] = &s_bin_lit1,
 		[S_BIN_LIT2] = &s_bin_lit2,
 		[S_BIN_LIT_UNDERSCORE] = &s_bin_lit_underscore,
-		[S_IDENTIF] = &s_identif
+		[S_IDENTIF] = &s_identif,
 };
 
 scanner_state_t s_start(scanner_t scanner, int c) {
@@ -60,7 +60,7 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 		case '\t':
 			return S_START;
 
-		// end cases
+			// end cases
 		case '(':
 			get_tok(scanner)->type = TK_L_PARENTHESIS;
 			return S_END;
@@ -86,7 +86,7 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 			get_tok(scanner)->type = TK_EOF;
 			return S_END;
 
-		// intermediate cases
+			// intermediate cases
 		case '|':
 			return S_PIPE;
 		case '&':
@@ -632,7 +632,7 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) {
 			return S_END;
 		}
 	} else if (c == '_'){
-		return S_HEX_LIT_UNDERSCORE;	
+		return S_HEX_LIT_UNDERSCORE;
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;

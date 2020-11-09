@@ -70,20 +70,22 @@ typedef enum
 	TK_KEYW_INT,
 	TK_KEYW_FLOAT64,
 	TK_KEYW_STRING,
-	TK_KEYW_BOOL
+	TK_KEYW_BOOL,
 } token_type_t;
 
 
 /*data type to represent tokens created by scanner*/
-typedef struct Token
+struct Token
 {
 	token_type_t type;
-	union {
+	union
+	{
 		const char *s;
 		uint64_t i;
 		double f;
 	} param;
-} *token_t;
+};
 
+typedef struct Token *token_t;
 
 #endif // !IFJ_TOKENS_H

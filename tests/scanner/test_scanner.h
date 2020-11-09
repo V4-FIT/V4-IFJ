@@ -10,7 +10,8 @@ extern "C" {
 #include "tokens.h"
 }
 
-class ScannerTest : public testing::Test {
+class ScannerTest : public testing::Test
+{
 public:
 	FILE *stream;
 	scanner_t scanner;
