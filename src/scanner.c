@@ -2,9 +2,7 @@
 
 #include "scanner.h"
 #include "scanner_states.h"
-#include "char_sequence.h"
 #include "hash_map.h"
-#include "tokens.h"
 
 #define HMAP_BUCKET_COUNT 53
 
@@ -75,19 +73,19 @@ scanner_t scanner_init(FILE *stream) {
 		return NULL;
 	}
 
-	MAP_KEYWORD_TOKEN("package", TK_KEYW_PACKAGE);
-	MAP_KEYWORD_TOKEN("func", TK_KEYW_FUNC);
-	MAP_KEYWORD_TOKEN("main", TK_KEYW_MAIN);
-	MAP_KEYWORD_TOKEN("return", TK_KEYW_RETURN);
-	MAP_KEYWORD_TOKEN("if", TK_KEYW_IF);
-	MAP_KEYWORD_TOKEN("else", TK_KEYW_ELSE);
-	MAP_KEYWORD_TOKEN("for", TK_KEYW_FOR);
-	MAP_KEYWORD_TOKEN("true", TK_KEYW_TRUE);
-	MAP_KEYWORD_TOKEN("false", TK_KEYW_FALSE);
-	MAP_KEYWORD_TOKEN("int", TK_KEYW_INT);
-	MAP_KEYWORD_TOKEN("float64", TK_KEYW_FLOAT64);
-	MAP_KEYWORD_TOKEN("string", TK_KEYW_STRING);
-	MAP_KEYWORD_TOKEN("bool", TK_KEYW_BOOL);
+	MAP_KEYWORD_TOKEN("package", TK_KEYW_PACKAGE)
+	MAP_KEYWORD_TOKEN("func", TK_KEYW_FUNC)
+	MAP_KEYWORD_TOKEN("main", TK_KEYW_MAIN)
+	MAP_KEYWORD_TOKEN("return", TK_KEYW_RETURN)
+	MAP_KEYWORD_TOKEN("if", TK_KEYW_IF)
+	MAP_KEYWORD_TOKEN("else", TK_KEYW_ELSE)
+	MAP_KEYWORD_TOKEN("for", TK_KEYW_FOR)
+	MAP_KEYWORD_TOKEN("true", TK_KEYW_TRUE)
+	MAP_KEYWORD_TOKEN("false", TK_KEYW_FALSE)
+	MAP_KEYWORD_TOKEN("int", TK_KEYW_INT)
+	MAP_KEYWORD_TOKEN("float64", TK_KEYW_FLOAT64)
+	MAP_KEYWORD_TOKEN("string", TK_KEYW_STRING)
+	MAP_KEYWORD_TOKEN("bool", TK_KEYW_BOOL)
 
 	scanner->stream = stream;
 	scanner->token = NULL;

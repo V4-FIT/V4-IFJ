@@ -2,7 +2,6 @@
 #include <ctype.h>
 
 #include "scanner_states.h"
-#include "char_sequence.h"
 #include "hash_map.h"
 #include "error.h"
 
