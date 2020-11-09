@@ -440,6 +440,11 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 				get_tok(scanner)->param.i = ERROR_MISC;
 				return S_END;
 			}
+		case '_':
+			// there are no valid tokens starting '0_'
+			get_tok(scanner)->type = TK_ERROR;
+			get_tok(scanner)->param.i = ERROR_LEX;
+			return S_END;
 		default:
 			if (isdigit(c)) {
 				get_tok(scanner)->type = TK_ERROR;
@@ -509,6 +514,7 @@ scanner_state_t s_dec_lit_underscore(scanner_t scanner, int c) {
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
+		return S_END;
 	}
 }
 
@@ -652,6 +658,7 @@ scanner_state_t s_hex_lit_underscore(scanner_t scanner, int c) {
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
+		return S_END;
 	}
 }
 
@@ -707,6 +714,7 @@ scanner_state_t s_oct_lit_underscore(scanner_t scanner, int c) {
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
+		return S_END;
 	}
 }
 
@@ -719,8 +727,6 @@ scanner_state_t s_bin_lit1(scanner_t scanner, int c) {
 			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
-	} else if (c == '_') {
-		return S_BIN_LIT_UNDERSCORE;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
@@ -737,6 +743,8 @@ scanner_state_t s_bin_lit2(scanner_t scanner, int c) {
 			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
+	} else if (c == '_') {
+		return S_BIN_LIT_UNDERSCORE;
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
@@ -762,6 +770,7 @@ scanner_state_t s_bin_lit_underscore(scanner_t scanner, int c) {
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
+		return S_END;
 	}
 }
 
