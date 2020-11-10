@@ -120,6 +120,7 @@ TEST_F(SymtableTest, advanced) {
 		ASSERT_TRUE(symbol_valid(ref));
 		EXPECT_TRUE(hmap_it_eq(ref.it, sxx.it));
 		EXPECT_FALSE(hmap_it_eq(ref.it, sx.it));
+		EXPECT_TRUE(symbol_current_scope(ref));
 
 		EXPECT_TRUE(symtable_enter_scope(symtable));
 		{
@@ -127,10 +128,12 @@ TEST_F(SymtableTest, advanced) {
 			ASSERT_TRUE(symbol_valid(ref));
 			EXPECT_TRUE(hmap_it_eq(ref.it, sxx.it));
 			EXPECT_FALSE(hmap_it_eq(ref.it, sx.it));
+			EXPECT_FALSE(symbol_current_scope(ref));
 
 			ref = symtable_find(symtable, ty);
 			ASSERT_TRUE(symbol_valid(ref));
 			EXPECT_TRUE(hmap_it_eq(ref.it, sy.it));
+			EXPECT_FALSE(symbol_current_scope(ref));
 
 			symbol_ref_t syy = symtable_insert(symtable, ty, ST_VAR);
 			ASSERT_TRUE(symbol_valid(syy));
@@ -139,12 +142,14 @@ TEST_F(SymtableTest, advanced) {
 			ASSERT_TRUE(symbol_valid(ref));
 			EXPECT_TRUE(hmap_it_eq(ref.it, syy.it));
 			EXPECT_FALSE(hmap_it_eq(ref.it, sy.it));
+			EXPECT_TRUE(symbol_current_scope(ref));
 		}
 		symtable_exit_scope(symtable);
 
 		ref = symtable_find(symtable, ty);
 		ASSERT_TRUE(symbol_valid(ref));
 		EXPECT_TRUE(hmap_it_eq(ref.it, sy.it));
+		EXPECT_FALSE(symbol_current_scope(ref));
 
 		symbol_ref_t sz = symtable_insert(symtable, tz, ST_VAR);
 		ASSERT_TRUE(symbol_valid(ref));
@@ -154,6 +159,7 @@ TEST_F(SymtableTest, advanced) {
 	ref = symtable_find(symtable, tx);
 	ASSERT_TRUE(symbol_valid(ref));
 	EXPECT_TRUE(hmap_it_eq(ref.it, sx.it));
+	EXPECT_TRUE(symbol_current_scope(ref));
 
 	ref = symtable_find(symtable, tz);
 	ASSERT_FALSE(symbol_valid(ref));

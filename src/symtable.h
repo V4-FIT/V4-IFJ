@@ -75,6 +75,7 @@ typedef struct
 {
 	hmap_iterator_t it;
 	symbol_t *symbol;
+	symtable_t symtable;
 } symbol_ref_t;
 
 /**
@@ -169,6 +170,13 @@ void symbol_var_set_data(symbol_ref_t symbol_ref, sym_var_t sym_var_data);
  * @return	true if valid
 */
 bool symbol_valid(symbol_ref_t symbol_ref);
+
+/**
+ * @brief	Checks if the symbol was declared in the current scope
+ * @param	symbol_ref 
+ * @return	True if the symbol is from the current scope
+*/
+bool symbol_current_scope(symbol_ref_t symbol_ref);
 
 /**
  * @brief	Delete all symbols and free the allocated memory

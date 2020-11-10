@@ -106,6 +106,7 @@ symbol_ref_t symtable_find(symtable_t symtable, token_t id_token) {
 	hmap_key_t key = id_token->param.s;
 	symbol_ref_t symbol_ref;
 	symbol_ref.symbol = NULL;
+	symbol_ref.symtable = symtable;
 	for (flist_iterator_t it = flist_begin(symtable->tables); flist_it_valid(it); it = flist_it_next(it)) {
 		hmap_t hmap = *(hmap_t *)flist_get(it);
 		symbol_ref.it = hmap_find(hmap, key);
@@ -129,6 +130,7 @@ symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_
 
 	symbol_ref_t symbol_ref;
 	symbol_ref.symbol = NULL;
+	symbol_ref.symtable = symtable;
 	symbol_ref.it = hmap_find_add(hmap, name);
 
 	if (hmap_it_valid(symbol_ref.it)) {
@@ -188,6 +190,14 @@ void symbol_var_set_data(symbol_ref_t symbol_ref, sym_var_t sym_var_data) {
 
 bool symbol_valid(symbol_ref_t symbol_ref) {
 	return hmap_it_valid(symbol_ref.it);
+}
+
+bool symbol_current_scope(symbol_ref_t symbol_ref) {
+	assert(symbol_valid(symbol_ref));
+	assert(symbol_ref.symtable);
+	assert(!flist_empty(symbol_ref.symtable->tables));
+	hmap_t hmap = symtable_front(symbol_ref.symtable);
+	return symbol_ref.it.hmap == hmap;
 }
 
 void symtable_free(symtable_t symtable) {
