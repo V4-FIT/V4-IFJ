@@ -5,6 +5,7 @@ set(
         scanner.c
         scanner_states.c
         parser.c
+        rules.c
 )
 
 include_directories(
