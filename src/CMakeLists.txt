@@ -4,6 +4,7 @@ set(
         main.c
         scanner.c
         scanner_states.c
+        symtable.c
 )
 
 include_directories(
