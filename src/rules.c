@@ -65,6 +65,7 @@ int rule_root(scanner_t scanner) {
 
 ////// Actual rule definitions
 
+/// 1
 static int rule_program(scanner_t scanner) {
 	EXPECT_NONTERMINAL(rule_prolog);
 	EXPECT_NONTERMINAL(rule_functions);
@@ -73,6 +74,7 @@ static int rule_program(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
+/// 2
 static int rule_prolog(scanner_t scanner) {
 	EXPECT_TERMINAL(TK_KEYW_PACKAGE);
 	EXPECT_TERMINAL(TK_KEYW_MAIN);
@@ -81,6 +83,23 @@ static int rule_prolog(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
+/// 3
 static int rule_functions(scanner_t scanner) {
+	EXPECT_NONTERMINAL(rule_function);
+	EXPECT_NONTERMINAL(rule_function_n);
+
+	return EXIT_SUCCESS;
+}
+
+/// 4
+/// 5
+static int rule_function_n(scanner_t scanner) {
+	// Function_n -> Function Function_n
+	EXPECT_NONTERMINAL(rule_function);
+	EXPECT_NONTERMINAL(rule_function_n);
+
+	// Function_n -> ε
+	// what here?
+
 	return EXIT_SUCCESS;
 }
