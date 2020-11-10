@@ -32,6 +32,12 @@ symtable_t symtable_init() {
 		return NULL;
 	}
 
+	if (!symtable_enter_scope(symtable)) {
+		flist_free(symtable->tables);
+		free(symtable);
+		return NULL;
+	}
+
 	return symtable;
 }
 
@@ -53,7 +59,7 @@ void symtable_exit_scope(symtable_t symtable) {
 	assert(symtable && !flist_empty(symtable->tables));
 	hmap_t hmap = symtable_front(symtable);
 
-	for (hmap_iterator_t it = hmap_begin(hmap); !hmap_it_eq(it, hmap_end(hmap)); hmap_it_next(it)) {
+	for (hmap_iterator_t it = hmap_begin(hmap); !hmap_it_eq(it, hmap_end(hmap)); it = hmap_it_next(it)) {
 		symbol_t sym = *(symbol_t *)hmap_get_value(it);
 		if (sym.type == ST_FUNC) {
 			flist_free(sym.func.param_list);
@@ -99,7 +105,7 @@ symbol_ref_t symtable_find(symtable_t symtable, token_t id_token) {
 	hmap_key_t key = id_token->param.s;
 	symbol_ref_t symbol_ref;
 	symbol_ref.symbol = NULL;
-	for (flist_iterator_t it = flist_begin(symtable->tables); flist_it_valid(it); flist_it_next(it)) {
+	for (flist_iterator_t it = flist_begin(symtable->tables); flist_it_valid(it); it = flist_it_next(it)) {
 		hmap_t hmap = *(hmap_t *)flist_get(it);
 		symbol_ref.it = hmap_find(hmap, key);
 		if (hmap_it_valid(symbol_ref.it)) {
