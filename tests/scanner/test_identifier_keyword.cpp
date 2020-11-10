@@ -1,17 +1,6 @@
-#include "scanner_tests.h"
+#include "test_scanner.h"
 
-TEST_F(ScannerTest, identifier_blank) {
-	fprintf(stream, "_");
-	rewind(stream);
-
-	scanner_retrieve_token(scanner, token);
-	ASSERT_EQ(token->type, TK_UNDERSCORE);
-
-	scanner_retrieve_token(scanner, token);
-	EXPECT_EQ(token->type, TK_EOF);
-}
-
-TEST_F(ScannerTest, identifier1) {
+TEST_F(ScannerTest, identifier_1) {
 	fprintf(stream, "a");
 	rewind(stream);
 
@@ -23,7 +12,7 @@ TEST_F(ScannerTest, identifier1) {
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
-TEST_F(ScannerTest, identifier2) {
+TEST_F(ScannerTest, identifier_2) {
 	fprintf(stream, "_x9 __");
 	rewind(stream);
 
@@ -50,6 +39,7 @@ TEST_F(ScannerTest, identifier_long) {
 	scanner_retrieve_token(scanner, token);
 	EXPECT_EQ(token->type, TK_EOF);
 }
+
 TEST_F(ScannerTest, keyword_package) {
 	fprintf(stream, "package");
 	rewind(stream);

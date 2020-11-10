@@ -99,7 +99,7 @@ hmap_iterator_t hmap_find(hmap_t hmap, hmap_key_t key) {
 	const size_t hash = hmap_hash(key);
 	const size_t idx = hash % hmap->bucket_count;
 
-	hmap_iterator_t it = { .ptr = hmap->buckets[idx], .hmap = hmap, .bucket_idx = idx };
+	hmap_iterator_t it = {.ptr = hmap->buckets[idx], .hmap = hmap, .bucket_idx = idx};
 	while (it.bucket_idx == idx && hmap_it_valid(it)) {
 		if (hmap_key_eq(key, it.ptr->key)) {
 			return it;
@@ -160,7 +160,7 @@ hmap_iterator_t hmap_erase(hmap_iterator_t it) {
 	if (hmap->buckets[idx] == it.ptr) {
 		hmap->buckets[idx] = it.ptr->next;
 	} else {
-		hmap_iterator_t it_prev = { .ptr = hmap->buckets[idx], .hmap = hmap, .bucket_idx = idx };
+		hmap_iterator_t it_prev = {.ptr = hmap->buckets[idx], .hmap = hmap, .bucket_idx = idx};
 		while (it_prev.ptr->next != it.ptr) {
 			it_prev.ptr = it_prev.ptr->next;
 		}
@@ -191,7 +191,7 @@ void hmap_free(hmap_t hmap) {
 
 hmap_iterator_t hmap_begin(hmap_t hmap) {
 	assert(hmap);
-	hmap_iterator_t it = { .ptr = NULL, .hmap = hmap, .bucket_idx = 0 };
+	hmap_iterator_t it = {.ptr = NULL, .hmap = hmap, .bucket_idx = 0};
 
 	// find the next bucket with a valid element
 	for (size_t i = 0; i < hmap->bucket_count; i++) {
@@ -206,7 +206,7 @@ hmap_iterator_t hmap_begin(hmap_t hmap) {
 
 hmap_iterator_t hmap_end(hmap_t hmap) {
 	assert(hmap);
-	hmap_iterator_t it = { .ptr = NULL, .hmap = hmap, .bucket_idx = 0 };
+	hmap_iterator_t it = {.ptr = NULL, .hmap = hmap, .bucket_idx = 0};
 
 	for (int64_t i = hmap->bucket_count - 1; i >= 0; i--) {
 		if (hmap->buckets[i] != NULL) {

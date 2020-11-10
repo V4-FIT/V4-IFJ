@@ -5,11 +5,13 @@
 #include <gtest/gtest.h>
 
 extern "C" {
+#include "error.h"
 #include "scanner.h"
 #include "tokens.h"
 }
 
-class ScannerTest : public testing::Test {
+class ScannerTest : public testing::Test
+{
 public:
 	FILE *stream;
 	scanner_t scanner;

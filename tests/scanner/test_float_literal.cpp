@@ -1,4 +1,4 @@
-#include "scanner_tests.h"
+#include "test_scanner.h"
 
 TEST_F(ScannerTest, float_literal_zero) {
 	fprintf(stream, "0.25");
@@ -19,6 +19,18 @@ TEST_F(ScannerTest, float_literal_nonzero) {
 	scanner_retrieve_token(scanner, token);
 	ASSERT_EQ(token->type, TK_FLOAT_LIT);
 	EXPECT_EQ(token->param.f, 2.25);
+
+	scanner_retrieve_token(scanner, token);
+	EXPECT_EQ(token->type, TK_EOF);
+}
+
+TEST_F(ScannerTest, float_literal_floating_zeroes) {
+	fprintf(stream, "0.0625");
+	rewind(stream);
+
+	scanner_retrieve_token(scanner, token);
+	ASSERT_EQ(token->type, TK_FLOAT_LIT);
+	EXPECT_EQ(token->param.f, 0.0625);
 
 	scanner_retrieve_token(scanner, token);
 	EXPECT_EQ(token->type, TK_EOF);
@@ -122,6 +134,18 @@ TEST_F(ScannerTest, float_literal_exp_plus) {
 
 TEST_F(ScannerTest, float_literal_exp_minus) {
 	fprintf(stream, "12.5e-2");
+	rewind(stream);
+
+	scanner_retrieve_token(scanner, token);
+	ASSERT_EQ(token->type, TK_FLOAT_LIT);
+	EXPECT_EQ(token->param.f, 0.125);
+
+	scanner_retrieve_token(scanner, token);
+	EXPECT_EQ(token->type, TK_EOF);
+}
+
+TEST_F(ScannerTest, float_literal_ignore_exp_zeroes) {
+	fprintf(stream, "12.5e-002");
 	rewind(stream);
 
 	scanner_retrieve_token(scanner, token);

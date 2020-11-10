@@ -98,12 +98,12 @@ void flist_free(flist_t flist) {
 
 flist_iterator_t flist_begin(flist_t flist) {
 	assert(flist);
-	flist_iterator_t it = { flist->head, flist };
+	flist_iterator_t it = {flist->head, flist};
 	return it;
 }
 
 flist_iterator_t flist_end(flist_t flist) {
-	flist_iterator_t it = { NULL, flist };
+	flist_iterator_t it = {NULL, flist};
 	return it;
 }
 

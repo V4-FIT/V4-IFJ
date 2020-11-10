@@ -2,28 +2,27 @@
 
 #include "scanner.h"
 #include "scanner_states.h"
-#include "char_sequence.h"
 #include "hash_map.h"
-#include "tokens.h"
 
 #define HMAP_BUCKET_COUNT 53
 
 // Helper macro for mapping keywords to tokens and checking for allocation errors
-#define MAP_KEYWORD_TOKEN(keyword,token) \
-{ \
-	token_type_t tok = token; \
-	hmap_iterator_t it = hmap_insert(scanner->keyw_tok_map, keyword, &tok); \
-	if (hmap_it_eq(it, hmap_end(scanner->keyw_tok_map))) { \
-		charseq_free(scanner->charseq); \
-		hmap_free(scanner->keyw_tok_map); \
-		free(scanner); \
-		return  NULL; \
-	} \
-}
+#define MAP_KEYWORD_TOKEN(keyword, token) \
+do { \
+    token_type_t tok = token; \
+    hmap_iterator_t it = hmap_insert(scanner->keyw_tok_map, keyword, &tok); \
+    if (hmap_it_eq(it, hmap_end(scanner->keyw_tok_map))) { \
+        charseq_free(scanner->charseq); \
+        hmap_free(scanner->keyw_tok_map); \
+        free(scanner); \
+        return  NULL; \
+    } \
+} while(0)
 
 // Private
 
-struct Scanner {
+struct Scanner
+{
 	FILE *stream;
 	charseq_t charseq;
 	hmap_t keyw_tok_map;
@@ -73,7 +72,7 @@ scanner_t scanner_init(FILE *stream) {
 		free(scanner);
 		return NULL;
 	}
-	
+
 	MAP_KEYWORD_TOKEN("package", TK_KEYW_PACKAGE);
 	MAP_KEYWORD_TOKEN("func", TK_KEYW_FUNC);
 	MAP_KEYWORD_TOKEN("main", TK_KEYW_MAIN);

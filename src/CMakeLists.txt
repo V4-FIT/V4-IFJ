@@ -1,18 +1,19 @@
 # V4-IFJ/src/CMakeLists.txt
-set(SOURCES
-    main.c
-    scanner.c
-    scanner_states.c
-    symtable.c
+set(
+        SOURCES
+        main.c
+        scanner.c
+        scanner_states.c
+        symtable.c
 )
 
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    container
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        container
 )
 
 add_subdirectory(
-    container
+        container
 )
 
 add_executable(ifj20 ${SOURCES})
