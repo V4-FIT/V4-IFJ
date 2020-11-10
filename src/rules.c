@@ -43,7 +43,8 @@ static int rule_return(scanner_t scanner);
 ////// Root
 
 int rule_root(scanner_t scanner) {
-	return rule_program(scanner);
+	int ret = rule_program(scanner);
+	return (ret == EPS_RETVAL) ? ERROR_SYN : ret;
 }
 
 ////// Actual rule definitions
@@ -53,7 +54,7 @@ static int rule_program(scanner_t scanner) {
 	// Program -> Prolog Functions eof
 	REQUIRE_NONTERMINAL(rule_prolog);
 	REQUIRE_NONTERMINAL(rule_functions);
-	REQUIRE_TERMINAL(TK_EOF);
+	TERMINAL(TK_EOF);
 
 	return EXIT_SUCCESS;
 }
@@ -61,9 +62,9 @@ static int rule_program(scanner_t scanner) {
 /// 2
 static int rule_prolog(scanner_t scanner) {
 	// Prolog -> package main eol
-	REQUIRE_TERMINAL(TK_KEYW_PACKAGE);
-	REQUIRE_TERMINAL(TK_KEYW_MAIN);
-	REQUIRE_TERMINAL(TK_EOL);
+	TERMINAL(TK_KEYW_PACKAGE);
+	TERMINAL(TK_KEYW_MAIN);
+	TERMINAL(TK_EOL);
 
 	return EXIT_SUCCESS;
 }
@@ -91,20 +92,20 @@ static int rule_function_n(scanner_t scanner) {
 /// 6
 static int rule_function(scanner_t scanner) {
 	// Function -> func Id ( Params ) ( ReturnTypes ) { Statements }
-	EXPECT_TERMINAL_NOTIFYPARENT(TK_KEYW_FUNC);
-	REQUIRE_TERMINAL(TK_IDENTIFIER);
+	TERMINAL(TK_KEYW_FUNC);
+	TERMINAL(TK_IDENTIFIER);
 
-	REQUIRE_TERMINAL(TK_L_PARENTHESIS);
+	TERMINAL(TK_L_PARENTHESIS);
 	REQUIRE_NONTERMINAL(rule_params);
-	REQUIRE_TERMINAL(TK_R_PARENTHESIS);
+	TERMINAL(TK_R_PARENTHESIS);
 
-	REQUIRE_TERMINAL(TK_L_PARENTHESIS);
+	TERMINAL(TK_L_PARENTHESIS);
 	REQUIRE_NONTERMINAL(rule_returnTypes);
-	REQUIRE_TERMINAL(TK_R_PARENTHESIS);
+	TERMINAL(TK_R_PARENTHESIS);
 
-	REQUIRE_TERMINAL(TK_L_CURLY);
+	TERMINAL(TK_L_CURLY);
 	REQUIRE_NONTERMINAL(rule_statements);
-	REQUIRE_TERMINAL(TK_R_CURLY);
+	TERMINAL(TK_R_CURLY);
 
 	return EXIT_SUCCESS;
 }
@@ -113,19 +114,35 @@ static int rule_function(scanner_t scanner) {
 static int rule_params(scanner_t scanner) {
 	// Params -> Param Param_n
 	REQUIRE_NONTERMINAL(rule_param);
-	REQUIRE_NONTERMINAL(rule_param_n);
+	EXPECT_NONTERMINAL(rule_param_n);
 
 	return EXIT_SUCCESS;
 }
+
+// {optional Param_n?}
+// Params -> Param Param_n // Param [ε] - valid // ignore epscode
+// Param_n -> ε // return eps
+// Param_n -> , Param Param_n
+
+// vs
+
+// {not <- required Type?}
+// Param -> Type id // [ε] id - invalid // convert epscode to error
+// Type -> ε // return eps
+// Type -> float64
+// Type -> int
+// Type -> string
+// Type -> bool
+
 
 /// 8
 /// 9
 static int rule_param_n(scanner_t scanner) {
 	// Param_n -> , Param Param_n
 	// Param_n -> ε
-	EXPECT_TERMINAL(TK_COMMA);
+	TERMINAL(TK_COMMA);
 	REQUIRE_NONTERMINAL(rule_param);
-	REQUIRE_NONTERMINAL(rule_param_n);
+	EXPECT_NONTERMINAL(rule_param_n);
 
 	return EXIT_SUCCESS;
 }
@@ -136,7 +153,7 @@ static int rule_param(scanner_t scanner) {
 	// Param -> Type id
 	// Param -> ε
 	EXPECT_NONTERMINAL(rule_type);
-	REQUIRE_TERMINAL(TK_IDENTIFIER);
+	TERMINAL(TK_IDENTIFIER);
 
 	return EXIT_SUCCESS;
 }
@@ -155,7 +172,7 @@ static int rule_returnTypes(scanner_t scanner) {
 static int rule_type_n(scanner_t scanner) {
 	// Type_n -> , Type Type_n
 	// Type_n -> ε
-	EXPECT_TERMINAL(TK_COMMA);
+	TERMINAL(TK_COMMA);
 	REQUIRE_NONTERMINAL(rule_type);
 	REQUIRE_NONTERMINAL(rule_type_n);
 
@@ -171,9 +188,8 @@ static int rule_type(scanner_t scanner) { // 4x must return EPS
 	// Type -> float64
 	// Type -> int
 	// Type -> string
-
 	int validKW[3] = {TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING};
-	EXPECT_TERMINAL_SET(validKW, 3);
+	TERMINAL_SET(validKW, 3);
 
 	return EXIT_SUCCESS;
 }
