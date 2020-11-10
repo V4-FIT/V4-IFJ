@@ -1,16 +1,11 @@
 #include "rules.h"
 #include "error.h"
 
-////// Global helper vars used in macros
-
-int _err_retval;
-token_t _tmp_token;
-
 ////// Macros
 
 #define EXPECT_TERMINAL(_KEYW) \
 do { \
-    _tmp_token = scanner_retrieve_token(scanner); \
+    token_t _tmp_token = scanner_retrieve_token(scanner); \
     if (_tmp_token->type != _KEYW) { \
         return ERROR_SYN; \
     } \
@@ -18,7 +13,7 @@ do { \
 
 #define EXPECT_NONTERMINAL(_SUBFUNC) \
 do { \
-    _err_retval = _SUBFUNC(scanner); \
+    int _err_retval = _SUBFUNC(scanner); \
     if (_err_retval != EXIT_SUCCESS) { \
         return _err_retval; \
     } \
