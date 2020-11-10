@@ -6,7 +6,7 @@
 
 token_t token;
 
-#define EXPECT_TOKEN(_KEYW) \
+#define EXPECT_TERMINAL(_KEYW) \
 do { \
     scanner_retrieve_token(scanner, token); \
     if (token->type != _KEYW) { \
@@ -27,9 +27,9 @@ static int functions(scanner_t scanner) {
 }
 
 static int prolog(scanner_t scanner) {
-	EXPECT_TOKEN(TK_KEYW_PACKAGE);
-	EXPECT_TOKEN(TK_KEYW_MAIN);
-	EXPECT_TOKEN(TK_EOL);
+	EXPECT_TERMINAL(TK_KEYW_PACKAGE);
+	EXPECT_TERMINAL(TK_KEYW_MAIN);
+	EXPECT_TERMINAL(TK_EOL);
 
 	return EXIT_SUCCESS;
 }
@@ -39,7 +39,7 @@ static int program(scanner_t scanner) {
 
 	EXPECT_NONTERMINAL(prolog);
 	EXPECT_NONTERMINAL(functions);
-	EXPECT_TOKEN(TK_EOF);
+	EXPECT_TERMINAL(TK_EOF);
 
 	return EXIT_SUCCESS;
 }
