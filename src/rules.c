@@ -54,7 +54,7 @@ static int rule_program(scanner_t scanner) {
 	// Program -> Prolog Functions eof
 	REQUIRE_NONTERMINAL(rule_prolog);
 	REQUIRE_NONTERMINAL(rule_functions);
-	TERMINAL(TK_EOF);
+	REQUIRE_TERMINAL(TK_EOF);
 
 	return EXIT_SUCCESS;
 }
@@ -62,9 +62,9 @@ static int rule_program(scanner_t scanner) {
 /// 2
 static int rule_prolog(scanner_t scanner) {
 	// Prolog -> package main eol
-	TERMINAL(TK_KEYW_PACKAGE);
-	TERMINAL(TK_KEYW_MAIN);
-	TERMINAL(TK_EOL);
+	REQUIRE_TERMINAL(TK_KEYW_PACKAGE);
+	REQUIRE_TERMINAL(TK_KEYW_MAIN);
+	REQUIRE_TERMINAL(TK_EOL);
 
 	return EXIT_SUCCESS;
 }
@@ -92,20 +92,20 @@ static int rule_function_n(scanner_t scanner) {
 /// 6
 static int rule_function(scanner_t scanner) {
 	// Function -> func Id ( Params ) ( ReturnTypes ) { Statements }
-	TERMINAL(TK_KEYW_FUNC);
-	TERMINAL(TK_IDENTIFIER);
+	REQUIRE_TERMINAL(TK_KEYW_FUNC);
+	REQUIRE_TERMINAL(TK_IDENTIFIER);
 
-	TERMINAL(TK_L_PARENTHESIS);
+	REQUIRE_TERMINAL(TK_L_PARENTHESIS);
 	REQUIRE_NONTERMINAL(rule_params);
-	TERMINAL(TK_R_PARENTHESIS);
+	REQUIRE_TERMINAL(TK_R_PARENTHESIS);
 
-	TERMINAL(TK_L_PARENTHESIS);
+	REQUIRE_TERMINAL(TK_L_PARENTHESIS);
 	REQUIRE_NONTERMINAL(rule_returnTypes);
-	TERMINAL(TK_R_PARENTHESIS);
+	REQUIRE_TERMINAL(TK_R_PARENTHESIS);
 
-	TERMINAL(TK_L_CURLY);
+	REQUIRE_TERMINAL(TK_L_CURLY);
 	REQUIRE_NONTERMINAL(rule_statements);
-	TERMINAL(TK_R_CURLY);
+	REQUIRE_TERMINAL(TK_R_CURLY);
 
 	return EXIT_SUCCESS;
 }
@@ -114,7 +114,7 @@ static int rule_function(scanner_t scanner) {
 static int rule_params(scanner_t scanner) {
 	// Params -> Param Param_n
 	REQUIRE_NONTERMINAL(rule_param);
-	EXPECT_NONTERMINAL(rule_param_n);
+	REQUIRE_NONTERMINAL(rule_param_n);
 
 	return EXIT_SUCCESS;
 }
@@ -140,9 +140,9 @@ static int rule_params(scanner_t scanner) {
 static int rule_param_n(scanner_t scanner) {
 	// Param_n -> , Param Param_n
 	// Param_n -> ε
-	TERMINAL(TK_COMMA);
+	EXPECT_TERMINAL(TK_COMMA);
 	REQUIRE_NONTERMINAL(rule_param);
-	EXPECT_NONTERMINAL(rule_param_n);
+	REQUIRE_NONTERMINAL(rule_param_n);
 
 	return EXIT_SUCCESS;
 }
@@ -153,7 +153,7 @@ static int rule_param(scanner_t scanner) {
 	// Param -> Type id
 	// Param -> ε
 	EXPECT_NONTERMINAL(rule_type);
-	TERMINAL(TK_IDENTIFIER);
+	REQUIRE_TERMINAL(TK_IDENTIFIER);
 
 	return EXIT_SUCCESS;
 }
@@ -172,7 +172,7 @@ static int rule_returnTypes(scanner_t scanner) {
 static int rule_type_n(scanner_t scanner) {
 	// Type_n -> , Type Type_n
 	// Type_n -> ε
-	TERMINAL(TK_COMMA);
+	EXPECT_TERMINAL(TK_COMMA);
 	REQUIRE_NONTERMINAL(rule_type);
 	REQUIRE_NONTERMINAL(rule_type_n);
 
@@ -189,7 +189,7 @@ static int rule_type(scanner_t scanner) { // 4x must return EPS
 	// Type -> int
 	// Type -> string
 	int validKW[3] = {TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING};
-	TERMINAL_SET(validKW, 3);
+	EXPECT_TERMINAL_SET(validKW, 3);
 
 	return EXIT_SUCCESS;
 }

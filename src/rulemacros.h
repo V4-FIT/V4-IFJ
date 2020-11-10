@@ -14,7 +14,7 @@
  * expects keyword, if not then accepts everything but immediately returns with eps return value
  * how the eps value will be handled depends on REQUIRE_NONTERMINAL and EXPECT_NONTERMINAL
  */
-#define TERMINAL(_KEYW) \
+#define REQUIRE_TERMINAL(_KEYW) \
 do { \
     token_t _tmp_token = scanner_retrieve_token(scanner); \
     if (_tmp_token->type != _KEYW) { \
@@ -23,9 +23,21 @@ do { \
 } while(0)
 
 /**
+ * expects keyword, if not then accepts everything but immediately returns silently
+ */
+#define EXPECT_TERMINAL(_KEYW) \
+do { \
+    token_t _tmp_token = scanner_retrieve_token(scanner); \
+    if (_tmp_token->type != _KEYW) { \
+        return EXIT_SUCCESS; \
+    } \
+} while(0)
+
+
+/**
  * same as above but over a set
  */
-#define TERMINAL_SET(_KEYWSET, _KWSETSIZE) \
+#define EXPECT_TERMINAL_SET(_KEYWSET, _KWSETSIZE) \
 do { \
     token_t _tmp_token = scanner_retrieve_token(scanner); \
     int found = 0; \
@@ -35,7 +47,7 @@ do { \
         } \
     } \
     if (found == 0) { \
-        return EPS_RETVAL; \
+        return EXIT_SUCCESS; \
     } \
 } while (0)
 
