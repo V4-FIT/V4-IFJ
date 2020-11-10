@@ -7,7 +7,7 @@
 extern "C" {
 #include "error.h"
 #include "tokens.h"
-#include "syntax.h"
+#include "parser.h"
 }
 
 class SyntaxTest : public testing::Test

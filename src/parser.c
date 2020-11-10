@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "syntax.h"
+#include "parser.h"
 #include "scanner.h"
 #include "error.h"
 
@@ -44,9 +44,17 @@ static int program(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-int analyse_syntax(FILE *stream) {
-	scanner_t scanner = scanner_init(stream);
+int parse(FILE *stream) {
 	token = malloc(sizeof(struct Token));
+	if (token == NULL) {
+		return ERROR_MISC;
+	}
+
+	scanner_t scanner = scanner_init(stream);
+	if (scanner == NULL) {
+		free(token);
+		return ERROR_MISC;
+	}
 
 	int res = program(scanner);
 

@@ -4,7 +4,7 @@ set(
         main.c
         scanner.c
         scanner_states.c
-        syntax.c
+        parser.c
 )
 
 include_directories(
