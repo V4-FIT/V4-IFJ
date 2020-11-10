@@ -119,22 +119,6 @@ static int rule_params(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-// {optional Param_n?}
-// Params -> Param Param_n // Param [ε] - valid // ignore epscode
-// Param_n -> ε // return eps
-// Param_n -> , Param Param_n
-
-// vs
-
-// {not <- required Type?}
-// Param -> Type id // [ε] id - invalid // convert epscode to error
-// Type -> ε // return eps
-// Type -> float64
-// Type -> int
-// Type -> string
-// Type -> bool
-
-
 /// 8
 /// 9
 static int rule_param_n(scanner_t scanner) {
