@@ -6,6 +6,7 @@ set(
         scanner_states.c
         parser.c
         rules.c
+        symtable.c
 )
 
 include_directories(
