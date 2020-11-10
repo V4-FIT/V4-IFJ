@@ -60,8 +60,15 @@ scanner_t scanner_init(FILE *stream) {
 		return NULL;
 	}
 
+	scanner->token = malloc(sizeof(struct Token));
+	if (scanner->token == NULL) {
+		free(scanner);
+		return NULL;
+	}
+
 	scanner->charseq = charseq_init();
 	if (scanner->charseq == NULL) {
+		free(scanner->token);
 		free(scanner);
 		return NULL;
 	}
@@ -69,6 +76,7 @@ scanner_t scanner_init(FILE *stream) {
 	scanner->keyw_tok_map = hmap_init(HMAP_BUCKET_COUNT, sizeof(token_type_t));
 	if (scanner->keyw_tok_map == NULL) {
 		charseq_free(scanner->charseq);
+		free(scanner->token);
 		free(scanner);
 		return NULL;
 	}
@@ -88,24 +96,30 @@ scanner_t scanner_init(FILE *stream) {
 	MAP_KEYWORD_TOKEN("bool", TK_KEYW_BOOL);
 
 	scanner->stream = stream;
-	scanner->token = NULL;
 	return scanner;
 }
 
-void scanner_retrieve_token(scanner_t scanner, token_t token) {
+token_t scanner_retrieve_token(scanner_t scanner) {
 	charseq_clear(scanner->charseq);
-	scanner->token = token;
 
 	scanner_state_t state = S_START;
 	while (state != S_END) {
 		state = state_map[state](scanner, getc(scanner->stream));
 	}
+
+	return scanner->token;
+}
+
+// just a public wrapper function
+token_t scanner_get_token_ptr(scanner_t scanner) {
+	return get_tok(scanner);
 }
 
 void scanner_free(scanner_t scanner) {
 	if (scanner != NULL) {
 		charseq_free(scanner->charseq);
 		hmap_free(scanner->keyw_tok_map);
+		free(scanner->token);
 		free(scanner);
 	}
 }

@@ -1,6 +1,8 @@
 #ifndef IFJ_SCANNER_H
 #define IFJ_SCANNER_H
 
+#include <stdio.h>
+
 #include "tokens.h"
 
 #define ESCAPE_SEQUENCE_BUFFER_SIZE 3
@@ -15,11 +17,19 @@ typedef struct Scanner *scanner_t;
 scanner_t scanner_init(FILE *stream);
 
 /**
- * Retrieves the next token
+ * Updates the token data and returns a pointer to it
  * @param scanner initialized scanner
- * @param token token into which the new token data will be written
+ * @return token pointer with updated data
  */
-void scanner_retrieve_token(scanner_t scanner, token_t token);
+token_t scanner_retrieve_token(scanner_t scanner);
+
+/**
+ * Return a pointer to the scanner token
+ * @param scanner initialized scanner
+ * @return token pointer
+ * @note this function DOES NOT update the token values
+ */
+token_t scanner_get_token_ptr(scanner_t scanner);
 
 /**
  * Free the allocated scanner
