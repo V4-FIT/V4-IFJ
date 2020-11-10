@@ -1,58 +1,6 @@
 #include "rules.h"
 #include "error.h"
-
-////// Defines
-
-// for eps return a special return code
-#define EPS_RETVAL 0xDEAD
-
-////// Macros
-
-#define REQUIRE_TERMINAL(_KEYW) \
-do { \
-    token_t _tmp_token = scanner_retrieve_token(scanner); \
-    if (_tmp_token->type != _KEYW) { \
-        return ERROR_SYN; \
-    } \
-} while(0)
-
-// expects keyword, if not then accepts everything but immediately returns
-#define EXPECT_TERMINAL(_KEYW) \
-do { \
-    token_t _tmp_token = scanner_retrieve_token(scanner); \
-    if (_tmp_token->type != _KEYW) { \
-        return EXIT_SUCCESS; \
-    } \
-} while(0)
-
-// expects keyword, if not then immediately returns and notifies parent
-// WARNING: the parent must implement EXPECT_NONTERMINAL
-// omitting this warning could result in an invalid return value from the compiler!
-#define EXPECT_TERMINAL_NOTIFYPARENT(_KEYW) \
-do { \
-    token_t _tmp_token = scanner_retrieve_token(scanner); \
-    if (_tmp_token->type != _KEYW) { \
-        return EPS_RETVAL; \
-    } \
-} while(0)
-
-#define REQUIRE_NONTERMINAL(_SUBFUNC) \
-do { \
-    int _err_retval = _SUBFUNC(scanner); \
-    if (_err_retval != EXIT_SUCCESS) { \
-        return _err_retval; \
-    } \
-} while(0)
-
-// accepts EPS from child - silently ignores child eps return value
-// the children of this call should implement EXPECT_TERMINAL_NOTIFYPARENT
-#define EXPECT_NONTERMINAL(_SUBFUNC) \
-do { \
-    int _err_retval = _SUBFUNC(scanner); \
-    if (_err_retval != EXIT_SUCCESS && _err_retval != EPS_RETVAL) { \
-        return _err_retval; \
-    } \
-} while(0)
+#include "rulemacros.h"
 
 ////// Forward declarations
 
@@ -214,11 +162,18 @@ static int rule_type_n(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
+/// 15
+/// 16
+/// 17
+/// 18
 static int rule_type(scanner_t scanner) { // 4x must return EPS
 	// Type -> ε
 	// Type -> float64
 	// Type -> int
 	// Type -> string
+
+	int validKW[3] = {TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING};
+	EXPECT_TERMINAL_SET(validKW, 3);
 
 	return EXIT_SUCCESS;
 }
