@@ -10,12 +10,14 @@
 
 typedef struct symtable *symtable_t;
 
-typedef enum {
+typedef enum
+{
 	ST_VAR,
 	ST_FUNC
 } symbol_type_t;
 
-typedef enum {
+typedef enum
+{
 	DT_INTEGER,
 	DT_FLOAT64,
 	DT_STRING,
@@ -23,13 +25,15 @@ typedef enum {
 	DT_UNDEFINED
 } data_type_t;
 
-typedef struct {
+typedef struct
+{
 	data_type_t data_type;
 	//TODO: SYMTABLE - add required attributes for variables
 } sym_var_t;
 
 
-typedef struct {
+typedef struct
+{
 	unsigned int param_count;
 	flist_t param_list;
 	unsigned int return_count;
@@ -37,19 +41,22 @@ typedef struct {
 	//TODO: SYMTABLE - revise / add required attributes for functions
 } sym_func_t;
 
-typedef struct {
+typedef struct
+{
 	const char *name;
 	symbol_type_t type;
-	union {
+	union
+	{
 		sym_var_t var;
 		sym_func_t func;
 	};
 } symbol_t;
 
-typedef struct {
+typedef struct
+{
 	hmap_iterator_t it;
 	symbol_t *symbol;
-}symbol_ref_t;
+} symbol_ref_t;
 
 symtable_t symtable_init();
 

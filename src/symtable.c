@@ -10,7 +10,8 @@
 
 #define BUCKET_COUNT 769
 
-struct symtable {
+struct symtable
+{
 	flist_t tables;
 };
 

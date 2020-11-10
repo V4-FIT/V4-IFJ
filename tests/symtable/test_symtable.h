@@ -7,16 +7,17 @@ extern "C" {
 #include "symtable.h"
 }
 
-#define TK(_name, _type) \
+#define TK(_name, _type)              \
 	token_t _name = new struct Token; \
 	_name->type = _type;
 
-#define TK_ID(_name, _param) \
+#define TK_ID(_name, _param)          \
 	token_t _name = new struct Token; \
-	_name->type = TK_IDENTIFIER; \
+	_name->type = TK_IDENTIFIER;      \
 	_name->param.s = _param;
 
-class SymtableTest : public testing::Test {
+class SymtableTest : public testing::Test
+{
 public:
 	symtable_t symtable;
 

@@ -2,7 +2,8 @@
 
 #include "test_symtable.h"
 
-struct symtable {
+struct symtable
+{
 	flist_t tables;
 };
 
@@ -13,9 +14,10 @@ TEST_F(SymtableTest, init) {
 
 TEST_F(SymtableDeathTest, exit_scope) {
 	ASSERT_DEATH({
-					symtable_exit_scope(symtable);
-					symtable_exit_scope(symtable);
-				 }, "");
+		symtable_exit_scope(symtable);
+		symtable_exit_scope(symtable);
+	},
+				 "");
 }
 
 TEST_F(SymtableTest, enter_scope) {
@@ -37,7 +39,7 @@ TEST_F(SymtableTest, insert) {
 	symbol_ref_t s_ref = symtable_insert(symtable, token, ST_VAR);
 	ASSERT_TRUE(symbol_valid(s_ref));
 	ASSERT_NE(s_ref.symbol, nullptr);
-	
+
 	EXPECT_TRUE(symtable_has_symbol(symtable, token));
 	EXPECT_TRUE(symtable_has_var(symtable, token));
 	EXPECT_FALSE(symtable_has_func(symtable, token));
@@ -61,7 +63,7 @@ TEST_F(SymtableDeathTest, var_set_data) {
 	symbol_ref_t s_ref = symtable_insert(symtable, token, ST_FUNC);
 	ASSERT_TRUE(symbol_valid(s_ref));
 
-	ASSERT_DEBUG_DEATH(symbol_var_set_data(s_ref, { DT_INTEGER }), "");
+	ASSERT_DEBUG_DEATH(symbol_var_set_data(s_ref, {DT_INTEGER}), "");
 
 	delete token;
 }
@@ -90,8 +92,8 @@ TEST_F(SymtableDeathTest, func_add_param_and_return) {
 	symbol_ref_t s_ref = symtable_insert(symtable, token, ST_VAR);
 	ASSERT_TRUE(symbol_valid(s_ref));
 
-	ASSERT_DEATH(symbol_func_add_param(s_ref, { DT_INTEGER }), "");
-	ASSERT_DEATH(symbol_func_add_return(s_ref, { DT_INTEGER }), "");
+	ASSERT_DEATH(symbol_func_add_param(s_ref, {DT_INTEGER}), "");
+	ASSERT_DEATH(symbol_func_add_return(s_ref, {DT_INTEGER}), "");
 
 	delete token;
 }
@@ -160,4 +162,3 @@ TEST_F(SymtableTest, advanced) {
 	delete ty;
 	delete tz;
 }
-
