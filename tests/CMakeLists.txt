@@ -12,7 +12,12 @@ include_directories(
 )
 
 add_executable(tests ${SOURCES} ${IFJ20_SRC})
-target_link_libraries(tests ${GTEST_BOTH_LIBRARIES} pthread)
+
+if (MSVC)
+    target_link_libraries(tests ${GTEST_BOTH_LIBRARIES})
+else ()
+    target_link_libraries(tests ${GTEST_BOTH_LIBRARIES} pthread)
+endif ()
 
 add_test(NAME Unit_Tests COMMAND tests)
 
