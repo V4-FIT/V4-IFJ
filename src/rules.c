@@ -85,7 +85,7 @@ static int rule_function_n(scanner_t scanner) {
 	// Function_n -> Function Function_n
 	// Function_n -> ε
 	EXPECT_NONTERMINAL(rule_function);
-	REQUIRE_NONTERMINAL(rule_function_n);
+	EXPECT_NONTERMINAL(rule_function_n);
 
 	return EXIT_SUCCESS;
 }
@@ -182,20 +182,45 @@ static int rule_type(scanner_t scanner) { // 4x must return EPS
 // TODO
 
 static int rule_statements(scanner_t scanner) {
+	// Statements -> Statement Statement_n
+	// Statements -> ε
+	EXPECT_NONTERMINAL(rule_statement);
+	EXPECT_NONTERMINAL(rule_statement_n);
 	return EXIT_SUCCESS;
 }
 
-// LL: Statements -> ε
-
 static int rule_statement_n(scanner_t scanner) { // 2x
+	// Statement_n -> eol Statement Statement_n
+	EXPECT_TERMINAL(TK_EOL);
+	EXPECT_NONTERMINAL(rule_statement);
+	EXPECT_NONTERMINAL(rule_statement_n);
 	return EXIT_SUCCESS;
 }
 
 static int rule_statement(scanner_t scanner) { // 6x
+	//Statement -> Var_define
+	// Statement -> Assignment
+	// Statement -> Conditionals
+	// Statement -> Iterative
+	// Statement -> FunctionCall
+	// Statement -> Return
+	// Statement -> ε
+
+	EXPECT_NONTERMINAL(rule_var_define);
+	EXPECT_NONTERMINAL(rule_assignment);
+	EXPECT_NONTERMINAL(rule_conditionals);
+	EXPECT_NONTERMINAL(rule_iterative);
+	EXPECT_NONTERMINAL(rule_return);
+	EXPECT_NONTERMINAL(rule_functionCall);
 	return EXIT_SUCCESS;
 }
 
 static int rule_var_define(scanner_t scanner) {
+	//Var_define -> id := Expression
+	// Var_define -> ε
+
+	EXPECT_TERMINAL(TK_IDENTIFIER);
+
 	return EXIT_SUCCESS;
 }
 
@@ -208,22 +233,39 @@ static int rule_assignment(scanner_t scanner) {
 // LL: Assignment -> ε
 
 static int rule_ids(scanner_t scanner) {
+	//	Ids -> id Id_n
+	REQUIRE_TERMINAL(TK_IDENTIFIER);
+	REQUIRE_NONTERMINAL(rule_id_n);
 	return EXIT_SUCCESS;
 }
 
 static int rule_id_n(scanner_t scanner) { // 2x
+	// Id_n -> , id Id_n
+	// Id_n -> ε
+
 	return EXIT_SUCCESS;
 }
 
 static int rule_expressions(scanner_t scanner) {
+	// Expressions -> Expression Expression_n
 	return EXIT_SUCCESS;
 }
 
 static int rule_expression_n(scanner_t scanner) { // 2x
+	// Expression_n -> , Expression Expression_n
+	// Expression_n -> ε
 	return EXIT_SUCCESS;
 }
 
 static int rule_assignOp(scanner_t scanner) { // 5x
+	// AssignOp -> +=
+	// AssignOp -> -=
+	// AssignOp -> *=
+	// AssignOp -> /=
+	// AssignOp -> =
+
+	int validKW[5] = {TK_ASSIGN, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN };
+	EXPECT_TERMINAL_SET(validKW, 5);
 	return EXIT_SUCCESS;
 }
 
@@ -256,18 +298,40 @@ static int rule_funParam_n(scanner_t scanner) { // 2x
 }
 
 static int rule_funParam(scanner_t scanner) { // 2x
+	// FunParam -> Term
+	// FunParam -> ε
+
+	EXPECT_NONTERMINAL(rule_term);
 	return EXIT_SUCCESS;
 }
 
 static int rule_term(scanner_t scanner) { // 2x
+	// Term -> id
+	// Term -> Literal
+
+	// ?
+	EXPECT_TERMINAL(TK_IDENTIFIER);
+	EXPECT_NONTERMINAL(rule_literal);
 	return EXIT_SUCCESS;
 }
 
 static int rule_literal(scanner_t scanner) { // 2x
+	// Literal -> IntLit
+	// Literal -> FloatLit
+	// Literal -> StringLit
+	// Literal -> true
+	// Literal -> false
+	int validKW[5] = {TK_KEYW_TRUE, TK_KEYW_FALSE, TK_STR_LIT,	TK_INT_LIT,	TK_FLOAT_LIT};
+	EXPECT_TERMINAL_SET(validKW, 5);
+
 	return EXIT_SUCCESS;
 }
 
 static int rule_return(scanner_t scanner) {
+	// Return -> return Expressions
+
+	REQUIRE_TERMINAL(TK_KEYW_RETURN);
+	REQUIRE_NONTERMINAL(rule_expressions);
 	return EXIT_SUCCESS;
 }
 
