@@ -7,18 +7,17 @@
 //// Terminals
 
 /**
-* For getting the first token at the beginning of the program
+* Get next token from the parser
 */
-#define GET_NEXT_TOKEN()             \
+#define TK_NEXT()                    \
 	do {                             \
 		scanner_next_token(scanner); \
 	} while (0)
 
 /**
- * expects keyword, if not then accepts everything but immediately returns with eps return value
- * how the eps value will be handled depends on REQUIRE_NONTERMINAL and EXPECT_NONTERMINAL
+ * Get next token from the parser if current token is equal to _TOKEN
  */
-#define REQUIRE(_TOKEN)                               \
+#define TK_NEXT_IF(_TOKEN)                            \
 	do {                                              \
 		if (scanner_token(scanner)->type == _TOKEN) { \
 			scanner_next_token(scanner);              \
@@ -30,7 +29,7 @@
 /**
  * same as above but over a set
  */
-#define REQUIRE_SET(_TKNUM, ...)                           \
+#define TK_NEXT_IF_SET(_TKNUM, ...)                        \
 	do {                                                   \
 		token_type_t _TKS[_TKNUM] = {__VA_ARGS__};         \
 		bool found = false;                                \
@@ -45,6 +44,35 @@
 			return ERROR_SYN;                              \
 		}                                                  \
 	} while (0)
+
+/**
+* Check syntax against current token
+*/
+#define TK_TEST(_TOKEN)                               \
+	do {                                              \
+		if (scanner_token(scanner)->type != _TOKEN) { \
+			return ERROR_SYN;                         \
+		}                                             \
+	} while (0)
+
+/**
+ * same as above but over a set
+ */
+#define TK_TEST_SET(_TKNUM, ...)                           \
+	do {                                                   \
+		token_type_t _TKS[_TKNUM] = {__VA_ARGS__};         \
+		bool found = false;                                \
+		for (int i = 0; i < _TKNUM; ++i) {                 \
+			if (scanner_token(scanner)->type == _TKS[i]) { \
+				found = true;                              \
+			}                                              \
+		}                                                  \
+		if (!found) {                                      \
+			return ERROR_SYN;                              \
+		}                                                  \
+	} while (0)
+
+
 
 //// Non-terminals
 
