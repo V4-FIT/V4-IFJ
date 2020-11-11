@@ -5,25 +5,6 @@
 
 #include "rulemacros.h"
 
-////// helper function
-
-bool token_is(scanner_t scanner, size_t n, ...) {
-	va_list args;
-	assert(n);
-
-	va_start(args, n);
-	for (size_t i = 0; i < n; i++) {
-		token_type_t token_type = va_arg(args, token_type_t);
-		if (scanner_token(scanner)->type == token_type) {
-			va_end(args);
-			return true;
-		}
-	}
-
-	va_end(args);
-	return false;
-}
-
 ////// Forward declarations
 
 static int rule_program(scanner_t scanner);
@@ -118,9 +99,8 @@ static int rule_functions(scanner_t scanner) {
 static int rule_function(scanner_t scanner) {
 	// Function -> func Id ( Params ) ReturnTypes { Statements }
 	REQUIRE(TK_KEYW_FUNC);
-	
-	token_type_t tk[2] = {TK_IDENTIFIER, TK_KEYW_MAIN};
-	REQUIRE_SET(tk, 2);
+
+	REQUIRE_SET(2, TK_IDENTIFIER, TK_KEYW_MAIN);
 
 	REQUIRE(TK_L_PARENTHESIS);
 	TRY_EXECUTE_RULE(rule_params, 4, TK_KEYW_INT, TK_KEYW_FLOAT64, TK_KEYW_STRING, TK_KEYW_BOOL);
@@ -202,8 +182,7 @@ static int rule_type(scanner_t scanner) { // 4x must return EPS
 	// Type -> float64
 	// Type -> int
 	// Type -> string
-	int validTK[4] = {TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL};
-	REQUIRE_SET(validTK, 4);
+	REQUIRE_SET(4, TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
 
 	return EXIT_SUCCESS;
 }
@@ -296,8 +275,7 @@ static int rule_assignOp(scanner_t scanner) { // 5x
 	// AssignOp -> /=
 	// AssignOp -> =
 
-	int validKW[5] = {TK_ASSIGN, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN };
-	REQUIRE_SET(validKW, 5);
+	REQUIRE_SET(5, TK_ASSIGN, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN);
 	return EXIT_SUCCESS;
 }
 
@@ -353,8 +331,7 @@ static int rule_literal(scanner_t scanner) { // 2x
 	// Literal -> StringLit
 	// Literal -> true
 	// Literal -> false
-	int validKW[5] = {TK_KEYW_TRUE, TK_KEYW_FALSE, TK_STR_LIT,	TK_INT_LIT,	TK_FLOAT_LIT};
-	REQUIRE_SET(validKW, 5);
+	REQUIRE_SET(5, TK_KEYW_TRUE, TK_KEYW_FALSE, TK_STR_LIT, TK_INT_LIT, TK_FLOAT_LIT);
 
 	return EXIT_SUCCESS;
 }
