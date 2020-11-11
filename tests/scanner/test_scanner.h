@@ -20,7 +20,7 @@ public:
 	virtual void SetUp() {
 		stream = tmpfile();
 		scanner = scanner_init(stream);
-		token = scanner_get_token_ptr(scanner);
+		token = scanner_token(scanner);
 	}
 
 	virtual void TearDown() {

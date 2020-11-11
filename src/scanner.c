@@ -99,7 +99,7 @@ scanner_t scanner_init(FILE *stream) {
 	return scanner;
 }
 
-token_t scanner_retrieve_token(scanner_t scanner) {
+token_t scanner_next_token(scanner_t scanner) {
 	charseq_clear(scanner->charseq);
 
 	scanner_state_t state = S_START;
@@ -111,7 +111,7 @@ token_t scanner_retrieve_token(scanner_t scanner) {
 }
 
 // just a public wrapper function
-token_t scanner_get_token_ptr(scanner_t scanner) {
+token_t scanner_token(scanner_t scanner) {
 	return get_tok(scanner);
 }
 

@@ -21,7 +21,7 @@ scanner_t scanner_init(FILE *stream);
  * @param scanner initialized scanner
  * @return token pointer with updated data
  */
-token_t scanner_retrieve_token(scanner_t scanner);
+token_t scanner_next_token(scanner_t scanner);
 
 /**
  * Return a pointer to the scanner token
@@ -29,7 +29,7 @@ token_t scanner_retrieve_token(scanner_t scanner);
  * @return token pointer
  * @note this function DOES NOT update the token values
  */
-token_t scanner_get_token_ptr(scanner_t scanner);
+token_t scanner_token(scanner_t scanner);
 
 /**
  * Free the allocated scanner
