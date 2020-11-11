@@ -43,8 +43,9 @@ static int rule_return(scanner_t scanner);
 ////// Root
 
 int rule_root(scanner_t scanner) {
-	int ret = rule_program(scanner);
-	return (ret == EPS_RETVAL) ? ERROR_SYN : ret;
+	REQUIRE_NONTERMINAL(rule_program);
+
+	return EXIT_SUCCESS;
 }
 
 ////// Actual rule definitions
