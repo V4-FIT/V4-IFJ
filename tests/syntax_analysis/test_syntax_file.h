@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <gtest/gtest.h>
+#include <filesystem>
 
 #define TEST_FILE(_NAME, _ERRCODE) \
 TEST_F(SyntaxTestFile, _NAME) { \
@@ -21,16 +22,13 @@ class SyntaxTestFile : public testing::Test
 {
 public:
 	FILE *stream;
-	char *pwd = get_current_dir_name();
-	bool in_subdir;
 
 	void SetUp(const std::string &path, const std::string &filename) {
-		ASSERT_NE(pwd, nullptr); // <- this shouldn't happen
-		in_subdir = chdir(path.c_str()) == 0;
-
-		stream = fopen(filename.c_str(), "r");
+		std::string filepath = path + "/" + filename;
+		stream = fopen(filepath.c_str(), "r");
 		if (stream == nullptr) {
-			std::cout << "Non-existent file: " << pwd << "/" << path << "/" << filename << std::endl;
+			std::cout << "Non-existent file: " << std::filesystem::current_path().c_str() << "/" << filepath
+					  << std::endl;
 		}
 	}
 
@@ -38,9 +36,6 @@ public:
 		if (stream != nullptr) {
 			fclose(stream);
 			stream = nullptr;
-		}
-		if (pwd != nullptr && in_subdir) {
-			in_subdir = chdir(pwd) != 0;
 		}
 	}
 };
