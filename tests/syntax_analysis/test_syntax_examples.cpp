@@ -1,0 +1,23 @@
+#include "test_syntax_file.h"
+
+#define EXAMPLES_PATH "go_files/examples"
+
+TEST_FILE(eols, EXIT_SUCCESS)
+
+TEST_FILE(example1, EXIT_SUCCESS)
+
+TEST_FILE(example2, EXIT_SUCCESS)
+
+TEST_FILE(example3, EXIT_SUCCESS)
+
+TEST_FILE(hello, EXIT_SUCCESS)
+
+TEST_FILE(input, EXIT_SUCCESS)
+
+TEST_FILE(inputs, EXIT_SUCCESS)
+
+TEST_FILE(scope, EXIT_SUCCESS)
+
+TEST_FILE(two_pass, EXIT_SUCCESS)
+
+TEST_FILE(varfun, EXIT_SUCCESS)
