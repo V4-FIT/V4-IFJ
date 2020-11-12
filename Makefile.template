@@ -1,9 +1,9 @@
-SOURCES			= TMPLT_SRCS
-INCLUDES		= TMPLT_INCL
-OBJS			= $(SOURCES:.c=.o)
-TARGET			= compiler
+SOURCES         = TMPLT_SRCS
+INCLUDES        = TMPLT_INCL
+OBJS            = $(SOURCES:.c=.o)
+TARGET          = compiler
 
-CFLAGS			= -std=c11 -O2
+CFLAGS          = -std=c11 -O2
 
 .PHONY: all clean
 all: $(TARGET)
