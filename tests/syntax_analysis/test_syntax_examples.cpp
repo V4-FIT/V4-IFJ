@@ -2,72 +2,22 @@
 
 #define EXAMPLES_PATH "go_files/examples"
 
-TEST_F(SyntaxTestFile, example_eols) {
-	SetUp(EXAMPLES_PATH, "eols.go");
-	ASSERT_NE(stream, nullptr);
+TEST_FILE(eols, EXIT_SUCCESS)
 
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-}
+TEST_FILE(example1, EXIT_SUCCESS)
 
-TEST_F(SyntaxTestFile, example_example1) {
-	SetUp(EXAMPLES_PATH, "example1.go");
-	ASSERT_NE(stream, nullptr);
+TEST_FILE(example2, EXIT_SUCCESS)
 
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-}
+TEST_FILE(example3, EXIT_SUCCESS)
 
-TEST_F(SyntaxTestFile, example_example2) {
-	SetUp(EXAMPLES_PATH, "example2.go");
-	ASSERT_NE(stream, nullptr);
+TEST_FILE(hello, EXIT_SUCCESS)
 
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-}
+TEST_FILE(input, EXIT_SUCCESS)
 
-TEST_F(SyntaxTestFile, example_example3) {
-	SetUp(EXAMPLES_PATH, "example3.go");
-	ASSERT_NE(stream, nullptr);
+TEST_FILE(inputs, EXIT_SUCCESS)
 
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-}
+TEST_FILE(scope, EXIT_SUCCESS)
 
-TEST_F(SyntaxTestFile, example_hello) {
-	SetUp(EXAMPLES_PATH, "hello.go");
-	ASSERT_NE(stream, nullptr);
+TEST_FILE(two_pass, EXIT_SUCCESS)
 
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-}
-
-TEST_F(SyntaxTestFile, example_input) {
-	SetUp(EXAMPLES_PATH, "input.go");
-	ASSERT_NE(stream, nullptr);
-
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-}
-
-TEST_F(SyntaxTestFile, example_inputs) {
-	SetUp(EXAMPLES_PATH, "inputs.go");
-	ASSERT_NE(stream, nullptr);
-
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-}
-
-TEST_F(SyntaxTestFile, example_scope) {
-	SetUp(EXAMPLES_PATH, "scope.go");
-	ASSERT_NE(stream, nullptr);
-
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-}
-
-TEST_F(SyntaxTestFile, example_two_pass) {
-	SetUp(EXAMPLES_PATH, "two-pass.go");
-	ASSERT_NE(stream, nullptr);
-
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-}
-
-TEST_F(SyntaxTestFile, example_varfun) {
-	SetUp(EXAMPLES_PATH, "varfun.go");
-	ASSERT_NE(stream, nullptr);
-
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-}
+TEST_FILE(varfun, EXIT_SUCCESS)

@@ -4,6 +4,13 @@
 #include <cstdio>
 #include <gtest/gtest.h>
 
+#define TEST_FILE(_NAME, _ERRCODE) \
+TEST_F(SyntaxTestFile, _NAME) { \
+    SetUp(EXAMPLES_PATH, #_NAME ".go"); \
+    ASSERT_NE(stream, nullptr); \
+    EXPECT_EQ(parse(stream), _ERRCODE); \
+}
+
 extern "C" {
 #include "error.h"
 #include "tokens.h"
