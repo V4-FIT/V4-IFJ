@@ -486,7 +486,9 @@ int rule_exprs_funCall(scanner_t scanner) {
 	// TODO: expre vs funcall - BIG TODO btw
 
 	TRY_EXECUTE_RULE(rule_functionCall, TK_IDENTIFIER);
-	EXECUTE_RULE(rule_expressions);
+	if (!TRY_SUCCESS) {
+		EXECUTE_RULE(rule_expressions);
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -498,6 +500,7 @@ int rule_functionCall(scanner_t scanner) {
 	TK_NEXT_IF(TK_L_PARENTHESIS);
 	TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
 	TRY_EXECUTE_RULE(rule_Arguments, TK_IDENTIFIER, TK_KEYW_INT, TK_INT_LIT, TK_FLOAT_LIT, TK_STR_LIT, TK_KEYW_TRUE, TK_KEYW_FALSE);
+	TK_NEXT_IF(TK_R_PARENTHESIS);
 	return EXIT_SUCCESS;
 }
 
