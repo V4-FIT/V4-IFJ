@@ -56,6 +56,7 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 	switch (c) {
 		// whitespace skip
 		case ' ':
+		case '\r':
 		case '\t':
 			return S_START;
 
