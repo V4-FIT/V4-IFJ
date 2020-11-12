@@ -1,5 +1,5 @@
-#include <stdio.h>
+#include "parser.h"
 
 int main() {
-	return 2;
+	return parse(stdin);
 }
