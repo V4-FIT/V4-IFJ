@@ -17,7 +17,7 @@ TEST_F(SyntaxTest, prolog) {
 // Functions -> Function Functions
 TEST_F(SyntaxTest, functions) {
 	fprintf(stream, "package main\n");
-	fprintf(stream, "func main()() {\n}\n");
+	fprintf(stream, "func main ()() {\n}\n");
 	rewind(stream);
 	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
 
@@ -51,23 +51,23 @@ TEST_F(SyntaxTest, params) {
 	rewind(stream);
 	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
 
-	fprintf(stream, "func main(int foo) {\n}\n");
+	fprintf(stream, "func bar(foo int) {\n}\n");
 	rewind(stream);
 	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
 
-	fprintf(stream, "func bar(float64 foo,\n string bar,\n bool var) {\n}\n");
+	fprintf(stream, "func bar(foo float64,\n bar string,\n var bool) {\n}\n");
 	rewind(stream);
 	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
 
 	// missing param_n, EXPECT SYNTAX ERROR
-	fprintf(stream, "func foo(int foo, ) {\n}\n");
+	fprintf(stream, "func foo(foo int, ) {\n}\n");
 	rewind(stream);
 	EXPECT_EQ(parse(stream), ERROR_SYN);
 }
 
 TEST_F(SyntaxTest, params2) {
 	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo(int foo, if bar) {\n}\n");
+	fprintf(stream, "func foo(foo int, bar foo) {\n}\n");
 	rewind(stream);
 
 	EXPECT_EQ(parse(stream), ERROR_SYN);
@@ -105,7 +105,7 @@ TEST_F(SyntaxTest, return_list) {
 // wrong keyword, EXPECT SYNTAX ERROR
 TEST_F(SyntaxTest, return_list2) {
 	fprintf(stream, "package main\n");
-	fprintf(stream, "funct main()(int, boo) {\n}");
+	fprintf(stream, "func main()(int, boo) {\n}");
 	rewind(stream);
 
 	EXPECT_EQ(parse(stream), ERROR_SYN);
@@ -234,7 +234,7 @@ TEST_F(SyntaxTest, conditionals) {
 	// Conditional_n ->  else Else
 	// Else ->  Conditional Conditional_n
 	// Else -> { eol Statements }
-	fprintf(stream, "func bar(int boo, bool foo)(int) {\n");
+	fprintf(stream, "func bar(boo int, foo bool)(int) {\n");
 	fprintf(stream, "if boo == 1 {\n");
 	fprintf(stream, "\tboo = 100\n");
 
@@ -279,7 +279,7 @@ TEST_F(SyntaxTest, conditionals2) {
 // Iterative -> for Var_define ; Expression ; Assignment { Statements }
 TEST_F(SyntaxTest, iterative) {
 	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo(int bar)(){\n");
+	fprintf(stream, "func foo(bar int)(){\n");
 
 	// var_define -> eps
 	// assignment -> eps
@@ -342,7 +342,7 @@ TEST_F(SyntaxTest, functionCalls) {
 
 	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
 
-	fprintf(stream, "func bar(int foo, int bar)() {\n");
+	fprintf(stream, "func bar(foo int, bar int)() {\n");
 	fprintf(stream, "foo, bar = foo()\n");
 	fprintf(stream, "}\n");
 
@@ -365,10 +365,7 @@ TEST_F(SyntaxTest, functionCalls2) {
 	fprintf(stream, "func main()(){\n");
 	fprintf(stream, "foo(bar, )\n");
 	fprintf(stream, "}\n");
-	fprintf(stream, "foo()(){\n}\n");
-
 	rewind(stream);
+
 	EXPECT_EQ(parse(stream), ERROR_SYN);
 }
-
-// todo test EOLS
