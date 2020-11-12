@@ -4,6 +4,8 @@
 
 #include "rulemacros.h"
 
+int debug = 0;
+
 ////// Forward declarations
 
 static int rule_program(scanner_t scanner);
@@ -49,13 +51,14 @@ static int rule_eol_opt(scanner_t scanner);
 // adhoc rules
 static int rule_term(scanner_t scanner);
 static int rule_binaryOp(scanner_t scanner);
+static int rule_eol_opt_n(scanner_t scanner);
 
 
 ////// Root
 
 int rule_root(scanner_t scanner) {
 	RULE_INIT();
-
+	debug = 0;
 	TK_NEXT();
 	EXECUTE_RULE(rule_program);
 
@@ -68,9 +71,11 @@ int rule_root(scanner_t scanner) {
 int rule_program(scanner_t scanner) {
 	RULE_INIT();
 	// Program  -> 		  Prolog Functions eof .
+	TRY_EXECUTE_RULE(rule_eol_opt_n, TK_EOL);
 	EXECUTE_RULE(rule_prolog);
+	TRY_EXECUTE_RULE(rule_eol_opt_n, TK_EOL);
 	TRY_EXECUTE_RULE(rule_functions, TK_KEYW_FUNC, TK_EOL);
-	TK_NEXT_IF(TK_EOF);
+	TK_NEXT_IF_SET(TK_EOF, TK_EOL);
 
 	return EXIT_SUCCESS;
 }
@@ -118,7 +123,7 @@ int rule_function(scanner_t scanner) {
 	TRY_EXECUTE_RULE(rule_statements, TK_IDENTIFIER, TK_UNDERSCORE, TK_KEYW_IF, TK_KEYW_FOR, TK_KEYW_RETURN, TK_EOL);
 	TK_NEXT_IF(TK_R_CURLY);
 
-	TK_NEXT_IF(TK_EOL);
+	TK_NEXT_IF_SET(TK_EOL, TK_EOF);
 
 	return EXIT_SUCCESS;
 }
@@ -137,9 +142,10 @@ int rule_param_list(scanner_t scanner) {
 /// 6
 int rule_param_n(scanner_t scanner) {
 	RULE_INIT();
-	// Param_n -> 			  comma Param Param_n
+	// Param_n -> 			  comma Eol_opt Param Param_n
 	//						| eps.
 	TK_NEXT_IF(TK_COMMA);
+	TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
 	EXECUTE_RULE(rule_param);
 	TRY_EXECUTE_RULE(rule_param_n, TK_COMMA);
 
@@ -299,7 +305,12 @@ int rule_def_ass_call2(scanner_t scanner) {
 			EXECUTE_RULE(rule_exprs_funCall);
 			break;
 		default:
-			return ERROR_SYN;
+			TRY_EXECUTE_RULE(rule_assignOp, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_ASSIGN);
+			if (TRY_SUCCESS) {
+				EXECUTE_RULE(rule_exprs_funCall);
+			} else {
+				return ERROR_SYN;
+			}
 	}
 
 	return EXIT_SUCCESS;
@@ -363,6 +374,7 @@ int rule_else(scanner_t scanner) {
 			TK_NEXT_IF(TK_EOL);
 			TRY_EXECUTE_RULE(rule_statements, TK_IDENTIFIER, TK_UNDERSCORE, TK_KEYW_IF, TK_KEYW_FOR, TK_KEYW_RETURN);
 			TK_NEXT_IF(TK_R_CURLY);
+			break;
 		default:
 			return ERROR_SYN;
 	}
@@ -470,7 +482,7 @@ int rule_exprs_funCall(scanner_t scanner) {
 	// TODO: expre vs funcall - BIG TODO btw
 
 	TRY_EXECUTE_RULE(rule_functionCall, TK_IDENTIFIER);
-
+	EXECUTE_RULE(rule_expressions);
 	return EXIT_SUCCESS;
 }
 
@@ -570,6 +582,9 @@ int rule_expression(scanner_t scanner) {
 			TRY_EXECUTE_RULE(rule_term, TK_IDENTIFIER, TK_INT_LIT, TK_FLOAT_LIT, TK_STR_LIT, TK_KEYW_TRUE, TK_KEYW_FALSE);
 			if (TRY_SUCCESS) {
 				TRY_EXECUTE_RULE(rule_binaryOp, TK_PLUS, TK_MINUS, TK_MULTIPLY, TK_DIVIDE, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_EQUAL, TK_NOT_EQUAL, TK_LESS, TK_GREATER, TK_LESS_EQUAL, TK_GREATER_EQUAL, TK_OR, TK_AND);
+				if (!TRY_SUCCESS) {
+					return EXIT_SUCCESS;
+				}
 				EXECUTE_RULE(rule_term);
 			} else {
 				return ERROR_SYN;
@@ -578,7 +593,7 @@ int rule_expression(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-int rule_term(scanner_t scanner){
+int rule_term(scanner_t scanner) {
 	RULE_INIT();
 	// adhoc rule
 	TK_NEXT_IF_SET(TK_IDENTIFIER, TK_INT_LIT, TK_FLOAT_LIT, TK_STR_LIT, TK_KEYW_TRUE, TK_KEYW_FALSE);
@@ -588,7 +603,7 @@ int rule_term(scanner_t scanner){
 int rule_binaryOp(scanner_t scanner) {
 	RULE_INIT();
 	// adhoc rule
-	TK_NEXT_IF_SET(TK_PLUS, TK_MINUS, TK_MULTIPLY, TK_DIVIDE, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_EQUAL, TK_NOT_EQUAL, TK_LESS, TK_GREATER, TK_LESS_EQUAL, TK_GREATER_EQUAL, TK_OR, TK_AND);
+	TK_NEXT_IF_SET(TK_PLUS, TK_MINUS, TK_MULTIPLY, TK_DIVIDE, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_ASSIGN, TK_EQUAL, TK_NOT_EQUAL, TK_LESS, TK_GREATER, TK_LESS_EQUAL, TK_GREATER_EQUAL, TK_OR, TK_AND);
 	return EXIT_SUCCESS;
 }
 
@@ -604,6 +619,14 @@ int rule_literal(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
+int rule_eol_opt_n(scanner_t scanner) {
+	RULE_INIT();
+	// adhoc rule
+	// Eol_opt ->			  Eol_opt Eol_opt_n .
+	EXECUTE_RULE(rule_eol_opt);
+	TRY_EXECUTE_RULE(rule_eol_opt_n, TK_EOL);
+	return EXIT_SUCCESS;
+}
 
 /// 39
 int rule_eol_opt(scanner_t scanner) {

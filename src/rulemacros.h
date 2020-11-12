@@ -104,6 +104,7 @@
 #define EXECUTE_RULE(_RULEFUNC)                \
 	do {                                       \
 		if (_RULEFUNC(scanner) == ERROR_SYN) { \
+			debug = ERROR_SYN;                 \
 			return ERROR_SYN;                  \
 		}                                      \
 	} while (0)

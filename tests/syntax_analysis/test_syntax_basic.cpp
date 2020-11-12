@@ -131,7 +131,7 @@ TEST_F(SyntaxTest, statements) {
 	// VAR DEF (int)
 	// RETURN
 	fprintf(stream, "func foobar() (int) {\n");
-	fprintf(stream, "foo := 2");
+	fprintf(stream, "foo := 2\n");
 	fprintf(stream, "return foo\n}\n");
 	rewind(stream);
 	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
@@ -139,10 +139,10 @@ TEST_F(SyntaxTest, statements) {
 	// VAR DEF (string, float, bool)
 	// RETURN
 	fprintf(stream, "func barfoo() (string) {\n");
-	fprintf(stream, "foo := \"Hello World!\"");
-	fprintf(stream, "bar := 1.123");
-	fprintf(stream, "fb := -121.123");
-	fprintf(stream, "bf := true");
+	fprintf(stream, "foo := \"Hello World!\"\n");
+	fprintf(stream, "bar := 1.123\n");
+	fprintf(stream, "fb := -121.123\n");
+	fprintf(stream, "bf := true\n");
 	fprintf(stream, "return foo\n}\n");
 	rewind(stream);
 	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
