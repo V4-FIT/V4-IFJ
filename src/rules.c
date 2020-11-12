@@ -9,38 +9,42 @@
 static int rule_program(scanner_t scanner);
 static int rule_prolog(scanner_t scanner);
 static int rule_functions(scanner_t scanner);
-static int rule_function_n(scanner_t scanner); // 2x
 static int rule_function(scanner_t scanner);
-static int rule_params(scanner_t scanner);
-static int rule_param_n(scanner_t scanner); // 2x
-static int rule_param(scanner_t scanner); // 2x
-static int rule_returnTypes(scanner_t scanner);
-static int rule_type_n(scanner_t scanner); // 2x
-static int rule_type(scanner_t scanner); // 4x
+static int rule_param_list(scanner_t scanner);
+static int rule_param_n(scanner_t scanner);
+static int rule_param(scanner_t scanner);
+static int rule_return_list(scanner_t scanner);
+static int rule_return_n(scanner_t scanner);
+static int rule_type_n(scanner_t scanner);
+static int rule_typename(scanner_t scanner);
 static int rule_statements(scanner_t scanner);
-// Statements -> ε
-static int rule_statement_n(scanner_t scanner); // 2x
-static int rule_statement(scanner_t scanner); // 6x
+static int rule_statement(scanner_t scanner);
+static int rule_def_ass_call(scanner_t scanner);
+static int rule_ass_call(scanner_t scanner);
+static int rule_def_ass_call2(scanner_t scanner);
+static int rule_funcall(scanner_t sacanner);
 static int rule_var_define(scanner_t scanner);
-// Var_define -> εTK_NEXT_IF_NONTERMINAL
-static int rule_assignment(scanner_t scanner);
-// Assignment -> ε
-static int rule_ids(scanner_t scanner);
-static int rule_id_n(scanner_t scanner); // 2x
-static int rule_expressions(scanner_t scanner);
-static int rule_expression_n(scanner_t scanner); // 2x
-static int rule_assignOp(scanner_t scanner); // 5x
 static int rule_conditionals(scanner_t scanner);
-static int rule_conditional_n(scanner_t scanner); // 3x
-static int rule_conditional(scanner_t scanner); // 2x
+static int rule_conditional_n(scanner_t scanner);
+static int rule_else(scanner_t scanner);
+static int rule_conditional(scanner_t scanner);
 static int rule_iterative(scanner_t scanner);
-static int rule_functionCall(scanner_t scanner); // 2x
-static int rule_funParams(scanner_t scanner);
-static int rule_funParam_n(scanner_t scanner); // 2x
-static int rule_funParam(scanner_t scanner); // 2x
-static int rule_term(scanner_t scanner); // 2x
-static int rule_literal(scanner_t scanner); // 2x
+static int rule_assignment(scanner_t scanner);
+static int rule_ids(scanner_t scanner);
+static int rule_id_n(scanner_t scanner);
+static int rule_id(scanner_t scanner);
+static int rule_assignOp(scanner_t scanner);
+static int rule_exprs_funCall(scanner_t scanner);
+static int rule_functionCall(scanner_t scanner);
+static int rule_Arguments(scanner_t scanner);
+static int rule_Argument_n(scanner_t scanner);
+static int rule_Argument(scanner_t scanner);
 static int rule_return(scanner_t scanner);
+static int rule_expressions(scanner_t scanner);
+static int rule_expression_n(scanner_t scanner);
+static int rule_expression(scanner_t scanner);
+static int rule_literal(scanner_t scanner);
+static int rule_eol_opt(scanner_t sacnner);
 
 
 ////// Root
@@ -55,7 +59,7 @@ int rule_root(scanner_t scanner) {
 ////// Actual rule definitions
 
 /// 1
-static int rule_program(scanner_t scanner) {
+int rule_program(scanner_t scanner) {
 	// Program -> Prolog Functions eof
 	EXECUTE_RULE(rule_prolog);
 	TRY_EXECUTE_RULE(rule_functions, TK_KEYW_FUNC);
@@ -65,7 +69,7 @@ static int rule_program(scanner_t scanner) {
 }
 
 /// 2
-static int rule_prolog(scanner_t scanner) {
+int rule_prolog(scanner_t scanner) {
 	// Prolog -> package main eol
 	TK_NEXT_IF(TK_KEYW_PACKAGE);
 	TK_NEXT_IF(TK_KEYW_MAIN);
@@ -75,7 +79,7 @@ static int rule_prolog(scanner_t scanner) {
 }
 
 /// 3
-static int rule_functions(scanner_t scanner) {
+int rule_functions(scanner_t scanner) {
 	// Functions -> Function Function_n
 	EXECUTE_RULE(rule_function);
 	TRY_EXECUTE_RULE(rule_functions, TK_KEYW_FUNC);
@@ -84,18 +88,7 @@ static int rule_functions(scanner_t scanner) {
 }
 
 /// 4
-/// 5
-//static int rule_function_n(scanner_t scanner) {
-//	// Function_n -> Function Function_n
-//	// Function_n -> ε
-//	EXECUTE_RULE(rule_function);
-//	EXECUTE_RULE(rule_function_n);
-//
-//	return EXIT_SUCCESS;
-//}
-
-/// 6
-static int rule_function(scanner_t scanner) {
+int rule_function(scanner_t scanner) {
 	// Function -> func Id ( Params ) ReturnTypes { Statements }
 	TK_NEXT_IF(TK_KEYW_FUNC);
 
@@ -114,232 +107,183 @@ static int rule_function(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-/// 7
-static int rule_params(scanner_t scanner) {
-	// Params -> Param Param_n
-	EXECUTE_RULE(rule_param);
-	TRY_EXECUTE_RULE(rule_param_n, TK_COMMA);
-
+/// 5
+int rule_param_list(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
+/// 6
+int rule_param_n(scanner_t scanner) {
+	return EXIT_SUCCESS;
+}
+
+/// 7
+int rule_param(scanner_t scanner) {
+	return EXIT_SUCCESS;
+}
+
+
 /// 8
+int rule_return_list(scanner_t scanner) {
+	return EXIT_SUCCESS;
+}
+
 /// 9
-static int rule_param_n(scanner_t scanner) {
-	// Param_n -> , Param Param_n
-	// Param_n -> ε
-	TK_NEXT_IF(TK_COMMA);
-
-	EXECUTE_RULE(rule_param);
-	TRY_EXECUTE_RULE(rule_param_n, TK_COMMA);
-
+int rule_return_n(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
 /// 10
-/// 11
-static int rule_param(scanner_t scanner) {
-	// Param -> Type id
-	// Param -> ε
-	EXECUTE_RULE(rule_type);
-	TK_NEXT_IF(TK_IDENTIFIER);
-
+int rule_type_n(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
+/// 11
+int rule_typename(scanner_t scanner) {
+	return EXIT_SUCCESS;
+}
+
+
 /// 12
-static int rule_returnTypes(scanner_t scanner) {
-	// ReturnTypes -> ( Type Type_n )
-
-	TK_NEXT_IF(TK_L_PARENTHESIS);
-
-	TRY_EXECUTE_RULE(rule_type, TK_KEYW_INT, TK_KEYW_FLOAT64, TK_KEYW_STRING, TK_KEYW_BOOL);
-	TRY_EXECUTE_RULE(rule_type_n, TK_COMMA);
-
-	TK_NEXT_IF(TK_R_PARENTHESIS);
-
+int rule_statements(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
 /// 13
-/// 14
-static int rule_type_n(scanner_t scanner) {
-	// Type_n -> , Type Type_n
-	// Type_n -> ε
-	TK_NEXT_IF(TK_COMMA);
-	EXECUTE_RULE(rule_type);
-	TRY_EXECUTE_RULE(rule_type_n, TK_COMMA);
+int rule_statement(scanner_t scanner) {
+	return EXIT_SUCCESS;
+}
 
+/// 14
+int rule_def_ass_call(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
 /// 15
+int rule_ass_call(scanner_t scanner) {
+	return EXIT_SUCCESS;
+}
+
 /// 16
+int rule_def_ass_call2(scanner_t scanner) {
+	return EXIT_SUCCESS;
+}
+
 /// 17
+int rule_funcall(scanner_t sacanner) {
+	return EXIT_SUCCESS;
+}
+
 /// 18
-static int rule_type(scanner_t scanner) { // 4x must return EPS
-	// Type -> float64
-	// Type -> int
-	// Type -> string
-	TK_NEXT_IF_SET(TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
-
+int rule_var_define(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-// TODO
-
-static int rule_statements(scanner_t scanner) {
-	// Statements -> Statement Statement_n
-	// Statements -> ε
-	EXECUTE_RULE(rule_statement);
-	EXECUTE_RULE(rule_statement_n);
+/// 19
+int rule_conditionals(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_statement_n(scanner_t scanner) { // 2x
-	// Statement_n -> eol Statement Statement_n
-	TK_NEXT_IF(TK_EOL);
-	EXECUTE_RULE(rule_statement);
-	EXECUTE_RULE(rule_statement_n);
+/// 20
+int rule_conditional_n(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_statement(scanner_t scanner) { // 6x
-	//Statement -> Var_define
-	// Statement -> Assignment
-	// Statement -> Conditionals
-	// Statement -> Iterative
-	// Statement -> FunctionCall
-	// Statement -> Return
-	// Statement -> ε
-
-	
-
-	EXECUTE_RULE(rule_var_define);
-	EXECUTE_RULE(rule_functionCall);
-	EXECUTE_RULE(rule_assignment);
-
-	EXECUTE_RULE(rule_conditionals);
-	EXECUTE_RULE(rule_iterative);
-	EXECUTE_RULE(rule_return);
+/// 21
+int rule_else(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_var_define(scanner_t scanner) {
-	//Var_define -> id := Expression
-	// Var_define -> ε
-
-	TK_NEXT_IF(TK_IDENTIFIER);
-
+/// 22
+int rule_conditional(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-// LL: Var_define -> ε
-
-static int rule_assignment(scanner_t scanner) {
+/// 23
+int rule_iterative(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-// LL: Assignment -> ε
-
-static int rule_ids(scanner_t scanner) {
-	//	Ids -> id Id_n
-	TK_NEXT_IF(TK_IDENTIFIER);
-	EXECUTE_RULE(rule_id_n);
+/// 24
+int rule_assignment(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_id_n(scanner_t scanner) { // 2x
-	// Id_n -> , id Id_n
-	// Id_n -> ε
-
+/// 25
+int rule_ids(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_expressions(scanner_t scanner) {
-	// Expressions -> Expression Expression_n
+/// 26
+int rule_id_n(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_expression_n(scanner_t scanner) { // 2x
-	// Expression_n -> , Expression Expression_n
-	// Expression_n -> ε
+/// 27
+int rule_id(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_assignOp(scanner_t scanner) { // 5x
-	// AssignOp -> +=
-	// AssignOp -> -=
-	// AssignOp -> *=
-	// AssignOp -> /=
-	// AssignOp -> =
-
-	TK_NEXT_IF_SET(TK_ASSIGN, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN);
+/// 28
+int rule_assignOp(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_conditionals(scanner_t scanner) {
+/// 29
+int rule_exprs_funCall(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_conditional_n(scanner_t scanner) { // 3x
+/// 30
+int rule_functionCall(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_conditional(scanner_t scanner) { // 2x
+/// 31
+int rule_Arguments(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_iterative(scanner_t scanner) {
+/// 32
+int rule_Argument_n(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_functionCall(scanner_t scanner) { // 2x
+/// 33
+int rule_Argument(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_funParams(scanner_t scanner) {
+/// 34
+int rule_return(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_funParam_n(scanner_t scanner) { // 2x
+/// 35
+int rule_expressions(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_funParam(scanner_t scanner) { // 2x
-	// FunParam -> Term
-	// FunParam -> ε
-
-	EXECUTE_RULE(rule_term);
+/// 36
+int rule_expression_n(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_term(scanner_t scanner) { // 2x
-	// Term -> id
-	// Term -> Literal
-
-	// ?
-	TK_NEXT_IF(TK_IDENTIFIER);
-	EXECUTE_RULE(rule_literal);
+/// 37
+int rule_expression(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_literal(scanner_t scanner) { // 2x
-	// Literal -> IntLit
-	// Literal -> FloatLit
-	// Literal -> StringLit
-	// Literal -> true
-	// Literal -> false
-	TK_NEXT_IF_SET(TK_KEYW_TRUE, TK_KEYW_FALSE, TK_STR_LIT, TK_INT_LIT, TK_FLOAT_LIT);
-
+/// 38
+int rule_literal(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-static int rule_return(scanner_t scanner) {
-	// Return -> return Expressions
 
-	TK_NEXT_IF(TK_KEYW_RETURN);
-	EXECUTE_RULE(rule_expressions);
+/// 39
+int rule_eol_opt(scanner_t sacnner) {
 	return EXIT_SUCCESS;
 }
+
+
 
