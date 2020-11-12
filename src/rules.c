@@ -1,6 +1,5 @@
 #include "rules.h"
 
-#include <stdarg.h>
 #include <assert.h>
 
 #include "rulemacros.h"
@@ -59,7 +58,7 @@ int rule_root(scanner_t scanner) {
 static int rule_program(scanner_t scanner) {
 	// Program -> Prolog Functions eof
 	EXECUTE_RULE(rule_prolog);
-	TRY_EXECUTE_RULE(rule_functions, 1, TK_KEYW_FUNC);
+	TRY_EXECUTE_RULE(rule_functions, TK_KEYW_FUNC);
 	TK_NEXT_IF(TK_EOF);
 
 	return EXIT_SUCCESS;
@@ -79,7 +78,7 @@ static int rule_prolog(scanner_t scanner) {
 static int rule_functions(scanner_t scanner) {
 	// Functions -> Function Function_n
 	EXECUTE_RULE(rule_function);
-	TRY_EXECUTE_RULE(rule_functions, 1, TK_KEYW_FUNC);
+	TRY_EXECUTE_RULE(rule_functions, TK_KEYW_FUNC);
 
 	return EXIT_SUCCESS;
 }
@@ -100,16 +99,16 @@ static int rule_function(scanner_t scanner) {
 	// Function -> func Id ( Params ) ReturnTypes { Statements }
 	TK_NEXT_IF(TK_KEYW_FUNC);
 
-	TK_NEXT_IF_SET(2, TK_IDENTIFIER, TK_KEYW_MAIN);
+	TK_NEXT_IF_SET(TK_IDENTIFIER, TK_KEYW_MAIN);
 
 	TK_NEXT_IF(TK_L_PARENTHESIS);
-	TRY_EXECUTE_RULE(rule_params, 4, TK_KEYW_INT, TK_KEYW_FLOAT64, TK_KEYW_STRING, TK_KEYW_BOOL);
+	TRY_EXECUTE_RULE(rule_params, TK_KEYW_INT, TK_KEYW_FLOAT64, TK_KEYW_STRING, TK_KEYW_BOOL);
 	TK_NEXT_IF(TK_R_PARENTHESIS);
 
-	TRY_EXECUTE_RULE(rule_returnTypes, 1, TK_L_PARENTHESIS);
+	TRY_EXECUTE_RULE(rule_returnTypes, TK_L_PARENTHESIS);
 
 	TK_NEXT_IF(TK_L_CURLY);
-	TRY_EXECUTE_RULE(rule_statements, 4, TK_IDENTIFIER, TK_KEYW_IF, TK_KEYW_FOR, TK_KEYW_RETURN);
+	TRY_EXECUTE_RULE(rule_statements, TK_IDENTIFIER, TK_KEYW_IF, TK_KEYW_FOR, TK_KEYW_RETURN);
 	TK_NEXT_IF(TK_R_CURLY);
 
 	return EXIT_SUCCESS;
@@ -119,7 +118,7 @@ static int rule_function(scanner_t scanner) {
 static int rule_params(scanner_t scanner) {
 	// Params -> Param Param_n
 	EXECUTE_RULE(rule_param);
-	TRY_EXECUTE_RULE(rule_param_n, 1, TK_COMMA);
+	TRY_EXECUTE_RULE(rule_param_n, TK_COMMA);
 
 	return EXIT_SUCCESS;
 }
@@ -132,7 +131,7 @@ static int rule_param_n(scanner_t scanner) {
 	TK_NEXT_IF(TK_COMMA);
 
 	EXECUTE_RULE(rule_param);
-	TRY_EXECUTE_RULE(rule_param_n, 1, TK_COMMA);
+	TRY_EXECUTE_RULE(rule_param_n, TK_COMMA);
 
 	return EXIT_SUCCESS;
 }
@@ -154,8 +153,8 @@ static int rule_returnTypes(scanner_t scanner) {
 
 	TK_NEXT_IF(TK_L_PARENTHESIS);
 
-	TRY_EXECUTE_RULE(rule_type, 4, TK_KEYW_INT, TK_KEYW_FLOAT64, TK_KEYW_STRING, TK_KEYW_BOOL);
-	TRY_EXECUTE_RULE(rule_type_n, 1, TK_COMMA);
+	TRY_EXECUTE_RULE(rule_type, TK_KEYW_INT, TK_KEYW_FLOAT64, TK_KEYW_STRING, TK_KEYW_BOOL);
+	TRY_EXECUTE_RULE(rule_type_n, TK_COMMA);
 
 	TK_NEXT_IF(TK_R_PARENTHESIS);
 
@@ -169,7 +168,7 @@ static int rule_type_n(scanner_t scanner) {
 	// Type_n -> ε
 	TK_NEXT_IF(TK_COMMA);
 	EXECUTE_RULE(rule_type);
-	TRY_EXECUTE_RULE(rule_type_n, 1, TK_COMMA);
+	TRY_EXECUTE_RULE(rule_type_n, TK_COMMA);
 
 	return EXIT_SUCCESS;
 }
@@ -182,7 +181,7 @@ static int rule_type(scanner_t scanner) { // 4x must return EPS
 	// Type -> float64
 	// Type -> int
 	// Type -> string
-	TK_NEXT_IF_SET(4, TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
+	TK_NEXT_IF_SET(TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
 
 	return EXIT_SUCCESS;
 }
@@ -275,7 +274,7 @@ static int rule_assignOp(scanner_t scanner) { // 5x
 	// AssignOp -> /=
 	// AssignOp -> =
 
-	TK_NEXT_IF_SET(5, TK_ASSIGN, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN);
+	TK_NEXT_IF_SET(TK_ASSIGN, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN);
 	return EXIT_SUCCESS;
 }
 
@@ -331,7 +330,7 @@ static int rule_literal(scanner_t scanner) { // 2x
 	// Literal -> StringLit
 	// Literal -> true
 	// Literal -> false
-	TK_NEXT_IF_SET(5, TK_KEYW_TRUE, TK_KEYW_FALSE, TK_STR_LIT, TK_INT_LIT, TK_FLOAT_LIT);
+	TK_NEXT_IF_SET(TK_KEYW_TRUE, TK_KEYW_FALSE, TK_STR_LIT, TK_INT_LIT, TK_FLOAT_LIT);
 
 	return EXIT_SUCCESS;
 }
