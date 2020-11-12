@@ -1,11 +1,11 @@
-SOURCE_DIR		= src
-BUILD_DIR		= build
+SOURCE_DIR      = src
+BUILD_DIR       = build
 
 # pack
-PACK_DIR		= pack
-ZIPFILE			= xgysel00.zip
-SOURCELIST		:= $(shell find $(SOURCE_DIR)/ -type f -name '*.c')
-SOURCELIST		+= $(shell find $(SOURCE_DIR)/ -type f -name '*.h')
+PACK_DIR        = pack
+ZIPFILE         = xgysel00.zip
+SOURCELIST      := $(shell find $(SOURCE_DIR)/ -type f -name '*.c')
+SOURCELIST      += $(shell find $(SOURCE_DIR)/ -type f -name '*.h')
 
 .PHONY: all Release Debug test testd zip clean
 all: Release
