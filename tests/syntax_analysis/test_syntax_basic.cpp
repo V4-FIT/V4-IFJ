@@ -357,7 +357,7 @@ TEST_F(SyntaxTest, functionCalls) {
 
 	rewind(stream);
 	EXPECT_EQ(parse(stream), ERROR_SYN);
-} 
+}
 
 // missing argument, EXPECT SYNTAX ERROR
 TEST_F(SyntaxTest, functionCalls2) {
