@@ -104,7 +104,8 @@
 #define EXECUTE_RULE(_RULEFUNC)                \
 	do {                                       \
 		if (_RULEFUNC(scanner) == ERROR_SYN) { \
-			debug = ERROR_SYN;                 \
+			debug = ERROR_SYN;\
+			printf("ERROR at line %d in func %s\n", __LINE__, __func__);\
 			return ERROR_SYN;                  \
 		}                                      \
 	} while (0)

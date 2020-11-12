@@ -1,6 +1,7 @@
 #include "rules.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "rulemacros.h"
 
@@ -52,7 +53,7 @@ static int rule_eol_opt(scanner_t scanner);
 static int rule_term(scanner_t scanner);
 static int rule_binaryOp(scanner_t scanner);
 static int rule_eol_opt_n(scanner_t scanner);
-
+static int rule_unaryOp(scanner_t scanner);
 
 ////// Root
 
@@ -296,6 +297,7 @@ int rule_def_ass_call2(scanner_t scanner) {
 			EXECUTE_RULE(rule_funCall);
 			break;
 		case TK_VAR_INIT:
+			TK_NEXT();
 			EXECUTE_RULE(rule_expression);
 			break;
 		case TK_COMMA:
@@ -571,6 +573,8 @@ int rule_expression(scanner_t scanner) {
 	//						| Term BinaryOp Term
 	//						| l_parenthesis Eol_opt Term r_parenthesis .
 
+	TRY_EXECUTE_RULE(rule_unaryOp, TK_PLUS, TK_MINUS, TK_NOT);
+
 	switch (TOKEN) {
 		case TK_L_PARENTHESIS:
 			TK_NEXT();
@@ -585,11 +589,18 @@ int rule_expression(scanner_t scanner) {
 				if (!TRY_SUCCESS) {
 					return EXIT_SUCCESS;
 				}
+				TRY_EXECUTE_RULE(rule_unaryOp, TK_PLUS, TK_MINUS, TK_NOT);
 				EXECUTE_RULE(rule_term);
 			} else {
 				return ERROR_SYN;
 			}
 	}
+	return EXIT_SUCCESS;
+}
+
+int rule_unaryOp(scanner_t scanner) {
+	RULE_INIT();
+	TK_NEXT_IF_SET(TK_PLUS, TK_MINUS, TK_NOT);
 	return EXIT_SUCCESS;
 }
 
