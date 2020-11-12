@@ -15,10 +15,11 @@ class SyntaxTestFile : public testing::Test
 public:
 	FILE *stream;
 	char *pwd = get_current_dir_name();
+	bool dir_changed;
 
 	void SetUp(const std::string &path, const std::string &filename) {
 		ASSERT_NE(pwd, nullptr); // <- this shouldn't happen
-		chdir(path.c_str());
+		dir_changed = chdir(path.c_str()) == 0;
 
 		stream = fopen(filename.c_str(), "r");
 		if (stream == nullptr) {
@@ -31,7 +32,7 @@ public:
 			fclose(stream);
 			stream = nullptr;
 		}
-		if (pwd != nullptr) {
+		if (pwd != nullptr && dir_changed) {
 			chdir(pwd);
 		}
 	}
