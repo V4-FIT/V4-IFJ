@@ -236,13 +236,13 @@ TEST_F(SyntaxTest, conditionals) {
 	// Else -> { eol Statements }
 	fprintf(stream, "func bar(boo int, foo bool)(int) {\n");
 	fprintf(stream, "if boo == 1 {\n");
-	fprintf(stream, "\tboo = 100\n");
+	fprintf(stream, "\tb100 = 100\n");
 
 	fprintf(stream, "} else if boo == 2 {\n");
-	fprintf(stream, "\tboo = 200\n");
+	fprintf(stream, "\tb200 = 200\n");
 
 	fprintf(stream, "} else {\n");
-	fprintf(stream, "\tboo = 300\n");
+	fprintf(stream, "\tb300 = 300\n");
 	fprintf(stream, "}\n\n");
 
 	fprintf(stream, "if foo == true {\n");
