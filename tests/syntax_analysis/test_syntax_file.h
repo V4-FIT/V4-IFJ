@@ -24,12 +24,12 @@ public:
 		if (stream == nullptr) {
 			std::cout << "Non-existent file: " << pwd << "/" << path << "/" << filename << std::endl;
 		}
-		ASSERT_NE(stream, nullptr);
 	}
 
 	virtual void TearDown() {
 		if (stream != nullptr) {
 			fclose(stream);
+			stream = nullptr;
 		}
 		if (pwd != nullptr) {
 			chdir(pwd);
