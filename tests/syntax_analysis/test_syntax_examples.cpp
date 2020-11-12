@@ -1,6 +1,6 @@
 #include "test_syntax_file.h"
 
-#define EXAMPLES_PATH "../../tests/examples"
+#define EXAMPLES_PATH "examples"
 
 TEST_F(SyntaxTestFile, example_eols) {
 	SetUp(EXAMPLES_PATH, "eols.go");
