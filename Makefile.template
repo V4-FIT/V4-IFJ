@@ -1,0 +1,15 @@
+SOURCES			= TMPLT_SRCS
+INCLUDES		= TMPLT_INCL
+OBJS			= $(SOURCES:.c=.o)
+TARGET			= compiler
+
+CFLAGS			= -std=c11 -O2
+
+.PHONY: all clean
+all: $(TARGET)
+
+$(TARGET): $(SOURCES) $(INCLUDES)
+	$(CC) $(CFLAGS) $(SOURCES) -o $@
+
+clean:
+	rm -f $(TARGET)
