@@ -98,8 +98,8 @@ int rule_functions(scanner_t scanner) {
 	// Functions -> 		  Function Functions
 	//						| Eol_opt .
 	TRY_EXECUTE_RULE(rule_function, TK_KEYW_FUNC);
-	TRY_EXECUTE_RULE(rule_functions, TK_KEYW_FUNC);
 	TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
+	TRY_EXECUTE_RULE(rule_functions, TK_KEYW_FUNC);
 
 	return EXIT_SUCCESS;
 }
