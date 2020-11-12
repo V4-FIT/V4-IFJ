@@ -10,6 +10,8 @@ SOURCELIST		+= $(shell find $(SOURCE_DIR)/ -type f -name '*.h')
 .PHONY: all Release Debug test testd zip clean
 all: Release
 
+###### Development tree specific targets
+
 Release: $(BUILD_DIR)
 	cmake --build $(BUILD_DIR) --config $@
 
@@ -25,6 +27,13 @@ test:
 testd:
 	cd $(BUILD_DIR) && ctest -C Debug --output-on-failure
 
+###### Pack
+
+# this target is used in CI to test whether the zipfile contents will compile
+# NOTE: This does NOT need to work on Windows
+pack-build: $(PACK_DIR) pack/Makefile
+	$(MAKE) -C $<
+
 zip: $(PACK_DIR) pack/Makefile
 	cd $< && zip ../$(ZIPFILE) *.c *.h Makefile
 
@@ -36,6 +45,8 @@ pack/Makefile: Makefile.template $(PACK_DIR)
 $(PACK_DIR): $(SOURCELIST)
 	mkdir -p $@
 	cp $^ $@
+
+###### Cleanup
 
 clean:
 	rm -rf $(BUILD_DIR)
