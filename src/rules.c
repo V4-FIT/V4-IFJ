@@ -193,6 +193,7 @@ int rule_type_n(scanner_t scanner) {
 	// Type_n -> 			  comma Typename Type_n
 	//						| eps .
 	TK_NEXT_IF(TK_COMMA);
+	TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
 	EXECUTE_RULE(rule_typename);
 	TRY_EXECUTE_RULE(rule_type_n, TK_COMMA);
 
