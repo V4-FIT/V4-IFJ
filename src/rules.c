@@ -219,7 +219,7 @@ int rule_statements(scanner_t scanner) {
 	// Statements ->		  Statement Statements
 	//						| Eol_opt .
 	TRY_EXECUTE_RULE(rule_statement, TK_IDENTIFIER, TK_UNDERSCORE, TK_KEYW_IF, TK_KEYW_FOR, TK_KEYW_RETURN);
-	TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
+	TRY_EXECUTE_RULE(rule_eol_opt_n, TK_EOL);
 	TRY_EXECUTE_RULE(rule_statements, TK_IDENTIFIER, TK_UNDERSCORE, TK_KEYW_IF, TK_KEYW_FOR, TK_KEYW_RETURN);
 
 	return EXIT_SUCCESS;
