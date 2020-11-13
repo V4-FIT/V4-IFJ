@@ -65,6 +65,9 @@ TEST_F(ScannerTest, s_sl_comment_2) {
 	ASSERT_EQ(token->type, TK_L_CURLY);
 
 	scanner_next_token(scanner);
+	ASSERT_EQ(token->type, TK_EOL);
+
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_R_CURLY);
 
 	scanner_next_token(scanner);

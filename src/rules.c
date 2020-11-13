@@ -277,6 +277,7 @@ int rule_ass_call(scanner_t scanner) {
 			TK_NEXT();
 			EXECUTE_RULE(rule_ids);
 			EXECUTE_RULE(rule_assignOp);
+			TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
 			EXECUTE_RULE(rule_exprs_funCall);
 			break;
 		default:
@@ -305,11 +306,13 @@ int rule_def_ass_call2(scanner_t scanner) {
 			TK_NEXT();
 			EXECUTE_RULE(rule_ids);
 			EXECUTE_RULE(rule_assignOp);
+			TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
 			EXECUTE_RULE(rule_exprs_funCall);
 			break;
 		default:
 			TRY_EXECUTE_RULE(rule_assignOp, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_ASSIGN);
 			if (TRY_SUCCESS) {
+				TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
 				EXECUTE_RULE(rule_exprs_funCall);
 			} else {
 				return ERROR_SYN;
@@ -336,6 +339,7 @@ int rule_var_define(scanner_t scanner) {
 	// Var_define -> 	  	  id defineOp Expression .
 	TK_NEXT_IF(TK_IDENTIFIER);
 	TK_NEXT_IF(TK_VAR_INIT);
+	TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
 	EXECUTE_RULE(rule_expression);
 
 	return EXIT_SUCCESS;
@@ -427,6 +431,7 @@ int rule_assignment(scanner_t scanner) {
 	// Assignment -> 	  	  Ids AssignOp Exprs_FunCall .
 	EXECUTE_RULE(rule_ids);
 	EXECUTE_RULE(rule_assignOp);
+	TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
 	EXECUTE_RULE(rule_exprs_funCall);
 
 	return EXIT_SUCCESS;
@@ -594,6 +599,7 @@ int rule_expression(scanner_t scanner) {
 				if (!TRY_SUCCESS) {
 					return EXIT_SUCCESS;
 				}
+				TRY_EXECUTE_RULE(rule_eol_opt, TK_EOL);
 				TRY_EXECUTE_RULE(rule_unaryOp, TK_PLUS, TK_MINUS, TK_NOT);
 				EXECUTE_RULE(rule_term);
 			} else {
