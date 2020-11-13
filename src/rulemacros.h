@@ -11,41 +11,47 @@
 * Get next token from the parser
 */
 #define TK_NEXT()                    \
-	do {                             \
-		scanner_next_token(scanner); \
-	} while (0)
+    do {                             \
+        if (scanner_next_token(scanner)->type == TK_ERROR) { \
+            return scanner_token(scanner)->param.i; \
+        } \
+    } while (0)
 
 /**
  * Get next token from the parser if current token is equal to _TOKEN
  */
 #define TK_NEXT_IF(_TOKEN)                            \
-	do {                                              \
-		if (scanner_token(scanner)->type == _TOKEN) { \
-			scanner_next_token(scanner);              \
-		} else {                                      \
-			return ERROR_SYN;                         \
-		}                                             \
-	} while (0)
+    do {                                              \
+        if (scanner_token(scanner)->type == _TOKEN) { \
+            if (scanner_next_token(scanner)->type == TK_ERROR) { \
+                return scanner_token(scanner)->param.i; \
+            } \
+        } else {                                      \
+            return ERROR_SYN;                         \
+        }                                             \
+    } while (0)
 
 /**
  * same as above but over a set
  */
 #define TK_NEXT_IF_SET(...)                                  \
-	do {                                                     \
-		token_type_t _TKS[] = {__VA_ARGS__};                 \
-		size_t _TKNUM = sizeof(_TKS) / sizeof(token_type_t); \
-		bool found = false;                                  \
-		for (int i = 0; i < _TKNUM; ++i) {                   \
-			if (scanner_token(scanner)->type == _TKS[i]) {   \
-				found = true;                                \
-			}                                                \
-		}                                                    \
-		if (found) {                                         \
-			scanner_next_token(scanner);                     \
-		} else {                                             \
-			return ERROR_SYN;                                \
-		}                                                    \
-	} while (0)
+    do {                                                     \
+        token_type_t _TKS[] = {__VA_ARGS__};                 \
+        size_t _TKNUM = sizeof(_TKS) / sizeof(token_type_t); \
+        bool found = false;                                  \
+        for (int i = 0; i < _TKNUM; ++i) {                   \
+            if (scanner_token(scanner)->type == _TKS[i]) {   \
+                found = true;                                \
+            }                                                \
+        }                                                    \
+        if (found) {                                         \
+            if (scanner_next_token(scanner)->type == TK_ERROR) { \
+                return scanner_token(scanner)->param.i; \
+            } \
+        } else {                                             \
+            return ERROR_SYN;                                \
+        }                                                    \
+    } while (0)
 
 /**
 * Check syntax against current token
@@ -102,13 +108,13 @@
 	} while (0)
 
 #define EXECUTE_RULE(_RULEFUNC)                \
-	do {                                       \
-		if (_RULEFUNC(scanner) == ERROR_SYN) { \
-			debug = ERROR_SYN;\
-			printf("ERROR at line %d in func %s\n", __LINE__, __func__);\
-			return ERROR_SYN;                  \
-		}                                      \
-	} while (0)
+    do {                                       \
+        int ret = _RULEFUNC(scanner); \
+        if (ret != EXIT_SUCCESS) { \
+            debug = ret;       \
+            return ret;                  \
+        }                                      \
+    } while (0)
 
 #define TRY_EXECUTE_RULE(_RULEFUNC, ...)                     \
 	do {                                                     \
