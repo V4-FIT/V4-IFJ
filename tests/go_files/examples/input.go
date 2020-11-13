@@ -4,15 +4,15 @@ package main
 
 func main() {
   print("Zadej retezec: ")
-  s, err := inputs()
+  s, err = inputs()
   print("STRING=",s, ". CHYBA=", err, "\n")
 
   print("Zadej cislo: ")
-  i, err := inputi()
+  i, err = inputi()
   print("INT=",i, ". CHYBA=", err, "\n")
 
   print("Zadej desetinne cislo: ")
-  f, err := inputf()
+  f, err = inputf()
   print("FLOAT64=", f, ". CHYBA=", err, "\n")
   
 }
