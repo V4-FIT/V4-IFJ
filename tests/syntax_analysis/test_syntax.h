@@ -10,6 +10,15 @@ extern "C" {
 #include "parser.h"
 }
 
+#define PROLOG fprintf(stream, "package main\n")
+#define OPENFUN(name)	fprintf(stream, "func " );		\
+						fprintf(stream, name);			\
+						fprintf(stream, "()() {\n")
+#define CLOSEFUN fprintf(stream, "}\n")
+
+#define TESTVAL(val)	rewind(stream);		\
+					EXPECT_EQ(parse(stream), val)
+
 class SyntaxTest : public testing::Test
 {
 public:

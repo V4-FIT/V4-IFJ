@@ -1,371 +1,758 @@
 #include "test_syntax.h"
 
-//Program  -> Prolog Functions eof
+// Note: NO EXPRESSION TESTING IN THIS FILE
+/*************************************************************
+ *
+ *	PROLOG
+ * 
+*************************************************************/
 
-// Prolog ->  package main eol
-TEST_F(SyntaxTest, prolog) {
+
+// PROLOG -> package main eol
+TEST_F(SyntaxTest, prolog_incomplete) {
 	// missing keyword main, EXPECT SYNTAX ERROR
 	fprintf(stream, "package ");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
-
-	fprintf(stream, "main\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
+	TESTVAL(ERROR_SYN);
 }
 
-// Functions -> Function Functions
-TEST_F(SyntaxTest, functions) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func main ()() {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	fprintf(stream, "func ");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
-
-	fprintf(stream, "bar()()");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
-
-	fprintf(stream, " {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	fprintf(stream, "for foo() () {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
-
-}
- 
-// Param_list -> Param Param_n
-// Param_list -> eps
-// Param_n -> , Param Param_n
-// Param_n -> eps
-// Param ->  id Typename
-TEST_F(SyntaxTest, params) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo() {\n}\n");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	fprintf(stream, "func bar(foo int) {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	fprintf(stream, "func bar(foo float64,\n bar string,\n var bool) {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	// missing param_n, EXPECT SYNTAX ERROR
-	fprintf(stream, "func foo(foo int, ) {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
+// PROLOG -> package main eol
+TEST_F(SyntaxTest, prolog_complete) {
+	// missing keyword main, EXPECT SYNTAX ERROR
+	PROLOG;
+	TESTVAL(EXIT_SUCCESS);
 }
 
-TEST_F(SyntaxTest, params2) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo(foo int, bar foo) {\n}\n");
-	rewind(stream);
+/*************************************************************
+ *
+ *	FUNCTIONS
+ * 
+*************************************************************/
 
-	EXPECT_EQ(parse(stream), ERROR_SYN);
+// func main ()() { 
+TEST_F(SyntaxTest, function_incomplete) {
+	PROLOG;
+	fprintf(stream, "func main() ()\n");
+	TESTVAL(ERROR_SYN);
 }
 
-// Return_list -> ( Returns )
-// Return_list -> eps
-// Returns ->  Typename Type_n
-// Returns -> eps
-// Type_n ->  , Typename Type_n
-// Type_n -> eps
-TEST_F(SyntaxTest, return_list) {
-	fprintf(stream, "package main\nfunc main() {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
+// func main ()()
+TEST_F(SyntaxTest, function_incomplete2) {
+	PROLOG;
+	OPENFUN("main");
 
-	fprintf(stream, "func bar()() {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	fprintf(stream, "func foo()(int) {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	fprintf(stream, "func foobar()(int,\n string,\n float64,\n bool) {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	// missing type_n, EXPECT SYNTAX ERROR
-	fprintf(stream, "func barfoo()(int, string,) {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
+	TESTVAL(ERROR_SYN);
 }
 
-// wrong keyword, EXPECT SYNTAX ERROR
-TEST_F(SyntaxTest, return_list2) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func main()(int, boo) {\n}");
-	rewind(stream);
+// func ()() {\n}\n 
+TEST_F(SyntaxTest, function_incomplete3) {
+	PROLOG;
+	OPENFUN(" ");
+	CLOSEFUN;
 
-	EXPECT_EQ(parse(stream), ERROR_SYN);
+	TESTVAL(ERROR_SYN);
 }
 
-
-// Statements -> Statement Statements
-// Statements -> eps
-// Statement ->  Var_define -> id := Expression eol
-// Statement -> Return eol
-TEST_F(SyntaxTest, statements) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo() () {\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	// RETURN
-	fprintf(stream, "func bar() (int) {\n");
-	fprintf(stream, "return 2\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	// VAR DEF (int)
-	// RETURN
-	fprintf(stream, "func foobar() (int) {\n");
-	fprintf(stream, "foo := 2\n");
-	fprintf(stream, "return foo\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	// VAR DEF (string, float, bool)
-	// RETURN
-	fprintf(stream, "func barfoo() (string) {\n");
-	fprintf(stream, "foo := \"Hello World!\"\n");
-	fprintf(stream, "bar := 1.123\n");
-	fprintf(stream, "fb := -121.123\n");
-	fprintf(stream, "bf := true\n");
-	fprintf(stream, "return foo\n}\n");
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	// empty return, EXPECT SYNTAX ERROR
-	fprintf(stream, "funct foo()() {\n");
-	fprintf(stream, "return\n");
-	fprintf(stream, "}\n");
-	rewind(stream);
-
-	EXPECT_EQ(parse(stream), ERROR_SYN);
-
-}
-
-// missing expression, EXPECT SYNTAX ERROR
-TEST_F(SyntaxTest, statements2) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo() () {\n");
-	fprintf(stream, "var := \n");
-	fprintf(stream, "}\n");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
-}
-
-
-// Var_define -> id := Expression eol
-// Def_Ass_Call2 -> , Ids AssignOp Exprs_FunCall
-TEST_F(SyntaxTest, define_assign) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo()() {\n");
-
-	fprintf(stream, "foobar := true\n");
-	fprintf(stream, "foobar = false\n");
-
-	fprintf(stream, "foo := 1\n");
-	fprintf(stream, "foo -= 1\n");
-
-	fprintf(stream, "bar := \"Hello\"\n");
-	fprintf(stream, "bar += \" world!\"\n");
-
-	fprintf(stream, "barfoo := 1.0\n");
-	fprintf(stream, "barfoo /= -10\n");
-
-	// ids assignOp expressions
-	fprintf(stream, "bar, barfoo *= 1, 10\n");
-
-	fprintf(stream, "\n}\n");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	// missing right side, EXPECT SYNTAX ERROR
-
-	fprintf(stream, "func bar()() {\n");
-	fprintf(stream, "foo, bar = \n");
-	rewind(stream);
-
-	EXPECT_EQ(parse(stream), ERROR_SYN);
-}
-
-// wrong operand, EXPECT SYNTAX ERROR
-TEST_F(SyntaxTest, define_assign2) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func main()() {\n");
-	fprintf(stream, "foo, bar := 1, 2n\n");
-	fprintf(stream, "}\n");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
-}
-
-
-// Statement -> Conditionals eol
-TEST_F(SyntaxTest, conditionals) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo()() {\n");
-
-	// Conditionals -> Conditional Conditional_n
-	// Conditional -> if Expression { eol Statements }
-	// Conditional_n -> eps
-	fprintf(stream, "if true {\n}\n");
-	fprintf(stream, "}\n");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);	
-
-	// Conditional -> if Expression { eol Statements }
-	// Conditional_n ->  else Else
-	// Else ->  Conditional Conditional_n
-	// Else -> { eol Statements }
-	fprintf(stream, "func bar(boo int, foo bool)(int) {\n");
-	fprintf(stream, "if boo == 1 {\n");
-	fprintf(stream, "\tb100 = 100\n");
-
-	fprintf(stream, "} else if boo == 2 {\n");
-	fprintf(stream, "\tb200 = 200\n");
-
-	fprintf(stream, "} else {\n");
-	fprintf(stream, "\tb300 = 300\n");
-	fprintf(stream, "}\n\n");
-
-	fprintf(stream, "if foo == true {\n");
-	fprintf(stream, "\treturn boo\n");
-
-	fprintf(stream, "} else {\n");
-	fprintf(stream, "\treturn 0-boo\n}\n}");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	// missing expression, EXPECT SYNTAX ERROR
-
-	fprintf(stream, "func foo()() {\n");
-	fprintf(stream, "if {\n}\n");
-	fprintf(stream, "}\n");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
-}
-
-// missing brackets, EXPECT SYNTAX ERROR
-TEST_F(SyntaxTest, conditionals2) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo()() {\n");
-	fprintf(stream, "if boo == true boo = false\n");
-	fprintf(stream, "}\n");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
-}
-
-// Statement -> Iterative
-// Iterative -> for Var_define ; Expression ; Assignment { Statements }
-TEST_F(SyntaxTest, iterative) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo(bar int)(){\n");
-
-	// var_define -> eps
-	// assignment -> eps
-	fprintf(stream, "for ; bar <= 5 ; {\n");
-	fprintf(stream, "bar += 1\n}\n");
-	fprintf(stream, "}\n");
-	rewind(stream);
-
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	fprintf(stream, "func bar()(){\n");
-
-	// assignment -> eps
-	fprintf(stream, "for bar := 0 ; bar < 5 ; {\n");
-	fprintf(stream, "bar += 1\n}\n");
-	fprintf(stream, "}\n");
-	rewind(stream);
-
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-	fprintf(stream, "func bar()(){\n");
-
-	// full iterative
-	fprintf(stream, "for bar := 0; bar != 10; bar += 1 {\n");
-	fprintf(stream, "bar += 1\n}\n");
-	fprintf(stream, "}\n");
-	rewind(stream);
-
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
+// func main ()() {\n}\n
+TEST_F(SyntaxTest, function_complete) {
+	PROLOG;
+	OPENFUN("main");
+	CLOSEFUN;
 	
-	// missing expression, EXPECT SYNTAX ERROR
-
-	fprintf(stream, "func main()() {\n");
-	fprintf(stream, "for ; ; {\n}\n");
-	fprintf(stream, "}\n");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
+	TESTVAL(EXIT_SUCCESS);
 }
 
-// missing brackets, EXPECT SYNTAX ERROR
+// func main()(){\n}\n
+// func foo()(){\n}\n
+TEST_F(SyntaxTest, functions) {
+	PROLOG;
+	OPENFUN("main");
+	CLOSEFUN;
+	OPENFUN("foo");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// func \n main () () {\n}
+TEST_F(SyntaxTest, function_eol) {
+	PROLOG;
+	fprintf(stream, "func \n main () () {");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// func main\n () () {\n}
+TEST_F(SyntaxTest, function_eol2) {
+	PROLOG;
+	fprintf(stream, "func main\n () () {");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// func main ()\n () {\n}
+TEST_F(SyntaxTest, function_eol3) {
+	PROLOG;
+	fprintf(stream, "func main ()\n () {");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// func main () ()\n {\n}
+TEST_F(SyntaxTest, function_eol4) {
+	PROLOG;
+	fprintf(stream, "func main () ()\n {");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// func main () () {}
+TEST_F(SyntaxTest, function_eol5) {
+	PROLOG;
+	fprintf(stream, "func main () () {");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+/*************************************************************
+ *
+ *	FUNCTION PARAMETERS
+ * 
+*************************************************************/
+
+// func main ()() {\n}
+TEST_F(SyntaxTest, params_empty) {
+	PROLOG;
+	OPENFUN("main");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// func main (foo int)() {\n}
+TEST_F(SyntaxTest, params) {
+	PROLOG;
+	fprintf(stream, "func main (foo int) (){\n");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// func main (foo int)() {\n}
+TEST_F(SyntaxTest, params_inclomplete) {
+	PROLOG;
+	fprintf(stream, "func main (foo int,) (){\n");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// func main (foo float64, bar string) () {\n}
+TEST_F(SyntaxTest, params2) {
+	PROLOG;
+	fprintf(stream, "func main (foo float64, bar string) () {\n");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// func main (foo float64,\n bar string) () {\n}
+TEST_F(SyntaxTest, params_eol) {
+	PROLOG;
+	fprintf(stream, "func main (foo float64,\n bar bool) () {\n");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+
+// func main (\nfoo float64,\n bar string) () {\n}
+TEST_F(SyntaxTest, params_eol2) {
+	PROLOG;
+	fprintf(stream, "func main (\nfoo float64,\n bar bool) () {\n");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// func main (\nfoo float64,\n bar string\n) () {\n}
+TEST_F(SyntaxTest, params_eol3) {
+	PROLOG;
+	fprintf(stream, "func main (\nfoo float64,\n bar bool\n) () {\n");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+
+
+/*************************************************************
+ *
+ *	FUNCTION RETURN VALUES
+ * 
+*************************************************************/
+
+// func main () {\n}
+TEST_F(SyntaxTest, return_val_empty) {
+	PROLOG;
+	fprintf(stream, "func main () {\n");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// func main () () {\n}
+TEST_F(SyntaxTest, return_val_empty2) {
+	PROLOG;
+	OPENFUN("main");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// func main () (int) {\n}
+TEST_F(SyntaxTest, return_val) {
+	PROLOG;
+	fprintf(stream, "func main () (int) {\n");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// func main () (int, ) {\n}
+TEST_F(SyntaxTest, return_vals_incomplete) {
+	PROLOG;
+	fprintf(stream, "func main (int, ) {\n");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// func main () (int, string, float64, bool) {\n}
+TEST_F(SyntaxTest, return_vals) {
+	PROLOG;
+	fprintf(stream, "func main () (int, string, float64, bool) {\n");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+
+// func main () (\n int) {\n}
+TEST_F(SyntaxTest, return_val_eol) {
+	PROLOG;
+	fprintf(stream, "func main() (\n int) {\n");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// func main () (int, \n float64) {\n}
+TEST_F(SyntaxTest, return_val_eol2) {
+	PROLOG;
+	fprintf(stream, "func main () (int, \n float64) {\n");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// func main () (int, \n float64) {\n}
+TEST_F(SyntaxTest, return_val_eol3) {
+	PROLOG;
+	fprintf(stream, "func main () (int\n, float) {\n");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// func main () (int, \n float64 \n) {\n}
+TEST_F(SyntaxTest, return_val_eol4) {
+	PROLOG;
+	fprintf(stream, "func main () (int, \n float \n) {\n");
+	CLOSEFUN;
+	TESTVAL(ERROR_SYN);
+}
+
+
+
+/*************************************************************
+ *
+ *	VARIABLE DEFINITIONS
+ * 
+*************************************************************/
+
+// _ := 2
+TEST_F(SyntaxTest, vardef_) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "_ := 2\n");
+	CLOSEFUN;
+	TESTVAL(ERROR_SYN);
+}
+
+// i := 2
+TEST_F(SyntaxTest, vardef_int) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i := 2\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i := "Hello"
+TEST_F(SyntaxTest, vardef_string) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i := \"Hello world\"\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i := 1.234
+TEST_F(SyntaxTest, vardef_float) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i := 1.234\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i := true
+TEST_F(SyntaxTest, vardef_true) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i := true\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i := false
+
+TEST_F(SyntaxTest, vardef_false) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i := false\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i := j
+
+TEST_F(SyntaxTest, vardef_od) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i := j\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+
+// := 2
+TEST_F(SyntaxTest, vardef_no_id) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, " := 2\n");
+	CLOSEFUN;
+	TESTVAL(ERROR_SYN);
+}
+
+// i 2
+TEST_F(SyntaxTest, vardef_no_op) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i 2\n");
+	CLOSEFUN;
+	TESTVAL(ERROR_SYN);
+}
+
+// i :=
+TEST_F(SyntaxTest, vardef_no_expr) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i := \n");
+	CLOSEFUN;
+	TESTVAL(ERROR_SYN);
+}
+
+
+/*************************************************************
+ *
+ *	VARIABLE ASSIGNMENT
+ * 
+*************************************************************/
+
+// i /= 1
+TEST_F(SyntaxTest, assign_div_int) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i /= 1\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i *= 1.234
+TEST_F(SyntaxTest, assign_mul_float) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i *= 1.123\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+// i -= j
+TEST_F(SyntaxTest, assign_sub_id) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i -= j\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i += "world"
+TEST_F(SyntaxTest, assign_add_string) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i += \" world\"\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i = true
+TEST_F(SyntaxTest, assign_true) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i = true\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i = false
+TEST_F(SyntaxTest, assign_false) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i = false\n");
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+
+// = true
+TEST_F(SyntaxTest, assign_no_id) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, " = true\n");
+	CLOSEFUN;
+	TESTVAL(ERROR_SYN);
+}
+
+// i false
+TEST_F(SyntaxTest, assign_no_op) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i false\n");
+	CLOSEFUN;
+	TESTVAL(ERROR_SYN);
+}
+
+// i +=
+TEST_F(SyntaxTest, assign_no_exp) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "i += \n");
+	CLOSEFUN;
+	TESTVAL(ERROR_SYN);
+}
+
+
+
+/*************************************************************
+ *
+ *	FUNCTION CALL
+ * 
+*************************************************************/
+
+// foo()
+TEST_F(SyntaxTest, fun_call_no_args) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "foo()");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// foo("Hello")
+TEST_F(SyntaxTest, fun_call_arg) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "foo(\"Hello world\")");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// foo(2, "Hello", 1.123, true, bar)
+TEST_F(SyntaxTest, fun_call_args) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "foo(2, \"Hello world\", 1.234, true, bar)");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// foo(\n 2, true, bar)
+TEST_F(SyntaxTest, fun_call_eol) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "foo(\n 2, true, bar)");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// foo(2, \n true, \n bar)
+TEST_F(SyntaxTest, fun_call_eol2) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "foo(2,\n true,\n bar)");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// foo(2, \n true, \n bar \n)
+TEST_F(SyntaxTest, fun_call_eol3) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "foo(\n 2,\n true,\n bar\n)");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// foo
+TEST_F(SyntaxTest, fun_call_incomplete) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "foo");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+
+/*************************************************************
+ *
+ *	FUNCTION CALL & ASSIGN
+ * 
+*************************************************************/
+
+// i = foo("Hello")
+TEST_F(SyntaxTest, assign_fun_call) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "i = foo(\"Hello world\")");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i, j, k, l, m = foo(2, \"Hello world\", 1.234, true, bar)
+TEST_F(SyntaxTest, assign_fun_call2) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "i, j, k, l, m = foo(2, \"Hello world\", 1.234, true, bar)");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// i, j, k += foo(\n 2, true, bar)
+TEST_F(SyntaxTest, assign_fun_call3) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "i, j, k += foo(\n 2, true, bar)");
+	CLOSEFUN;
+
+	TESTVAL(ERROR_SYN);
+}
+
+// i, j, k += foo(2,\n true,\n bar)
+TEST_F(SyntaxTest, assign_fun_call4) {
+	PROLOG;
+	OPENFUN("main");
+	fprintf(stream, "i, j, k = foo(2,\n true,\n bar)");
+	CLOSEFUN;
+
+	TESTVAL(EXIT_SUCCESS);
+}
+
+
+
+/*************************************************************
+ *
+ *	CONDITIONALS
+ * 
+*************************************************************/
+
+// if foo == true {\n}
+TEST_F(SyntaxTest, cond_if) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "if foo == true {\n}\n");
+
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// if foo == true {\n}\
+// else {\n}
+
+TEST_F(SyntaxTest, cond_else) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "if foo == true {\n}\n");
+	fprintf(stream, "else {\n}\n");
+
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// if foo <= 1 {\n}\n
+// else if foo >= 10 {\n}\n
+TEST_F(SyntaxTest, cond_elseif) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "if foo <= 1 {\n}\n");
+	fprintf(stream, "else if foo >= 10 {\n}\n");
+
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// if foo <= 1 {\n}\n
+// else if foo <= 10 {\n}\n
+// else {\n}\n
+TEST_F(SyntaxTest, cond_elseif_else) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "if foo <= 1 {\n}\n");
+	fprintf(stream, "else if foo <= 10 {\n}\n");
+	fprintf(stream, "else {\n}\n");
+
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// if foo <= 1 {\n}\n
+// else if foo <= 10 {\n}\n
+// else if  foo >= 20 {\n}\n
+// else {\n}\n
+
+TEST_F(SyntaxTest, cond_complex) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "if foo <= 1 {\n}\n");
+	fprintf(stream, "else if foo <= 10 {\n}\n");
+	fprintf(stream, "else if foo >= 20 {\n}\n");
+	fprintf(stream, "else {\n}\n");
+
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// todo fail cases
+
+
+
+/*************************************************************
+ *
+ *	ITERATIVE
+ * 
+*************************************************************/
+
+// for foo = 1; foo <= 10; foo += 1 {\n}\n
+TEST_F(SyntaxTest, iterative) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "for foo = 1; foo <= 10; foo +=1 {\n}\n");
+
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
+}
+
+// for foo = 1; foo <= 10; {\n}\n
 TEST_F(SyntaxTest, iterative2) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func main()(){\n");
-	fprintf(stream, "for foo := 0 ; foo != 10 ; foo += 1\n");
-	fprintf(stream, "}");
+	PROLOG;
+	OPENFUN("main");
 
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
+	fprintf(stream, "for foo = 1; foo <= 10; {\n}\n");
+
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
 }
 
-// FunctionCall -> Id ( Eol_opt Arguments )
-TEST_F(SyntaxTest, functionCalls) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func foo()(int, float64) {\n");
+// ; foo <= 10; foo += 1 {\n}\n
+TEST_F(SyntaxTest, iterative3) {
+	PROLOG;
+	OPENFUN("main");
 
-	fprintf(stream, "print(\"Hello World\\n\")\n");
-	fprintf(stream, "return 1, 1.1\n");
-	fprintf(stream, "}\n");
-	rewind(stream);
+	fprintf(stream, "for ; foo <= 10; foo +=1 {\n}\n");
 
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	fprintf(stream, "func bar(foo int, bar int)() {\n");
-	fprintf(stream, "foo, bar = foo()\n");
-	fprintf(stream, "}\n");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), EXIT_SUCCESS);
-
-	// missing bracket, EXPECT SYNTAX ERROR
-
-	fprintf(stream, "func main()() {\n");
-	fprintf(stream, "\tfoo(\n");
-	fprintf(stream, "}\n");
-
-	rewind(stream);
-	EXPECT_EQ(parse(stream), ERROR_SYN);
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
 }
 
-// missing argument, EXPECT SYNTAX ERROR
-TEST_F(SyntaxTest, functionCalls2) {
-	fprintf(stream, "package main\n");
-	fprintf(stream, "func main()(){\n");
-	fprintf(stream, "foo(bar, )\n");
-	fprintf(stream, "}\n");
-	rewind(stream);
+// for ; foo <= 10; {\n}\n
+TEST_F(SyntaxTest, iterative4) {
+	PROLOG;
+	OPENFUN("main");
 
-	EXPECT_EQ(parse(stream), ERROR_SYN);
+	fprintf(stream, "for ; foo <= 10; {\n}\n");
+
+	CLOSEFUN;
+	TESTVAL(EXIT_SUCCESS);
 }
+
+// for foo = 1; ; foo += 1 {\n}\n
+TEST_F(SyntaxTest, iterative5) {
+	PROLOG;
+	OPENFUN("main");
+
+	fprintf(stream, "for foo = 1; ; foo +=1 {\n}\n");
+
+	CLOSEFUN;
+	TESTVAL(ERROR_SYN);
+}
+
+
+// todo fail cases
