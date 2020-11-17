@@ -396,7 +396,7 @@ TEST_F(SyntaxTest, vardef_no_expr) {
 *************************************************************/
 
 // i /= 1
-TEST_F(SyntaxTest, assign_div_int) {
+TEST_F(SyntaxTest, ass_div_int) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -406,7 +406,7 @@ TEST_F(SyntaxTest, assign_div_int) {
 }
 
 // i *= 1.234
-TEST_F(SyntaxTest, assign_mul_float) {
+TEST_F(SyntaxTest, ass_mul_float) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -415,7 +415,7 @@ TEST_F(SyntaxTest, assign_mul_float) {
 	TESTVAL(EXIT_SUCCESS);
 }
 // i -= j
-TEST_F(SyntaxTest, assign_sub_id) {
+TEST_F(SyntaxTest, ass_sub_id) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -425,7 +425,7 @@ TEST_F(SyntaxTest, assign_sub_id) {
 }
 
 // i += "world"
-TEST_F(SyntaxTest, assign_add_string) {
+TEST_F(SyntaxTest, ass_add_string) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -435,7 +435,7 @@ TEST_F(SyntaxTest, assign_add_string) {
 }
 
 // i = true
-TEST_F(SyntaxTest, assign_true) {
+TEST_F(SyntaxTest, ass_true) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -445,7 +445,7 @@ TEST_F(SyntaxTest, assign_true) {
 }
 
 // i = false
-TEST_F(SyntaxTest, assign_false) {
+TEST_F(SyntaxTest, ass_false) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -456,7 +456,7 @@ TEST_F(SyntaxTest, assign_false) {
 
 
 // = true
-TEST_F(SyntaxTest, assign_no_id) {
+TEST_F(SyntaxTest, ass_no_id) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -466,7 +466,7 @@ TEST_F(SyntaxTest, assign_no_id) {
 }
 
 // i false
-TEST_F(SyntaxTest, assign_no_op) {
+TEST_F(SyntaxTest, ass_no_op) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -476,7 +476,7 @@ TEST_F(SyntaxTest, assign_no_op) {
 }
 
 // i +=
-TEST_F(SyntaxTest, assign_no_exp) {
+TEST_F(SyntaxTest, ass_no_exp) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -571,7 +571,7 @@ TEST_F(SyntaxTest, fun_call_incomplete) {
 *************************************************************/
 
 // i = foo("Hello")
-TEST_F(SyntaxTest, assign_fun_call) {
+TEST_F(SyntaxTest, ass_fun_call) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "i = foo(\"Hello world\")");
@@ -581,7 +581,7 @@ TEST_F(SyntaxTest, assign_fun_call) {
 }
 
 // i, j, k, l, m = foo(2, \"Hello world\", 1.234, true, bar)
-TEST_F(SyntaxTest, assign_fun_call2) {
+TEST_F(SyntaxTest, ass_fun_call2) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "i, j, k, l, m = foo(2, \"Hello world\", 1.234, true, bar)");
@@ -591,7 +591,7 @@ TEST_F(SyntaxTest, assign_fun_call2) {
 }
 
 // i, j, k += foo(\n 2, true, bar)
-TEST_F(SyntaxTest, assign_fun_call3) {
+TEST_F(SyntaxTest, ass_fun_call3) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "i, j, k += foo(\n 2, true, bar)");
@@ -601,7 +601,7 @@ TEST_F(SyntaxTest, assign_fun_call3) {
 }
 
 // i, j, k += foo(2,\n true,\n bar)
-TEST_F(SyntaxTest, assign_fun_call4) {
+TEST_F(SyntaxTest, ass_fun_call4) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "i, j, k = foo(2,\n true,\n bar)");
