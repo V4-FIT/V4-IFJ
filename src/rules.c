@@ -117,7 +117,7 @@ int rule_function(scanner_t scanner) {
 	EXECUTE_RULE(rule_param_list);
 	TK_MATCH(TK_R_PARENTHESIS);
 
-	EXECUTE_RULE(rule_param_list);
+	EXECUTE_RULE(rule_return_list);
 
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
