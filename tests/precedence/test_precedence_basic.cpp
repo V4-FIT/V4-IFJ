@@ -675,3 +675,223 @@ TEST_F(Precedence, ge_missing_term2) {
     TESTVAL(ERROR_SYN);
 }
 
+/***************************************
+*
+*   COMPARATORS 2 ( ==, != )
+* 
+***************************************/
+
+// a == b
+TEST_F(Precedence, eq_id) {
+    fscanf(stream, "a==b");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a == 12
+TEST_F(Precedence, eq_id_int) {
+    fscanf(stream, "a==12");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a == 12.23
+TEST_F(Precedence, eq_id_float) {
+    fscanf(stream, "a == 12.23");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a == true
+TEST_F(Precedence, eq_id_bool) {
+    fscanf(stream, "a == true");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// 12 == 12
+TEST_F(Precedence, eq_int) {
+    fscanf(stream, "12 == 12");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// 12.23 == 23.1
+TEST_F(Precedence, eq_float) {
+    fscanf(stream, "12.23 == 23.1");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// true == false
+TEST_F(Precedence, eq_bool) {
+    fscanf(stream, "true == false");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+
+// a != b
+TEST_F(Precedence, neq_id) {
+    fscanf(stream, "a!=b");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a != 12
+TEST_F(Precedence, neq_id_int) {
+    fscanf(stream, "a!=12");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a != 12.23
+TEST_F(Precedence, neq_id_float) {
+    fscanf(stream, "a != 12.23");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a != true
+TEST_F(Precedence, neq_id_bool) {
+    fscanf(stream, "a != true");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// 12 != 12
+TEST_F(Precedence, neq_int) {
+    fscanf(stream, "12 != 12");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// 12.23 != 23.1
+TEST_F(Precedence, neq_float) {
+    fscanf(stream, "12.23 != 23.1");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// true != false
+TEST_F(Precedence, neq_bool) {
+    fscanf(stream, "true != false");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+
+// a+12*(-b/12) == 12*(a-(b/-12))
+TEST_F(Precedence, eq_combo1) {
+    fscanf(stream, "a+12*(-b/12) == 12*(a-(b/-12))");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a+12*(-b/12) != 12*(a-(b/-12))
+TEST_F(Precedence, neq_combo1) {
+    fscanf(stream, "a+12*(-b/12) != 12*(a-(b/-12))");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a < b == b > a
+TEST_F(Precedence, eq_combo2) {
+    fscanf(stream, "a < b == b > a");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a < b != b > a
+TEST_F(Precedence, neq_combo2) {
+    fscanf(stream, "a < b != b > a");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// TODO: fail cases
+
+/***************************************
+*
+*   LOGICAL AND (&&)
+* 
+***************************************/
+
+// a && b
+TEST_F(Precedence, and_id) {
+    fscanf(stream, "a && b");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a && true
+TEST_F(Precedence, and_id_bool) {
+    fscanf(stream, "a && true");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// true && false
+TEST_F(Precedence, and_bool) {
+    fscanf(stream, "true && false");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a < b && b > 10
+TEST_F(Precedence, and_combo1) {
+    fscanf(stream, "a < b && b > 10");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a == b && b > 10
+TEST_F(Precedence, and_combo2) {
+    fscanf(stream, "a == b && b > 10");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+
+/***************************************
+*
+*   LOGICAL OR (||)
+* 
+***************************************/
+
+// a || b
+TEST_F(Precedence, or_id) {
+    fscanf(stream, "a || b");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a || true
+TEST_F(Precedence, or_id_bool) {
+    fscanf(stream, "a || true");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// false || false
+TEST_F(Precedence, or_bool) {
+    fscanf(stream, "true || false");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a < b || b > 10
+TEST_F(Precedence, or_combo1) {
+    fscanf(stream, "a < b || b > 10");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// a == b || b > 10
+TEST_F(Precedence, or_combo2) {
+    fscanf(stream, "a == b || b > 10");
+
+    TESTVAL(EXIT_SUCCESS);
+}
+
+// todo: fail cases
