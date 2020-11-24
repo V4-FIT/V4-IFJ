@@ -100,7 +100,7 @@ bool symtable_has_var(symtable_t symtable, token_t id_token) {
 symbol_ref_t symtable_find(symtable_t symtable, token_t id_token) {
 	assert(symtable && id_token);
 	assert(!flist_empty(symtable->tables));
-	assert(id_token->type == TK_IDENTIFIER);
+	assert(id_token->type == TK_IDENTIFIER || id_token->type == TK_KEYW_MAIN);
 	assert(id_token->param.s);
 
 	hmap_key_t key = id_token->param.s;
@@ -163,6 +163,21 @@ symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_
 	}
 
 	return symbol_ref;
+}
+
+bool symtable_undefined_funcs(symtable_t symtable) {
+	assert(symtable);
+	assert(!flist_empty(symtable->tables));
+
+	hmap_t hmap = symtable_front(symtable);
+	for (hmap_iterator_t it = hmap_begin(hmap); hmap_it_valid(it); it = hmap_it_next(it)) {
+		symbol_t *symbol = hmap_get_value(it);
+		assert(symbol->type == ST_FUNC);
+		if (symbol->func.defined == false) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool symbol_func_add_param(symbol_ref_t symbol_ref, data_type_t data_type) {

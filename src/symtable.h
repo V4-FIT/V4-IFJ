@@ -140,6 +140,13 @@ symbol_ref_t symtable_find(symtable_t symtable, token_t id_token);
 symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_t symbol_type);
 
 /**
+ * @brief	checks if there are any undefined functions
+ * @param	symtable 
+ * @return	true if there is an undefined function, false if all functions are defined
+*/
+bool symtable_undefined_funcs(symtable_t symtable);
+
+/**
  * @brief	Add a parameter to the functions parameter list
  *			!!! Only call on ST_FUNC type symbols !!!
  * @param	symbol_ref 

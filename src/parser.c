@@ -27,7 +27,14 @@ parser_t parser_init(FILE *stream) {
 }
 
 int parser_parse(parser_t parser) {
-	return rule_root(parser);
+	int res = rule_root(parser);
+
+	// SEM - check for undefined functions
+	if (symtable_undefined_funcs(parser->symtable)) {
+		res = ERROR_DEFINITION;
+	}
+
+	return res;
 }
 
 void parser_free(parser_t parser) {
