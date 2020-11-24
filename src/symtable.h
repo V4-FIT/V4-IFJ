@@ -52,6 +52,7 @@ typedef struct
 	flist_t param_list;
 	unsigned int return_count;
 	flist_t return_list;
+	bool defined;
 } sym_func_t;
 
 /**

@@ -122,7 +122,7 @@ symbol_ref_t symtable_find(symtable_t symtable, token_t id_token) {
 symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_t symbol_type) {
 	assert(symtable && id_token);
 	assert(!flist_empty(symtable->tables));
-	assert(id_token->type == TK_IDENTIFIER);
+	assert(id_token->type == TK_IDENTIFIER || id_token->type == TK_KEYW_MAIN);
 	assert(id_token->param.s);
 
 	const char *name = id_token->param.s;
@@ -140,6 +140,7 @@ symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_
 		symbol.name = hmap_get_key(symbol_ref.it);
 		// init type specific data
 		if (symbol_type == ST_FUNC) {
+			symbol.func.defined = false;
 			symbol.func.param_count = 0;
 			symbol.func.return_count = 0;
 			symbol.func.param_list = flist_init(sizeof(data_type_t));

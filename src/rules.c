@@ -110,7 +110,7 @@ int rule_function(parser_t parser) {
 	TK_MATCH(TK_KEYW_FUNC);
 
 	TK_TEST(TK_IDENTIFIER, TK_KEYW_MAIN);
-	// semantic action
+	SEM_DEFINE_FUNC();
 	TK_NEXT();
 
 	TK_MATCH(TK_L_PARENTHESIS);
