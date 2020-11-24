@@ -90,7 +90,7 @@ int rule_prolog(parser_t parser) {
 int rule_functions(parser_t parser) {	
 	// Functions -> 		  Function Eol_opt_n Functions
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_KEYW_FUNC:
 			EXECUTE_RULE(rule_function);
 			EXECUTE_RULE(rule_eol_opt_n);
@@ -132,7 +132,7 @@ int rule_function(parser_t parser) {
 int rule_param_list(parser_t parser) {	
 	// Param_list ->		  Param Param_n
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 			EXECUTE_RULE(rule_param);
 			EXECUTE_RULE(rule_param_n);
@@ -148,7 +148,7 @@ int rule_param_list(parser_t parser) {
 int rule_param_n(parser_t parser) {	
 	// Param_n -> 			  comma Eol_opt Param Param_n
 	//						| eps.
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_COMMA:
 			TK_NEXT();
 			EXECUTE_RULE(rule_eol_opt);
@@ -175,7 +175,7 @@ int rule_param(parser_t parser) {
 int rule_return_list(parser_t parser) {
 	// Return_list -> 	  	  l_parenthesis Return_n r_parenthesis
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_L_PARENTHESIS:
 			TK_NEXT();
 			EXECUTE_RULE(rule_return_n);
@@ -200,7 +200,7 @@ int rule_return_n(parser_t parser) {
 int rule_type_n(parser_t parser) {
 	// Type_n -> 			  comma Eol_opt Typename Type_n
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_COMMA:
 			TK_NEXT();
 			EXECUTE_RULE(rule_eol_opt);
@@ -229,7 +229,7 @@ int rule_returntype(parser_t parser) {
 	//						| string
 	//						| bool
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_KEYW_FLOAT64:
 		case TK_KEYW_INT:
 		case TK_KEYW_STRING:
@@ -251,7 +251,7 @@ int rule_statements(parser_t parser) {
 	//						| Iterative Eol_opt_n Statements
 	//						| Return Eol_opt_n Statements
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_UNDERSCORE:
 		case TK_IDENTIFIER:
 			EXECUTE_RULE(rule_def_ass_call);
@@ -282,7 +282,7 @@ int rule_def_ass_call(parser_t parser) {
 	// Def_Ass_Call ->	  	  underscore Ass_Call eol
 	//						| id Def_Ass_Call2 eol .
 	// TODO rework this whole shit
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_UNDERSCORE:
 			TK_NEXT();
 			EXECUTE_RULE(rule_ass_call);
@@ -302,7 +302,7 @@ int rule_ass_call(parser_t parser) {
 	// Ass_Call ->			  l_parenthesis FunCall
 	//						| comma Ids AssignOp Exprs_FunCall
 	//						| AssignOp Exprs_FunCall .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_L_PARENTHESIS:
 			TK_NEXT();
 			EXECUTE_RULE(rule_funCall);
@@ -326,7 +326,7 @@ int rule_def_ass_call2(parser_t parser) {
 	// Def_Ass_Call2 ->		  l_parenthesis FunCall
 	//						| defineOp Expression
 	//						| comma Ids AssignOp Exprs_FunCall .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_L_PARENTHESIS:
 			TK_NEXT();
 			EXECUTE_RULE(rule_funCall);
@@ -362,7 +362,7 @@ int rule_funCall(parser_t parser) {
 int rule_var_define_opt(parser_t parser) {
 	// Var_define -> 	  	  Var_define
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 			EXECUTE_RULE(rule_var_define);
 			break;
@@ -376,7 +376,7 @@ int rule_var_define_opt(parser_t parser) {
 int rule_var_define(parser_t parser) {
 	// Var_define -> 	  	  id defineOp Expression
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 			TK_NEXT();
 			TK_MATCH(TK_VAR_INIT);
@@ -402,7 +402,7 @@ int rule_conditionals(parser_t parser) {
 int rule_conditional_n(parser_t parser) {
 	// Conditional_n ->		  else Else
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_KEYW_ELSE:
 			TK_NEXT();
 			EXECUTE_RULE(rule_else);
@@ -417,7 +417,7 @@ int rule_conditional_n(parser_t parser) {
 int rule_else(parser_t parser) {
 	// Else -> 				  Conditional Conditional_n
 	//						| l_curly eol Eol_opt_n Statements r_curly .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_KEYW_IF:
 			EXECUTE_RULE(rule_conditional);
 			break;
@@ -469,7 +469,7 @@ int rule_iterative(parser_t parser) {
 int rule_assignment_opt(parser_t parser) {
 	// Assignment -> 	  	  Assignment
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 		case TK_UNDERSCORE:
 			EXECUTE_RULE(rule_assignment);
@@ -502,7 +502,7 @@ int rule_ids(parser_t parser) {
 int rule_id_n(parser_t parser) {
 	// Id_n ->	 			  comma Id Id_n
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_COMMA:
 			TK_NEXT();
 			EXECUTE_RULE(rule_id);
@@ -560,7 +560,7 @@ int rule_functionCall(parser_t parser) {
 int rule_Arguments(parser_t parser) {
 	// Arguments ->			  Argument Argument_n
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 		case TK_INT_LIT:
 		case TK_FLOAT_LIT:
@@ -579,7 +579,7 @@ int rule_Arguments(parser_t parser) {
 int rule_Argument_n(parser_t parser) {
 	// Argument_n -> 	  	  comma Eol_opt Argument Argument_n
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_COMMA:
 			TK_NEXT();
 			EXECUTE_RULE(rule_eol_opt);
@@ -596,7 +596,7 @@ int rule_Argument_n(parser_t parser) {
 int rule_Argument(parser_t parser) {
 	// Argument -> 			  id
 	//						| Literal .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 			TK_NEXT();
 		default:
@@ -627,7 +627,7 @@ int rule_expressions(parser_t parser) {
 int rule_expression_n(parser_t parser) {
 	// Expression_n ->	  	  comma Expression Expression_n
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_COMMA:
 			TK_NEXT();
 			EXECUTE_RULE(rule_expression);
@@ -680,7 +680,7 @@ int rule_eol_opt_n(parser_t parser) {
 	// adhoc rule
 	// Eol_opt ->			  eol Eol_opt_n
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_EOL:
 			TK_NEXT();
 			EXECUTE_RULE(rule_eol_opt_n);
@@ -696,7 +696,7 @@ int rule_eol_opt_n(parser_t parser) {
 int rule_eol_opt(parser_t parser) {	
 	// Eol_opt ->			  eol
 	//						| eps .
-	switch (TOKEN) {
+	switch (TOKEN_TYPE) {
 		case TK_EOL:
 			TK_NEXT();
 			break;
