@@ -7,57 +7,57 @@
 
 ////// Forward declarations
 
-static int rule_program(scanner_t scanner);
-static int rule_prolog(scanner_t scanner);
-static int rule_functions(scanner_t scanner);
-static int rule_function(scanner_t scanner);
-static int rule_param_list(scanner_t scanner);
-static int rule_param_n(scanner_t scanner);
-static int rule_param(scanner_t scanner);
-static int rule_return_list(scanner_t scanner);
-static int rule_return_n(scanner_t scanner);
-static int rule_type_n(scanner_t scanner);
-static int rule_typename(scanner_t scanner);
-static int rule_returntype(scanner_t scanner);
-static int rule_statements(scanner_t scanner);
-static int rule_def_ass_call(scanner_t scanner);
-static int rule_ass_call(scanner_t scanner);
-static int rule_def_ass_call2(scanner_t scanner);
-static int rule_funCall(scanner_t scanner);
-static int rule_var_define_opt(scanner_t scanner);
-static int rule_var_define(scanner_t scanner);
-static int rule_conditionals(scanner_t scanner);
-static int rule_conditional_n(scanner_t scanner);
-static int rule_else(scanner_t scanner);
-static int rule_conditional(scanner_t scanner);
-static int rule_iterative(scanner_t scanner);
-static int rule_assignment(scanner_t scanner);
-static int rule_assignment_opt(scanner_t scanner);
-static int rule_ids(scanner_t scanner);
-static int rule_id_n(scanner_t scanner);
-static int rule_id(scanner_t scanner);
-static int rule_assignOp(scanner_t scanner);
-static int rule_exprs_funCall(scanner_t scanner);
-static int rule_functionCall(scanner_t scanner);
-static int rule_Arguments(scanner_t scanner);
-static int rule_Argument_n(scanner_t scanner);
-static int rule_Argument(scanner_t scanner);
-static int rule_return(scanner_t scanner);
-static int rule_expressions(scanner_t scanner);
-static int rule_expression_n(scanner_t scanner);
-static int rule_expression(scanner_t scanner);
-static int rule_literal(scanner_t scanner);
-static int rule_eol_opt_n(scanner_t scanner);
-static int rule_eol_opt(scanner_t scanner);
+static int rule_program(parser_t parser);
+static int rule_prolog(parser_t parser);
+static int rule_functions(parser_t parser);
+static int rule_function(parser_t parser);
+static int rule_param_list(parser_t parser);
+static int rule_param_n(parser_t parser);
+static int rule_param(parser_t parser);
+static int rule_return_list(parser_t parser);
+static int rule_return_n(parser_t parser);
+static int rule_type_n(parser_t parser);
+static int rule_typename(parser_t parser);
+static int rule_returntype(parser_t parser);
+static int rule_statements(parser_t parser);
+static int rule_def_ass_call(parser_t parser);
+static int rule_ass_call(parser_t parser);
+static int rule_def_ass_call2(parser_t parser);
+static int rule_funCall(parser_t parser);
+static int rule_var_define_opt(parser_t parser);
+static int rule_var_define(parser_t parser);
+static int rule_conditionals(parser_t parser);
+static int rule_conditional_n(parser_t parser);
+static int rule_else(parser_t parser);
+static int rule_conditional(parser_t parser);
+static int rule_iterative(parser_t parser);
+static int rule_assignment(parser_t parser);
+static int rule_assignment_opt(parser_t parser);
+static int rule_ids(parser_t parser);
+static int rule_id_n(parser_t parser);
+static int rule_id(parser_t parser);
+static int rule_assignOp(parser_t parser);
+static int rule_exprs_funCall(parser_t parser);
+static int rule_functionCall(parser_t parser);
+static int rule_Arguments(parser_t parser);
+static int rule_Argument_n(parser_t parser);
+static int rule_Argument(parser_t parser);
+static int rule_return(parser_t parser);
+static int rule_expressions(parser_t parser);
+static int rule_expression_n(parser_t parser);
+static int rule_expression(parser_t parser);
+static int rule_literal(parser_t parser);
+static int rule_eol_opt_n(parser_t parser);
+static int rule_eol_opt(parser_t parser);
 
 // adhoc rules
-static int rule_term(scanner_t scanner);
-static int rule_binaryOp(scanner_t scanner);
-static int rule_unaryOp(scanner_t scanner);
+static int rule_term(parser_t parser);
+static int rule_binaryOp(parser_t parser);
+static int rule_unaryOp(parser_t parser);
 
 ////// Root
 
-int rule_root(scanner_t scanner) {
+int rule_root(parser_t parser) {
 	TK_NEXT();
 	EXECUTE_RULE(rule_program);
 	return EXIT_SUCCESS;
@@ -66,7 +66,7 @@ int rule_root(scanner_t scanner) {
 ////// Actual rule definitions
 
 /// 1
-int rule_program(scanner_t scanner) {	
+int rule_program(parser_t parser) {	
 	// Program  -> 		 Eol_opt_n Prolog Eol_opt_n Functions Eol_opt_n eof .
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_prolog);
@@ -78,7 +78,7 @@ int rule_program(scanner_t scanner) {
 }
 
 /// 2
-int rule_prolog(scanner_t scanner) {
+int rule_prolog(parser_t parser) {
 	// Prolog -> 		  package main eol .
 	TK_MATCH(TK_KEYW_PACKAGE);
 	TK_MATCH(TK_KEYW_MAIN);
@@ -87,7 +87,7 @@ int rule_prolog(scanner_t scanner) {
 }
 
 /// 3
-int rule_functions(scanner_t scanner) {	
+int rule_functions(parser_t parser) {	
 	// Functions -> 		  Function Eol_opt_n Functions
 	//						| eps .
 	switch (TOKEN) {
@@ -104,7 +104,7 @@ int rule_functions(scanner_t scanner) {
 }
 
 /// 4
-int rule_function(scanner_t scanner) {
+int rule_function(parser_t parser) {
 	// Function -> 		  func id l_parenthesis Param_list r_parenthesis
 	//					  Return_list l_curly eol Eol_opt_n Statements r_curly eol .
 	TK_MATCH(TK_KEYW_FUNC);
@@ -129,7 +129,7 @@ int rule_function(scanner_t scanner) {
 }
 
 /// 5
-int rule_param_list(scanner_t scanner) {	
+int rule_param_list(parser_t parser) {	
 	// Param_list ->		  Param Param_n
 	//						| eps .
 	switch (TOKEN) {
@@ -145,7 +145,7 @@ int rule_param_list(scanner_t scanner) {
 }
 
 /// 6
-int rule_param_n(scanner_t scanner) {	
+int rule_param_n(parser_t parser) {	
 	// Param_n -> 			  comma Eol_opt Param Param_n
 	//						| eps.
 	switch (TOKEN) {
@@ -163,7 +163,7 @@ int rule_param_n(scanner_t scanner) {
 }
 
 /// 7
-int rule_param(scanner_t scanner) {
+int rule_param(parser_t parser) {
 	// Param -> 			  id Typename
 	TK_MATCH(TK_IDENTIFIER);
 	EXECUTE_RULE(rule_typename);
@@ -172,7 +172,7 @@ int rule_param(scanner_t scanner) {
 
 
 /// 8
-int rule_return_list(scanner_t scanner) {
+int rule_return_list(parser_t parser) {
 	// Return_list -> 	  	  l_parenthesis Return_n r_parenthesis
 	//						| eps .
 	switch (TOKEN) {
@@ -189,7 +189,7 @@ int rule_return_list(scanner_t scanner) {
 }
 
 /// 9
-int rule_return_n(scanner_t scanner) {	
+int rule_return_n(parser_t parser) {	
 	// Return_n -> 			  Returntype Type_n .
 	EXECUTE_RULE(rule_returntype);
 	EXECUTE_RULE(rule_type_n);
@@ -197,7 +197,7 @@ int rule_return_n(scanner_t scanner) {
 }
 
 /// 10
-int rule_type_n(scanner_t scanner) {
+int rule_type_n(parser_t parser) {
 	// Type_n -> 			  comma Eol_opt Typename Type_n
 	//						| eps .
 	switch (TOKEN) {
@@ -214,7 +214,7 @@ int rule_type_n(scanner_t scanner) {
 }
 
 /// 11
-int rule_typename(scanner_t scanner) {
+int rule_typename(parser_t parser) {
 	// Typename ->	 		  float64
 	//						| int
 	//						| string
@@ -223,7 +223,7 @@ int rule_typename(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-int rule_returntype(scanner_t scanner) {
+int rule_returntype(parser_t parser) {
 	// Typename ->	 		  float64
 	//						| int
 	//						| string
@@ -245,7 +245,7 @@ int rule_returntype(scanner_t scanner) {
 
 
 /// 12
-int rule_statements(scanner_t scanner) {
+int rule_statements(parser_t parser) {
 	// Statements ->		  Def_Ass_Call Eol_opt_n Statements
 	//						| Conditionals Eol_opt_n Statements
 	//						| Iterative Eol_opt_n Statements
@@ -278,7 +278,7 @@ int rule_statements(scanner_t scanner) {
 }
 
 /// 14
-int rule_def_ass_call(scanner_t scanner) {
+int rule_def_ass_call(parser_t parser) {
 	// Def_Ass_Call ->	  	  underscore Ass_Call eol
 	//						| id Def_Ass_Call2 eol .
 	// TODO rework this whole shit
@@ -298,7 +298,7 @@ int rule_def_ass_call(scanner_t scanner) {
 }
 
 /// 15
-int rule_ass_call(scanner_t scanner) {
+int rule_ass_call(parser_t parser) {
 	// Ass_Call ->			  l_parenthesis FunCall
 	//						| comma Ids AssignOp Exprs_FunCall
 	//						| AssignOp Exprs_FunCall .
@@ -322,7 +322,7 @@ int rule_ass_call(scanner_t scanner) {
 }
 
 /// 16
-int rule_def_ass_call2(scanner_t scanner) {
+int rule_def_ass_call2(parser_t parser) {
 	// Def_Ass_Call2 ->		  l_parenthesis FunCall
 	//						| defineOp Expression
 	//						| comma Ids AssignOp Exprs_FunCall .
@@ -350,7 +350,7 @@ int rule_def_ass_call2(scanner_t scanner) {
 }
 
 /// 17
-int rule_funCall(scanner_t scanner) {
+int rule_funCall(parser_t parser) {
 	// FunCall ->			  Eol_opt Arguments r_parenthesis .
 	EXECUTE_RULE(rule_eol_opt);
 	EXECUTE_RULE(rule_Arguments);
@@ -359,7 +359,7 @@ int rule_funCall(scanner_t scanner) {
 }
 
 /// 18
-int rule_var_define_opt(scanner_t scanner) {
+int rule_var_define_opt(parser_t parser) {
 	// Var_define -> 	  	  Var_define
 	//						| eps .
 	switch (TOKEN) {
@@ -373,7 +373,7 @@ int rule_var_define_opt(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-int rule_var_define(scanner_t scanner) {
+int rule_var_define(parser_t parser) {
 	// Var_define -> 	  	  id defineOp Expression
 	//						| eps .
 	switch (TOKEN) {
@@ -390,7 +390,7 @@ int rule_var_define(scanner_t scanner) {
 }
 
 /// 19
-int rule_conditionals(scanner_t scanner) {
+int rule_conditionals(parser_t parser) {
 	// Conditionals -> 		  Conditional Conditional_n eol.
 	EXECUTE_RULE(rule_conditional);
 	EXECUTE_RULE(rule_conditional_n);
@@ -399,7 +399,7 @@ int rule_conditionals(scanner_t scanner) {
 }
 
 /// 20
-int rule_conditional_n(scanner_t scanner) {
+int rule_conditional_n(parser_t parser) {
 	// Conditional_n ->		  else Else
 	//						| eps .
 	switch (TOKEN) {
@@ -414,7 +414,7 @@ int rule_conditional_n(scanner_t scanner) {
 }
 
 /// 21
-int rule_else(scanner_t scanner) {
+int rule_else(parser_t parser) {
 	// Else -> 				  Conditional Conditional_n
 	//						| l_curly eol Eol_opt_n Statements r_curly .
 	switch (TOKEN) {
@@ -434,7 +434,7 @@ int rule_else(scanner_t scanner) {
 }
 
 /// 22
-int rule_conditional(scanner_t scanner) {
+int rule_conditional(parser_t parser) {
 	// Conditional -> 	  	  if Expression l_curly eol Eol_opt_n Statements r_curly .
 	TK_NEXT();
 	EXECUTE_RULE(rule_expression);
@@ -447,7 +447,7 @@ int rule_conditional(scanner_t scanner) {
 }
 
 /// 23
-int rule_iterative(scanner_t scanner) {
+int rule_iterative(parser_t parser) {
 	// Iterative -> 		  for Var_define_opt semicolon Expression semicolon
 	//						  Assignment_opt l_curly eol Eol_opt_n Statements r_curly eol.
 	TK_NEXT();
@@ -466,7 +466,7 @@ int rule_iterative(scanner_t scanner) {
 }
 
 /// 24
-int rule_assignment_opt(scanner_t scanner) {
+int rule_assignment_opt(parser_t parser) {
 	// Assignment -> 	  	  Assignment
 	//						| eps .
 	switch (TOKEN) {
@@ -482,7 +482,7 @@ int rule_assignment_opt(scanner_t scanner) {
 }
 
 /// 24
-int rule_assignment(scanner_t scanner) {
+int rule_assignment(parser_t parser) {
 	// Assignment -> 	  	  Ids AssignOp Exprs_FunCall .
 	EXECUTE_RULE(rule_ids);
 	EXECUTE_RULE(rule_assignOp);
@@ -491,7 +491,7 @@ int rule_assignment(scanner_t scanner) {
 }
 
 /// 25
-int rule_ids(scanner_t scanner) {
+int rule_ids(parser_t parser) {
 	// Ids -> 				  Id Id_n .
 	EXECUTE_RULE(rule_id);
 	EXECUTE_RULE(rule_id_n);
@@ -499,7 +499,7 @@ int rule_ids(scanner_t scanner) {
 }
 
 /// 26
-int rule_id_n(scanner_t scanner) {
+int rule_id_n(parser_t parser) {
 	// Id_n ->	 			  comma Id Id_n
 	//						| eps .
 	switch (TOKEN) {
@@ -515,7 +515,7 @@ int rule_id_n(scanner_t scanner) {
 }
 
 /// 27
-int rule_id(scanner_t scanner) {
+int rule_id(parser_t parser) {
 	// Id -> 				  id
 	//						| underscore .
 	TK_MATCH(TK_IDENTIFIER, TK_UNDERSCORE);
@@ -523,7 +523,7 @@ int rule_id(scanner_t scanner) {
 }
 
 /// 28
-int rule_assignOp(scanner_t scanner) {
+int rule_assignOp(parser_t parser) {
 	// AssignOp -> 			  plus_assign
 	//						| minus_assing
 	//						| multiply_assign
@@ -534,7 +534,7 @@ int rule_assignOp(scanner_t scanner) {
 }
 
 /// 29
-int rule_exprs_funCall(scanner_t scanner) {
+int rule_exprs_funCall(parser_t parser) {
 	// Exprs_FunCall ->		  Expression
 	//						| FunctionCall .
 
@@ -546,7 +546,7 @@ int rule_exprs_funCall(scanner_t scanner) {
 }
 
 /// 30
-int rule_functionCall(scanner_t scanner) {
+int rule_functionCall(parser_t parser) {
 	// FunctionCall -> 		  id l_parenthesis Eol_opt Arguments r_parenthesis .
 	TK_MATCH(TK_IDENTIFIER);
 	TK_MATCH(TK_L_PARENTHESIS);
@@ -557,7 +557,7 @@ int rule_functionCall(scanner_t scanner) {
 }
 
 /// 31
-int rule_Arguments(scanner_t scanner) {
+int rule_Arguments(parser_t parser) {
 	// Arguments ->			  Argument Argument_n
 	//						| eps .
 	switch (TOKEN) {
@@ -576,7 +576,7 @@ int rule_Arguments(scanner_t scanner) {
 }
 
 /// 32
-int rule_Argument_n(scanner_t scanner) {
+int rule_Argument_n(parser_t parser) {
 	// Argument_n -> 	  	  comma Eol_opt Argument Argument_n
 	//						| eps .
 	switch (TOKEN) {
@@ -593,7 +593,7 @@ int rule_Argument_n(scanner_t scanner) {
 }
 
 /// 33
-int rule_Argument(scanner_t scanner) {
+int rule_Argument(parser_t parser) {
 	// Argument -> 			  id
 	//						| Literal .
 	switch (TOKEN) {
@@ -607,7 +607,7 @@ int rule_Argument(scanner_t scanner) {
 }
 
 /// 34
-int rule_return(scanner_t scanner) {
+int rule_return(parser_t parser) {
 	// Return -> 			  return Expressions eol.
 	TK_MATCH(TK_KEYW_RETURN);
 	EXECUTE_RULE(rule_expressions);
@@ -616,7 +616,7 @@ int rule_return(scanner_t scanner) {
 }
 
 /// 35
-int rule_expressions(scanner_t scanner) {
+int rule_expressions(parser_t parser) {
 	// Expressions -> 	  	  Expression Expression_n .
 	EXECUTE_RULE(rule_expression);
 	EXECUTE_RULE(rule_expression_n);
@@ -624,7 +624,7 @@ int rule_expressions(scanner_t scanner) {
 }
 
 /// 36
-int rule_expression_n(scanner_t scanner) {
+int rule_expression_n(parser_t parser) {
 	// Expression_n ->	  	  comma Expression Expression_n
 	//						| eps .
 	switch (TOKEN) {
@@ -640,7 +640,7 @@ int rule_expression_n(scanner_t scanner) {
 }
 
 /// 37
-int rule_expression(scanner_t scanner) {
+int rule_expression(parser_t parser) {
 	// Expression -> 	  	  Term
 	//						| Term BinaryOp Term
 	//						| l_parenthesis Eol_opt Term r_parenthesis .
@@ -648,25 +648,25 @@ int rule_expression(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-int rule_unaryOp(scanner_t scanner) {
+int rule_unaryOp(parser_t parser) {
 	TK_MATCH(TK_PLUS, TK_MINUS, TK_NOT);
 	return EXIT_SUCCESS;
 }
 
-int rule_term(scanner_t scanner) {
+int rule_term(parser_t parser) {
 	// adhoc rule
 	TK_MATCH(TK_IDENTIFIER, TK_INT_LIT, TK_FLOAT_LIT, TK_STR_LIT, TK_KEYW_TRUE, TK_KEYW_FALSE);
 	return EXIT_SUCCESS;
 }
 
-int rule_binaryOp(scanner_t scanner) {
+int rule_binaryOp(parser_t parser) {
 	// adhoc rule
 	TK_MATCH(TK_PLUS, TK_MINUS, TK_MULTIPLY, TK_DIVIDE, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_ASSIGN, TK_EQUAL, TK_NOT_EQUAL, TK_LESS, TK_GREATER, TK_LESS_EQUAL, TK_GREATER_EQUAL, TK_OR, TK_AND);
 	return EXIT_SUCCESS;
 }
 
 /// 38
-int rule_literal(scanner_t scanner) {
+int rule_literal(parser_t parser) {
 	// Literal -> 			  intLit
 	//						| floatLit
 	//						| stringLit
@@ -676,7 +676,7 @@ int rule_literal(scanner_t scanner) {
 	return EXIT_SUCCESS;
 }
 
-int rule_eol_opt_n(scanner_t scanner) {
+int rule_eol_opt_n(parser_t parser) {
 	// adhoc rule
 	// Eol_opt ->			  eol Eol_opt_n
 	//						| eps .
@@ -693,7 +693,7 @@ int rule_eol_opt_n(scanner_t scanner) {
 }
 
 /// 39
-int rule_eol_opt(scanner_t scanner) {	
+int rule_eol_opt(parser_t parser) {	
 	// Eol_opt ->			  eol
 	//						| eps .
 	switch (TOKEN) {

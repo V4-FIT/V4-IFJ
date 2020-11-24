@@ -1,18 +1,37 @@
 #include <stdlib.h>
 
 #include "parser.h"
-#include "scanner.h"
 #include "error.h"
 #include "rules.h"
 
-int parse(FILE *stream) {
-	scanner_t scanner = scanner_init(stream);
-	if (scanner == NULL) {
-		return ERROR_MISC;
+parser_t parser_init(FILE *stream) {
+	parser_t parser = malloc(sizeof(struct parser));
+	if (parser == NULL) {
+		return NULL;
 	}
 
-	int res = rule_root(scanner);
+	parser->scanner = scanner_init(stream);
+	if (parser->scanner == NULL) {
+		free(parser);
+		return NULL;
+	}
 
-	scanner_free(scanner);
-	return res;
+	parser->symtable = symtable_init();
+	if (parser->symtable == NULL) {
+		scanner_free(parser->scanner);
+		free(parser);
+		return NULL;
+	}
+
+	return parser;
+}
+
+int parser_parse(parser_t parser) {
+	return rule_root(parser);
+}
+
+void parser_free(parser_t parser) {
+	scanner_free(parser->scanner);
+	symtable_free(parser->symtable);
+	free(parser);
 }

@@ -8,6 +8,19 @@
 
 #include <stdio.h>
 
-int parse(FILE *stream);
+#include "scanner.h"
+#include "symtable.h"
+
+typedef struct parser
+{
+	scanner_t scanner;
+	symtable_t symtable;
+} * parser_t;
+
+parser_t parser_init(FILE *stream);
+
+int parser_parse(parser_t parser);
+
+void parser_free(parser_t parser);
 
 #endif // !IFJ_PARSER_H
