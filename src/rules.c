@@ -121,9 +121,11 @@ int rule_function(parser_t parser) {
 
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
+	symtable_enter_scope(parser->symtable);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 	TK_MATCH(TK_EOL);
+	symtable_exit_scope(parser->symtable);
 
 	return EXIT_SUCCESS;
 }
@@ -424,9 +426,11 @@ int rule_else(parser_t parser) {
 		case TK_L_CURLY:
 			TK_NEXT();
 			TK_MATCH(TK_EOL);
+			symtable_enter_scope(parser->symtable);
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
 			TK_MATCH(TK_R_CURLY);
+			symtable_exit_scope(parser->symtable);
 		default:
 			break;
 	}
@@ -440,9 +444,11 @@ int rule_conditional(parser_t parser) {
 	EXECUTE_RULE(rule_expression);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
+	symtable_enter_scope(parser->symtable);
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
+	symtable_exit_scope(parser->symtable);
 	return EXIT_SUCCESS;
 }
 
@@ -451,6 +457,7 @@ int rule_iterative(parser_t parser) {
 	// Iterative -> 		  for Var_define_opt semicolon Expression semicolon
 	//						  Assignment_opt l_curly eol Eol_opt_n Statements r_curly eol.
 	TK_NEXT();
+	symtable_enter_scope(parser->symtable);
 	EXECUTE_RULE(rule_var_define_opt);
 	TK_MATCH(TK_SEMICOLON);
 	EXECUTE_RULE(rule_expression);
@@ -458,10 +465,13 @@ int rule_iterative(parser_t parser) {
 	EXECUTE_RULE(rule_assignment_opt);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
+	symtable_enter_scope(parser->symtable);
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 	TK_MATCH(TK_EOL);
+	symtable_exit_scope(parser->symtable);
+	symtable_exit_scope(parser->symtable);
 	return EXIT_SUCCESS;
 }
 
