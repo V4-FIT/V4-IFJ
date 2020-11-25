@@ -11,8 +11,7 @@ extern "C" {
 }
 
 
-#define TESTVAL(val) 	fscanf(stream, "\n"); \
-						rewind(stream);		\
+#define TESTVAL(val) 	rewind(stream);		\
 						EXPECT_EQ(parse(stream), val)
 
 class Precedence : public testing::Test
@@ -22,6 +21,7 @@ public:
 
 	virtual void SetUp() {
 		stream = tmpfile();
+		fprintf(stream, "= ");
 	}
 
 	virtual void TearDown() {

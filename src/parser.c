@@ -4,10 +4,8 @@
 #include "scanner.h"
 #include "error.h"
 #include "rules.h"
+#include "precedence.h"
 
-int parse_expr(scanner_t scanner) {
-    return EXIT_SUCCESS;
-}
 
 int parse(FILE *stream) {
 	scanner_t scanner = scanner_init(stream);
@@ -17,6 +15,7 @@ int parse(FILE *stream) {
 
 	// int res = rule_root(scanner);
 
+	token_t token = scanner_next_token(scanner);
 	int res = parse_expr(scanner);
 
 	scanner_free(scanner);
