@@ -786,11 +786,14 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, get_stream(scanner));
 		hmap_iterator_t it = hmap_find(get_keyw_tok_map(scanner), charseq_data(get_charseq(scanner)));
-		if (hmap_it_eq(it, hmap_end(get_keyw_tok_map(scanner)))) {
+		if (hmap_it_eq(it, hmap_end(get_keyw_tok_map(scanner)))) { // not a keyword
 			get_tok(scanner)->type = TK_IDENTIFIER;
 			get_tok(scanner)->param.s = charseq_data(get_charseq(scanner));
-		} else {
+		} else { // keyword
 			get_tok(scanner)->type = *(token_type_t *)hmap_get_value(it);
+			if (get_tok(scanner)->type == TK_KEYW_MAIN) {
+				get_tok(scanner)->param.s = "main";
+			}
 		}
 		return S_END;
 	}

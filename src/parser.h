@@ -15,6 +15,7 @@ typedef struct parser
 {
 	scanner_t scanner;
 	symtable_t symtable;
+	token_t token;
 } * parser_t;
 
 parser_t parser_init(FILE *stream);

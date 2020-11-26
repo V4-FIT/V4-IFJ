@@ -5,6 +5,8 @@
 #include "error.h"
 ////// Macros
 
+#define TOKEN_TYPE parser->token->type
+
 //// Terminals
 
 /**
@@ -12,9 +14,9 @@
 */
 #define TK_NEXT()                                            \
 	do {                                                     \
-		token_t token = scanner_next_token(parser->scanner); \
-		if (token->type == TK_ERROR) {                       \
-			return token->param.i;                           \
+		parser->token = scanner_next_token(parser->scanner); \
+		if (parser->token->type == TK_ERROR) {               \
+			return parser->token->param.i;                   \
 		}                                                    \
 	} while (0)
 
@@ -26,9 +28,8 @@
 		token_type_t _TKS[] = {__VA_ARGS__};                 \
 		size_t _TKNUM = sizeof(_TKS) / sizeof(token_type_t); \
 		bool found = false;                                  \
-		token_t token = scanner_token(parser->scanner);      \
 		for (int i = 0; i < _TKNUM; ++i) {                   \
-			if (token->type == _TKS[i]) {                    \
+			if (parser->token->type == _TKS[i]) {            \
 				found = true;                                \
 				break;                                       \
 			}                                                \
@@ -47,9 +48,8 @@
 		token_type_t _TKS[] = {__VA_ARGS__};                 \
 		size_t _TKNUM = sizeof(_TKS) / sizeof(token_type_t); \
 		bool found = false;                                  \
-		token_t token = scanner_token(parser->scanner);      \
 		for (int i = 0; i < _TKNUM; ++i) {                   \
-			if (token->type == _TKS[i]) {                    \
+			if (parser->token->type == _TKS[i]) {            \
 				found = true;                                \
 				break;                                       \
 			}                                                \
@@ -59,16 +59,34 @@
 		}                                                    \
 	} while (0)
 
-#define TOKEN scanner_token(parser->scanner)->type
-
 //// Non-terminals
 
-#define EXECUTE_RULE(_RULEFUNC)               \
-	do {                                      \
+#define EXECUTE_RULE(_RULEFUNC)      \
+	do {                             \
 		int ret = _RULEFUNC(parser); \
-		if (ret != EXIT_SUCCESS) {            \
-			return ret;                       \
-		}                                     \
+		if (ret != EXIT_SUCCESS) {   \
+			return ret;              \
+		}                            \
+	} while (0)
+
+//// Semantics
+
+#define SEM_DEFINE_FUNC()                                                       \
+	do {                                                                        \
+		symbol_ref_t symbol = symtable_find(parser->symtable, parser->token);   \
+		if (symbol_valid(symbol)) {                                             \
+			if (symbol.symbol->func.defined) {                                  \
+				return ERROR_DEFINITION; /*redefinition*/                       \
+			} else {                                                            \
+				symbol.symbol->func.defined = true;                             \
+			}                                                                   \
+		} else {                                                                \
+			symbol = symtable_insert(parser->symtable, parser->token, ST_FUNC); \
+			if (!symbol_valid(symbol)) {                                        \
+				return ERROR_MISC; /*allocation error*/                         \
+			}                                                                   \
+			symbol.symbol->func.defined = true;                                 \
+		}                                                                       \
 	} while (0)
 
 #endif // !IFJ_RULEMACROS_H

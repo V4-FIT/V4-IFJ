@@ -7,17 +7,17 @@
 #define HMAP_BUCKET_COUNT 53
 
 // Helper macro for mapping keywords to tokens and checking for allocation errors
-#define MAP_KEYWORD_TOKEN(keyword, token) \
-do { \
-    token_type_t tok = token; \
-    hmap_iterator_t it = hmap_insert(scanner->keyw_tok_map, keyword, &tok); \
-    if (hmap_it_eq(it, hmap_end(scanner->keyw_tok_map))) { \
-        charseq_free(scanner->charseq); \
-        hmap_free(scanner->keyw_tok_map); \
-        free(scanner); \
-        return  NULL; \
-    } \
-} while(0)
+#define MAP_KEYWORD_TOKEN(keyword, token)                                       \
+	do {                                                                        \
+		token_type_t tok = token;                                               \
+		hmap_iterator_t it = hmap_insert(scanner->keyw_tok_map, keyword, &tok); \
+		if (hmap_it_eq(it, hmap_end(scanner->keyw_tok_map))) {                  \
+			charseq_free(scanner->charseq);                                     \
+			hmap_free(scanner->keyw_tok_map);                                   \
+			free(scanner);                                                      \
+			return NULL;                                                        \
+		}                                                                       \
+	} while (0)
 
 // Private
 
