@@ -7,16 +7,18 @@ ZIPFILE         = xgysel00.zip
 SOURCELIST      := $(shell find $(SOURCE_DIR)/ -type f -name '*.c')
 SOURCELIST      += $(shell find $(SOURCE_DIR)/ -type f -name '*.h')
 
+BUILDFLAGS	    = -j 12
+
 .PHONY: all Release Debug test testd zip clean
 all: Release
 
 ###### Development tree specific targets
 
 Release: $(BUILD_DIR)
-	cmake --build $(BUILD_DIR) --config $@
+	cmake --build $(BUILD_DIR) --config $@ $(BUILDFLAGS)
 
 Debug: $(BUILD_DIR)
-	cmake --build $(BUILD_DIR) --config $@
+	cmake --build $(BUILD_DIR) --config $@ $(BUILDFLAGS)
 
 $(BUILD_DIR): CMakeLists.txt
 	cmake -B $@
