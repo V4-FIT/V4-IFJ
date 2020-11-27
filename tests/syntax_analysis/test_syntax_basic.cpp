@@ -630,7 +630,7 @@ TEST_F(SyntaxTest, cond_else) {
 	PROLOG;
 	OPENFUN("main");
 
-	fprintf(stream, "if foo == true {\n}\n");
+	fprintf(stream, "if foo == true {\n}");
 	fprintf(stream, "else {\n}\n");
 
 	CLOSEFUN;

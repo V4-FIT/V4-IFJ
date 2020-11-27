@@ -284,7 +284,6 @@ int rule_statements(parser_t parser) {
 			// eps
 			break;
 	}
-	printf("statement end\n");
 	return EXIT_SUCCESS;
 }
 
@@ -614,7 +613,6 @@ int rule_Arguments(parser_t parser) {
 			EXECUTE_RULE(rule_Argument);
 			EXECUTE_RULE(rule_Argument_n);
 		default:
-			printf("no luck\n");
 			break;
 	}
 	return EXIT_SUCCESS;
