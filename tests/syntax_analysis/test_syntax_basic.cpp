@@ -657,9 +657,9 @@ TEST_F(SyntaxTest, cond_elseif_else) {
 	PROLOG;
 	OPENFUN("main");
 
-	fprintf(stream, "if foo <= 1 {\n}");
-	fprintf(stream, "else if foo <= 10 {\n\n}");
-	fprintf(stream, "else {\n\n}\n");
+	fprintf(stream, "if foo <= 1 {\n} ");
+	fprintf(stream, "else if foo <= 10 {\n\n} ");
+	fprintf(stream, "else {\n}\n");
 
 	CLOSEFUN;
 	TESTVAL(EXIT_SUCCESS);
