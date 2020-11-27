@@ -97,12 +97,12 @@ int push_stack(stack_t *head, token_t token, prec_token_type type) {
 // grammar rules
 
 void rule_i(stack_t *head) {
-	printf("E -> i\n");
+	// printf("E -> i\n");
 	(*head)->todo = false;
 }
 
 void rule_brackets(stack_t *head) {
-	printf("E -> (E)\n");
+	// printf("E -> (E)\n");
 
 	pop_stack(head);
 	pop_stack(head);
@@ -113,12 +113,12 @@ void rule_brackets(stack_t *head) {
 }
 
 void rule_exit(stack_t *head) {
-	printf("E -> $\n");
+	// printf("E -> $\n");
 	pop_stack(head); // remove E
 }
 
 void rule_un_neg(stack_t *head) {
-	printf("E -> +-!E\n");
+	// printf("E -> +-!E\n");
 	pop_stack(head);
 	pop_stack(head);
 	push_stack(head, NULL, PREC_I);
@@ -126,42 +126,42 @@ void rule_un_neg(stack_t *head) {
 }
 
 void rule_mul_div(stack_t *head) {
-	printf("E -> E*/E\n");
+	// printf("E -> E*/E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
 void rule_plus_minus(stack_t *head) {
-	printf("E -> E+-E\n");
+	// printf("E -> E+-E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
 void rule_rel(stack_t *head) {
-	printf("E -> E<>E\n");
+	// printf("E -> E<>E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
 void rule_equal(stack_t *head) {
-	printf("E -> E==E\n");
+	// printf("E -> E==E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
 void rule_and(stack_t *head) {
-	printf("E -> E && E\n");
+	// printf("E -> E && E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
 void rule_or(stack_t *head) {
-	printf("E -> E || E\n");
+	// printf("E -> E || E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
@@ -288,7 +288,7 @@ int parse_expr(scanner_t scanner) {
 
 				break;
 			case EQUA:
-				printf("equal\n");
+				// printf("equal\n");
 				pop_stack(&head);
 				type = convert_type(head, scanner_next_token(scanner));
 
@@ -296,7 +296,7 @@ int parse_expr(scanner_t scanner) {
 			case EMPT:
 			default:
 				if (head == NULL && type == PREC_DOLLAR) {
-					printf("ending\n");
+					// printf("ending\n");
 					return EXIT_SUCCESS;
 				} else if (head != NULL && head->type == PREC_DOLLAR &&
 						   head->next != NULL && head->next->type == PREC_I &&
@@ -309,12 +309,12 @@ int parse_expr(scanner_t scanner) {
 					}
 					return EXIT_SUCCESS;
 				} else {
-					printf("(%d) ", type);
+					// printf("(%d) ", type);
 					while (head != NULL) {
-						printf("%d | ", head->type);
+						// printf("%d | ", head->type);
 						pop_stack(&head);
 					}
-					printf("\n");
+					// printf("\n");
 					return ERROR_SYN;
 				}
 				break;
@@ -322,20 +322,20 @@ int parse_expr(scanner_t scanner) {
 	} while (res == EXIT_SUCCESS || type != PREC_DOLLAR);
 	// next $ came in
 
-	printf("out of the loop\n");
+	// printf("out of the loop\n");
 
 	if (head->type == PREC_DOLLAR && type == PREC_DOLLAR) {
-		printf("ending\n");
+		// printf("ending\n");
 		// remove head
 		pop_stack(&head);
 		return EXIT_SUCCESS;
 	} else {
-		printf("(%d) ", type);
+		// printf("(%d) ", type);
 		while (head != NULL) {
-			printf("%d | ", head->type);
+			// printf("%d | ", head->type);
 			pop_stack(&head);
 		}
-		printf("\n");
+		// printf("\n");
 		return ERROR_SYN;
 	}
 }
