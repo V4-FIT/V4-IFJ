@@ -3,6 +3,8 @@
 #include "precedence.h"
 #include "error.h"
 
+// stack operations
+
 int prec_table[11][11] = {
 		//     (     )      +-!      */      +-      <>     ==!=     &&      ||       I      EOF
 		{OPEN, EQUAL, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPTY},          // (
@@ -60,10 +62,6 @@ prec_token_type convert_type(token_t t) {
 	}
 }
 
-bool stack_empty(stack_t *head) {
-	return head == NULL;
-}
-
 void pop_stack(stack_t *head) {
 	stack_t tmp = *head;
 	(*head) = (*head)->next;
@@ -72,7 +70,7 @@ void pop_stack(stack_t *head) {
 	tmp = NULL;
 }
 
-int push_stack(stack_t *head, token_t token) {
+int push_stack(stack_t *head, token_t token, prec_token_type prec) {
 	stack_t new = malloc(sizeof(stack_t));
 	if (new == NULL) {
 		fprintf(stderr, "ERROR: malloc failed\n");
@@ -80,17 +78,72 @@ int push_stack(stack_t *head, token_t token) {
 	}
 
 	new->token = token;
-	new->type = convert_type(token);
+	new->type = prec;
 	new->next = *head;
 
 	*head = new;
+
+	// printf("new: %d\n", (*head)->type);
 
 	return EXIT_SUCCESS;
 }
 
 
-int parse_expr(scanner_t scanner) {
+// grammar rules
 
+void rule_i(stack_t *head) {
+	printf("RULE: E -> i\n");
+	(*head)->prec = DONE;
+}
+
+void rule_brackets(stack_t *head) {
+	if ((*head) != NULL &&
+		(*head)->next != NULL &&
+		(*head)->next->next != NULL) {
+		printf("RULE: E -> (E)\n");
+
+		pop_stack(head);
+		pop_stack(head);
+		pop_stack(head);
+
+		push_stack(head, NULL, PREC_I);
+		(*head)->prec = DONE;
+	}
+}
+
+void rule_exit(stack_t *head) {
+	printf("E -> $\n");
+	pop_stack(head);
+}
+
+int reduce(stack_t *head) {
+	printf("reduce: ");
+
+	switch ((*head)->type) {
+		case PREC_I:
+			if ((*head)->prec != DONE) {
+				rule_i(head);
+				return EXIT_SUCCESS;
+			} else if ((*head)->next != NULL && (*head)->next->type == PREC_DOLLAR) {
+				rule_exit(head);
+			}
+			break;
+		case PREC_R_BR:
+			if ((*head)->next != NULL && (*head)->next->type == PREC_I &&
+				(*head)->next->next != NULL && (*head)->next->next->type == PREC_L_BR) {
+				rule_brackets(head);
+				return EXIT_SUCCESS;
+			} else {
+				printf("rule not found\n");
+			}
+
+		default:
+			break;
+	}
+	return ERROR_SYN;
+}
+
+int parse_expr(scanner_t scanner) {
 	// init stack to $
 	stack_t head = malloc(sizeof(struct stack));
 	if (head == NULL) {
@@ -106,37 +159,67 @@ int parse_expr(scanner_t scanner) {
 	int res;
 	prec_token_type type = convert_type(scanner_token(scanner));
 	do {
-		printf("table: %d, %d\n", head->type, type);
+		// printf("table: %d, %d\n", head->type, type);
 		switch (prec_table[head->type][type]) {
 			case OPEN:
-				printf("open\n");
+				// printf("open\n");
+				res = push_stack(&head, scanner_token(scanner), type);
+				type = convert_type(scanner_next_token(scanner));
 				head->prec = OPEN;
-				res = push_stack(&head, scanner_token(scanner));
+
 				break;
 			case CLOSE:
-				printf("close\n");
+				// printf("close\n");
+				// res = push_stack(&head, scanner_token(scanner), type);
+				if (res != EXIT_SUCCESS) {
+					break;
+				}
+				res = reduce(&head);
+				if (type == PREC_R_BR && head->type == PREC_I) {
+					printf("reduce more\n");
+					res = push_stack(&head, scanner_token(scanner), type);
+					type = convert_type(scanner_next_token(scanner));
+
+					res = reduce(&head);
+				}
 				break;
 			case EQUAL:
 				printf("equal\n");
 				// res = push_stack(&head, scanner_token(scanner));
 				pop_stack(&head);
+				type = convert_type(scanner_next_token(scanner));
+
 				break;
 			case EMPTY:
 				printf("empty\n");
 			default:
-				printf("ERROR!\n");
-				while (head != NULL) {
+				if (head->type == PREC_DOLLAR && type == PREC_DOLLAR) {
+					// remove head
 					pop_stack(&head);
+					return EXIT_SUCCESS;
+				} else {
+					printf("(%d) ", type);
+					while (head != NULL) {
+						printf("%d | ", head->type);
+						pop_stack(&head);
+					}
+					return ERROR_SYN;
 				}
-				return ERROR_SYN;
 				break;
 		}
-		type = convert_type(scanner_next_token(scanner));
-	} while (type != PREC_DOLLAR && res == EXIT_SUCCESS);
+	} while (res == EXIT_SUCCESS);
 	// next $ came in
 
-
-	// remove head
-	pop_stack(&head);
-	return EXIT_SUCCESS;
+	if (head->type == PREC_DOLLAR && type == PREC_DOLLAR) {
+		// remove head
+		pop_stack(&head);
+		return EXIT_SUCCESS;
+	} else {
+		printf("(%d) ", type);
+		while (head != NULL) {
+			printf("%d | ", head->type);
+			pop_stack(&head);
+		}
+		return ERROR_SYN;
+	}
 }
