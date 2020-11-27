@@ -74,6 +74,7 @@ int rule_program(parser_t parser) {
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_functions);
 	EXECUTE_RULE(rule_eol_opt_n);
+
 	TK_TEST(TK_EOF);
 	return EXIT_SUCCESS;
 }
@@ -432,12 +433,10 @@ int rule_else(parser_t parser) {
 	//						| l_curly eol Eol_opt_n Statements r_curly .
 	switch (TOKEN_TYPE) {
 		case TK_KEYW_IF:
-			printf("\telse if\n");
 			EXECUTE_RULE(rule_conditional);
 			EXECUTE_RULE(rule_conditional_n);
 			break;
 		case TK_L_CURLY:
-			printf("\telse\n");
 			TK_NEXT();
 			TK_MATCH(TK_EOL);
 			symtable_enter_scope(parser->symtable);
@@ -462,7 +461,6 @@ int rule_conditional(parser_t parser) {
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
-	printf("%d\n", TOKEN_TYPE);
 
 	symtable_exit_scope(parser->symtable);
 	return EXIT_SUCCESS;
@@ -599,7 +597,6 @@ int rule_functionCall(parser_t parser) {
 	// FunctionCall -> 		  id l_parenthesis Eol_opt Arguments r_parenthesis .
 	TK_MATCH(TK_IDENTIFIER);
 	TK_MATCH(TK_L_PARENTHESIS);
-	EXECUTE_RULE(rule_eol_opt);
 	EXECUTE_RULE(rule_Arguments);
 	TK_MATCH(TK_R_PARENTHESIS);
 	return EXIT_SUCCESS;
