@@ -55,8 +55,7 @@ TEST_F(SyntaxTest, function_incomplete3) {
 // func main ()() {\n}\n
 TEST_F(SyntaxTest, function_complete) {
 	PROLOG;
-	OPENFUN("main");
-	CLOSEFUN;
+	fprintf(stream, "func main ()() {\n}\n");
 
 	TESTVAL(EXIT_SUCCESS);
 }
@@ -112,8 +111,7 @@ TEST_F(SyntaxTest, function_eol4) {
 // func main () () {}
 TEST_F(SyntaxTest, function_eol5) {
 	PROLOG;
-	fprintf(stream, "func main () () {");
-	CLOSEFUN;
+	fprintf(stream, "func main () () {}");
 
 	TESTVAL(ERROR_SYN);
 }
@@ -494,7 +492,7 @@ TEST_F(SyntaxTest, ass_no_exp) {
 TEST_F(SyntaxTest, fun_call_no_args) {
 	PROLOG;
 	OPENFUN("main");
-	fprintf(stream, "foo()");
+	fprintf(stream, "foo()\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -504,7 +502,7 @@ TEST_F(SyntaxTest, fun_call_no_args) {
 TEST_F(SyntaxTest, fun_call_arg) {
 	PROLOG;
 	OPENFUN("main");
-	fprintf(stream, "foo(\"Hello world\")");
+	fprintf(stream, "foo(\"Hello world\")\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -514,7 +512,7 @@ TEST_F(SyntaxTest, fun_call_arg) {
 TEST_F(SyntaxTest, fun_call_args) {
 	PROLOG;
 	OPENFUN("main");
-	fprintf(stream, "foo(2, \"Hello world\", 1.234, true, bar)");
+	fprintf(stream, "foo(2, \"Hello world\", 1.234, true, bar )\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -524,7 +522,7 @@ TEST_F(SyntaxTest, fun_call_args) {
 TEST_F(SyntaxTest, fun_call_eol) {
 	PROLOG;
 	OPENFUN("main");
-	fprintf(stream, "foo(\n 2, true, bar)");
+	fprintf(stream, "foo(\n 2, true, bar )\n");
 	CLOSEFUN;
 
 	TESTVAL(ERROR_SYN);
@@ -534,7 +532,7 @@ TEST_F(SyntaxTest, fun_call_eol) {
 TEST_F(SyntaxTest, fun_call_eol2) {
 	PROLOG;
 	OPENFUN("main");
-	fprintf(stream, "foo(2,\n true,\n bar)");
+	fprintf(stream, "foo(2,\n true,\n bar)\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -544,7 +542,7 @@ TEST_F(SyntaxTest, fun_call_eol2) {
 TEST_F(SyntaxTest, fun_call_eol3) {
 	PROLOG;
 	OPENFUN("main");
-	fprintf(stream, "foo(\n 2,\n true,\n bar\n)");
+	fprintf(stream, "foo(\n 2,\n true,\n bar\n)\n");
 	CLOSEFUN;
 
 	TESTVAL(ERROR_SYN);
@@ -710,7 +708,7 @@ TEST_F(SyntaxTest, iterative2) {
 	PROLOG;
 	OPENFUN("main");
 
-	fprintf(stream, "for foo = 1; foo <= 10; {\n}\n");
+	fprintf(stream, "for foo := 1; foo <= 10; {\n}\n");
 
 	CLOSEFUN;
 	TESTVAL(EXIT_SUCCESS);
@@ -743,7 +741,7 @@ TEST_F(SyntaxTest, iterative5) {
 	PROLOG;
 	OPENFUN("main");
 
-	fprintf(stream, "for foo = 1; ; foo +=1 {\n}\n");
+	fprintf(stream, "for foo := 1; ; foo +=1 {\n}\n");
 
 	CLOSEFUN;
 	TESTVAL(ERROR_SYN);

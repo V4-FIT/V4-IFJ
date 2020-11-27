@@ -123,6 +123,7 @@ int rule_function(parser_t parser) {
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
 	symtable_enter_scope(parser->symtable);
+	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 	TK_MATCH(TK_EOL);
@@ -261,14 +262,19 @@ int rule_statements(parser_t parser) {
 			EXECUTE_RULE(rule_def_ass_call);
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
+			break;
 		case TK_KEYW_IF:
 			EXECUTE_RULE(rule_conditionals);
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
+			break;
+
 		case TK_KEYW_FOR:
 			EXECUTE_RULE(rule_iterative);
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
+			break;
+
 		case TK_KEYW_RETURN:
 			EXECUTE_RULE(rule_return);
 			EXECUTE_RULE(rule_eol_opt_n);
@@ -278,6 +284,7 @@ int rule_statements(parser_t parser) {
 			// eps
 			break;
 	}
+	printf("statement end\n");
 	return EXIT_SUCCESS;
 }
 
@@ -359,6 +366,7 @@ int rule_funCall(parser_t parser) {
 	// FunCall ->			  Eol_opt Arguments r_parenthesis .
 	EXECUTE_RULE(rule_eol_opt);
 	EXECUTE_RULE(rule_Arguments);
+
 	TK_MATCH(TK_R_PARENTHESIS);
 	return EXIT_SUCCESS;
 }
@@ -606,6 +614,7 @@ int rule_Arguments(parser_t parser) {
 			EXECUTE_RULE(rule_Argument);
 			EXECUTE_RULE(rule_Argument_n);
 		default:
+			printf("no luck\n");
 			break;
 	}
 	return EXIT_SUCCESS;
@@ -615,6 +624,7 @@ int rule_Arguments(parser_t parser) {
 int rule_Argument_n(parser_t parser) {
 	// Argument_n -> 	  	  comma Eol_opt Argument Argument_n
 	//						| eps .
+
 	switch (TOKEN_TYPE) {
 		case TK_COMMA:
 			TK_NEXT();

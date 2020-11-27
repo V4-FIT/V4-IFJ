@@ -17,7 +17,7 @@ extern "C" {
 	fprintf(stream, name);    \
 	fprintf(stream, "()() {\n")
 
-#define CLOSEFUN fprintf(stream, "}\n")
+#define CLOSEFUN fprintf(stream, "\n}\n")
 
 #define TESTVAL(val) \
 	rewind(stream);  \
