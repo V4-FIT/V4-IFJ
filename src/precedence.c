@@ -16,7 +16,7 @@ int prec_table[11][11] = {
 		{OPEN, CLOSE, OPEN, OPEN, OPEN, OPEN, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},       // ==,   !=
 		{OPEN, CLOSE, OPEN, OPEN, OPEN, OPEN, OPEN, CLOSE, CLOSE, OPEN, CLOSE},        // &&
 		{OPEN, CLOSE, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, CLOSE, OPEN, CLOSE},         // ||
-		{EMPTY, CLOSE, OPEN, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, EMPTY, CLOSE},   // id, string/int/float/bool literal
+		{EMPTY, CLOSE, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPTY, CLOSE},        // id, string/int/float/bool literal
 		{OPEN, EMPTY, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPTY},          // eol?,   eof
 };
 
@@ -144,6 +144,27 @@ void rule_rel(stack_t *head) {
 	(*head)->prec = DONE;
 }
 
+void rule_equal(stack_t *head) {
+	printf("E -> E==E\n");
+	pop_stack(head);
+	pop_stack(head);
+	(*head)->prec = DONE;
+}
+
+void rule_and(stack_t *head) {
+	printf("E -> E && E\n");
+	pop_stack(head);
+	pop_stack(head);
+	(*head)->prec = DONE;
+}
+
+void rule_or(stack_t *head) {
+	printf("E -> E || E\n");
+	pop_stack(head);
+	pop_stack(head);
+	(*head)->prec = DONE;
+}
+
 int reduce(stack_t *head) {
 	printf("reduce: ");
 
@@ -190,6 +211,22 @@ int reduce(stack_t *head) {
 					case PREC_RELATION:
 						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
 							rule_rel(head);
+							return EXIT_SUCCESS;
+						}
+					case PREC_EQUAL:
+						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
+							rule_equal(head);
+							return EXIT_SUCCESS;
+						}
+					case PREC_AND:
+						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
+							rule_and(head);
+							return EXIT_SUCCESS;
+						}
+
+					case PREC_OR:
+						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
+							rule_or(head);
 							return EXIT_SUCCESS;
 						}
 					default:

@@ -61,6 +61,9 @@ void rule_exit(stack_t *head);
 void rule_un_neg(stack_t *head);
 void rule_mul_div(stack_t *head);
 void rule_rel(stack_t *head);
+void rule_equal(stack_t *head);
+void rule_and(stack_t *head);
+void rule_or(stack_t *head);
 
 
 int reduce(stack_t *head);
