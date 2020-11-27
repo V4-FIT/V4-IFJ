@@ -20,7 +20,10 @@ extern "C" {
 			fprintf(stderr, "ERROR: scanner aloc failed\n"); \
 		} else {                                             \
 			scanner_next_token(scanner);                     \
-			EXPECT_EQ(parse_expr(scanner), val);             \
+			token_t t = token_copy(scanner_token(scanner));  \
+			scanner_next_token(scanner);                     \
+			EXPECT_EQ(parse_expr(t, scanner), val);          \
+			token_free(t);                                   \
 		}                                                    \
 	} while (0)
 

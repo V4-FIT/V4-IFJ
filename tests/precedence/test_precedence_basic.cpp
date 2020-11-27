@@ -274,7 +274,6 @@ TEST_F(Precedence, div_id_multi) {
 
 // (10.0*a)/(12*b)
 TEST_F(Precedence, div_mul_combo1) {
-	printf("(10.0*a)/(+12*b)\n");
 	fprintf(stream, "(10.0*a)/(+12*b)");
 
 	TESTVAL(EXIT_SUCCESS);
@@ -894,6 +893,19 @@ TEST_F(Precedence, or_combo2) {
 
 	TESTVAL(EXIT_SUCCESS);
 }
+
+TEST_F(Precedence, comma) {
+	fprintf(stream, "a+a, b+b");
+	TESTVAL(EXIT_SUCCESS);
+
+	scanner_t Scanner = scanner_init(stream);
+	scanner_next_token(Scanner);
+	token_t t = token_copy(scanner_token(Scanner));
+	scanner_next_token(Scanner);
+	EXPECT_EQ(parse_expr(t, Scanner), EXIT_SUCCESS);
+	token_free(t);
+}
+
 
 /* TEST_F(Precedence, fails) {
 	EXPECT_TRUE(false);

@@ -240,7 +240,9 @@ int reduce(stack *head) {
 	return ERROR_SYN;
 }
 
-int parse_expr(scanner_t scanner) {
+int parse_expr(token_t t, scanner_t scanner) {
+	bool read = false;
+
 	// init stack to $
 	stack head = malloc(sizeof(struct Stack));
 	if (head == NULL) {
@@ -254,13 +256,16 @@ int parse_expr(scanner_t scanner) {
 
 	// parse
 	int res;
-	prec_token_type type = convert_type(head, scanner_token(scanner));
+	prec_token_type type = convert_type(head, t);
 	do {
+		// printf("expr parsing (%d)\n", type);
+
 		switch (prec_table[head->type][type]) {
 			case OPEN:
 				// printf("open\n");
-				res = push_stack(&head, scanner_token(scanner), type);
-				type = convert_type(head, scanner_next_token(scanner));
+				res = push_stack(&head, read ? scanner_token(scanner) : t, type);
+				type = convert_type(head, read ? scanner_next_token(scanner) : scanner_token(scanner));
+				read = true;
 
 				break;
 			case CLOS:
@@ -268,9 +273,11 @@ int parse_expr(scanner_t scanner) {
 				while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
 
 				if (type == PREC_R_BR && head->type == PREC_I) { // push close brackets & reduce
-					res = push_stack(&head, scanner_token(scanner), type);
-					type = convert_type(head, scanner_next_token(scanner));
+					res = push_stack(&head, read ? scanner_token(scanner) : t, type);
+					type = convert_type(head, read ? scanner_next_token(scanner) : scanner_token(scanner));
 					res = reduce(&head);
+					read = true;
+
 
 					while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
 				} else if (type == PREC_DOLLAR && head->type == PREC_I && head->next->type == PREC_DOLLAR) {
@@ -282,15 +289,17 @@ int parse_expr(scanner_t scanner) {
 					return EXIT_SUCCESS;
 				}
 
-				res = push_stack(&head, scanner_token(scanner), type);
-				type = convert_type(head, scanner_next_token(scanner));
+				res = push_stack(&head, read ? scanner_token(scanner) : t, type);
+				type = convert_type(head, read ? scanner_next_token(scanner) : scanner_token(scanner));
+				read = true;
 
 
 				break;
 			case EQUA:
 				// printf("equal\n");
 				pop_stack(&head);
-				type = convert_type(head, scanner_next_token(scanner));
+				type = convert_type(head, read ? scanner_next_token(scanner) : scanner_token(scanner));
+				read = true;
 
 				break;
 			case EMPT:

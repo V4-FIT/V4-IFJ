@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "rulemacros.h"
+#include "precedence.h"
 
 ////// Forward declarations
 
@@ -66,7 +67,7 @@ int rule_root(parser_t parser) {
 ////// Actual rule definitions
 
 /// 1
-int rule_program(parser_t parser) {	
+int rule_program(parser_t parser) {
 	// Program  -> 		 Eol_opt_n Prolog Eol_opt_n Functions Eol_opt_n eof .
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_prolog);
@@ -87,7 +88,7 @@ int rule_prolog(parser_t parser) {
 }
 
 /// 3
-int rule_functions(parser_t parser) {	
+int rule_functions(parser_t parser) {
 	// Functions -> 		  Function Eol_opt_n Functions
 	//						| eps .
 	switch (TOKEN_TYPE) {
@@ -131,7 +132,7 @@ int rule_function(parser_t parser) {
 }
 
 /// 5
-int rule_param_list(parser_t parser) {	
+int rule_param_list(parser_t parser) {
 	// Param_list ->		  Param Param_n
 	//						| eps .
 	switch (TOKEN_TYPE) {
@@ -147,7 +148,7 @@ int rule_param_list(parser_t parser) {
 }
 
 /// 6
-int rule_param_n(parser_t parser) {	
+int rule_param_n(parser_t parser) {
 	// Param_n -> 			  comma Eol_opt Param Param_n
 	//						| eps.
 	switch (TOKEN_TYPE) {
@@ -191,7 +192,7 @@ int rule_return_list(parser_t parser) {
 }
 
 /// 9
-int rule_return_n(parser_t parser) {	
+int rule_return_n(parser_t parser) {
 	// Return_n -> 			  Returntype Type_n .
 	EXECUTE_RULE(rule_returntype);
 	EXECUTE_RULE(rule_type_n);
@@ -256,6 +257,7 @@ int rule_statements(parser_t parser) {
 	switch (TOKEN_TYPE) {
 		case TK_UNDERSCORE:
 		case TK_IDENTIFIER:
+			// EXECUTE_RULE(rule_var_define);
 			EXECUTE_RULE(rule_def_ass_call);
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
@@ -284,6 +286,7 @@ int rule_def_ass_call(parser_t parser) {
 	// Def_Ass_Call ->	  	  underscore Ass_Call eol
 	//						| id Def_Ass_Call2 eol .
 	// TODO rework this whole shit
+
 	switch (TOKEN_TYPE) {
 		case TK_UNDERSCORE:
 			TK_NEXT();
@@ -342,6 +345,7 @@ int rule_def_ass_call2(parser_t parser) {
 			EXECUTE_RULE(rule_ids);
 			EXECUTE_RULE(rule_assignOp);
 			EXECUTE_RULE(rule_exprs_funCall);
+
 			break;
 		default:
 			EXECUTE_RULE(rule_assignOp);
@@ -364,6 +368,7 @@ int rule_funCall(parser_t parser) {
 int rule_var_define_opt(parser_t parser) {
 	// Var_define -> 	  	  Var_define
 	//						| eps .
+
 	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 			EXECUTE_RULE(rule_var_define);
@@ -550,7 +555,32 @@ int rule_exprs_funCall(parser_t parser) {
 
 	// TODO: expre vs funcall - BIG TODO btw
 
-	EXECUTE_RULE(rule_functionCall);
+	token_t t = token_copy(scanner_token(parser->scanner));
+	if (t == NULL) {
+		fprintf(stderr, "ERROR: malloc failed\n");
+		return ERROR_MISC;
+	}
+
+	if (TOKEN_TYPE == TK_IDENTIFIER) {
+		TK_NEXT();
+		if (TOKEN_TYPE == TK_L_PARENTHESIS) {
+			EXECUTE_RULE(rule_funCall);
+		} else {
+			int res = parse_expr(t, parser->scanner);
+			if (res == EXIT_SUCCESS) {
+				EXECUTE_RULE(rule_expression_n);
+			}
+			token_free(t);
+			return res;
+		}
+	} else {
+		// TK_NEXT();
+		// int res = parse_expr(t, parser->scanner);
+		// printf("res: %d", res);
+
+		EXECUTE_RULE(rule_expressions);
+	}
+	token_free(t);
 
 	return EXIT_SUCCESS;
 }
@@ -558,8 +588,11 @@ int rule_exprs_funCall(parser_t parser) {
 /// 30
 int rule_functionCall(parser_t parser) {
 	// FunctionCall -> 		  id l_parenthesis Eol_opt Arguments r_parenthesis .
-	TK_MATCH(TK_IDENTIFIER);
-	TK_MATCH(TK_L_PARENTHESIS);
+	// TK_MATCH(TK_IDENTIFIER);
+	// TK_MATCH(TK_L_PARENTHESIS);
+
+	printf("FUN CALL\n");
+
 	EXECUTE_RULE(rule_eol_opt);
 	EXECUTE_RULE(rule_Arguments);
 	TK_MATCH(TK_R_PARENTHESIS);
@@ -630,6 +663,7 @@ int rule_expressions(parser_t parser) {
 	// Expressions -> 	  	  Expression Expression_n .
 	EXECUTE_RULE(rule_expression);
 	EXECUTE_RULE(rule_expression_n);
+	printf("expressions done\n");
 	return EXIT_SUCCESS;
 }
 
@@ -638,6 +672,8 @@ int rule_expression_n(parser_t parser) {
 	// Expression_n ->	  	  comma Expression Expression_n
 	//						| eps .
 	switch (TOKEN_TYPE) {
+		case TK_EOL:
+			break;
 		case TK_COMMA:
 			TK_NEXT();
 			EXECUTE_RULE(rule_expression);
@@ -655,7 +691,16 @@ int rule_expression(parser_t parser) {
 	//						| Term BinaryOp Term
 	//						| l_parenthesis Eol_opt Term r_parenthesis .
 	// TODO: expression shits and don't forget other shits that are kinda expression related
-	return EXIT_SUCCESS;
+	token_t t = token_copy(scanner_token(parser->scanner));
+	if (t == NULL) {
+		fprintf(stderr, "ERROR: malloc failed\n");
+		return ERROR_MISC;
+	}
+	TK_NEXT();
+	int res = parse_expr(t, parser->scanner);
+	token_free(t);
+
+	return res;
 }
 
 int rule_unaryOp(parser_t parser) {
@@ -703,7 +748,7 @@ int rule_eol_opt_n(parser_t parser) {
 }
 
 /// 39
-int rule_eol_opt(parser_t parser) {	
+int rule_eol_opt(parser_t parser) {
 	// Eol_opt ->			  eol
 	//						| eps .
 	switch (TOKEN_TYPE) {

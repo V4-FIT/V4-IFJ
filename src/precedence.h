@@ -68,6 +68,6 @@ void rule_or(stack *head);
 
 int reduce(stack *head);
 
-int parse_expr(scanner_t scanner);
+int parse_expr(token_t t, scanner_t scanner);
 
 #endif

@@ -4,7 +4,7 @@
 #include "error.h"
 #include "rules.h"
 #include "precedence.h"
-
+#include "tokens.h"
 
 parser_t parser_init(FILE *stream) {
 	parser_t parser = malloc(sizeof(struct parser));
@@ -29,6 +29,7 @@ parser_t parser_init(FILE *stream) {
 }
 
 int parser_parse(parser_t parser) {
+
 	int res = rule_root(parser);
 
 	// SEM - check for undefined functions
