@@ -13,10 +13,7 @@ int parse(FILE *stream) {
 		return ERROR_MISC;
 	}
 
-	// int res = rule_root(scanner);
-
-	token_t token = scanner_next_token(scanner);
-	int res = parse_expr(scanner);
+	int res = rule_root(scanner);
 
 	scanner_free(scanner);
 	return res;

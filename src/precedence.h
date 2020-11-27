@@ -41,32 +41,32 @@ typedef enum
 
 // stack
 
-typedef struct stack
+typedef struct Stack
 {
 	token_t token;
 	prec_token_type type;
 	bool todo;
-	struct stack *next;
-} * stack_t;
+	struct Stack *next;
+} * stack;
 
 
-prec_token_type convert_type(stack_t head, token_t t1);
+prec_token_type convert_type(stack head, token_t t1);
 
-int push_stack(stack_t *head, token_t token, prec_token_type prec);
-void pop_stack(stack_t *head);
+int push_stack(stack *head, token_t token, prec_token_type prec);
+void pop_stack(stack *head);
 
-void rule_i(stack_t *head);
-void rule_brackets(stack_t *head);
-void rule_exit(stack_t *head);
-void rule_un_neg(stack_t *head);
-void rule_mul_div(stack_t *head);
-void rule_rel(stack_t *head);
-void rule_equal(stack_t *head);
-void rule_and(stack_t *head);
-void rule_or(stack_t *head);
+void rule_i(stack *head);
+void rule_brackets(stack *head);
+void rule_exit(stack *head);
+void rule_un_neg(stack *head);
+void rule_mul_div(stack *head);
+void rule_rel(stack *head);
+void rule_equal(stack *head);
+void rule_and(stack *head);
+void rule_or(stack *head);
 
 
-int reduce(stack_t *head);
+int reduce(stack *head);
 
 int parse_expr(scanner_t scanner);
 

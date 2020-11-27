@@ -7,12 +7,22 @@
 extern "C" {
 #include "error.h"
 #include "tokens.h"
-#include "parser.h"
+#include "precedence.h"
+#include "scanner.h"
 }
 
 
-#define TESTVAL(val) 	rewind(stream);		\
-						EXPECT_EQ(parse(stream), val)
+#define TESTVAL(val)                                         \
+	do {                                                     \
+		rewind(stream);                                      \
+		scanner_t scanner = scanner_init(stream);            \
+		if (scanner == NULL) {                               \
+			fprintf(stderr, "ERROR: scanner aloc failed\n"); \
+		} else {                                             \
+			scanner_next_token(scanner);                     \
+			EXPECT_EQ(parse_expr(scanner), val);             \
+		}                                                    \
+	} while (0)
 
 class Precedence : public testing::Test
 {
