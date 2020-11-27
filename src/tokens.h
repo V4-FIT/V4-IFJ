@@ -88,4 +88,17 @@ struct Token
 
 typedef struct Token *token_t;
 
+/**
+ * @brief	Create a deep copy of a token
+ * @param	to_copy 
+ * @return	Pointer to the new copy or NULL on allocation error
+*/
+token_t token_copy(token_t to_copy);
+
+/**
+ * @brief	Free allocated memory
+ * @param	token 
+*/
+void token_free(token_t token);
+
 #endif // !IFJ_TOKENS_H
