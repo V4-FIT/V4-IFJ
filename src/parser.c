@@ -3,6 +3,8 @@
 #include "parser.h"
 #include "error.h"
 #include "rules.h"
+#include "precedence.h"
+
 
 parser_t parser_init(FILE *stream) {
 	parser_t parser = malloc(sizeof(struct parser));
