@@ -345,7 +345,6 @@ int rule_def_ass_call2(parser_t parser) {
 			EXECUTE_RULE(rule_ids);
 			EXECUTE_RULE(rule_assignOp);
 			EXECUTE_RULE(rule_exprs_funCall);
-
 			break;
 		default:
 			EXECUTE_RULE(rule_assignOp);
@@ -555,13 +554,13 @@ int rule_exprs_funCall(parser_t parser) {
 
 	// TODO: expre vs funcall - BIG TODO btw
 
-	token_t t = token_copy(scanner_token(parser->scanner));
-	if (t == NULL) {
-		fprintf(stderr, "ERROR: malloc failed\n");
-		return ERROR_MISC;
-	}
-
 	if (TOKEN_TYPE == TK_IDENTIFIER) {
+		token_t t = token_copy(scanner_token(parser->scanner));
+		if (t == NULL) {
+			fprintf(stderr, "ERROR: malloc failed\n");
+			return ERROR_MISC;
+		}
+
 		TK_NEXT();
 		if (TOKEN_TYPE == TK_L_PARENTHESIS) {
 			EXECUTE_RULE(rule_funCall);
@@ -573,14 +572,11 @@ int rule_exprs_funCall(parser_t parser) {
 			token_free(t);
 			return res;
 		}
-	} else {
-		// TK_NEXT();
-		// int res = parse_expr(t, parser->scanner);
-		// printf("res: %d", res);
+		token_free(t);
 
+	} else {
 		EXECUTE_RULE(rule_expressions);
 	}
-	token_free(t);
 
 	return EXIT_SUCCESS;
 }
@@ -588,11 +584,8 @@ int rule_exprs_funCall(parser_t parser) {
 /// 30
 int rule_functionCall(parser_t parser) {
 	// FunctionCall -> 		  id l_parenthesis Eol_opt Arguments r_parenthesis .
-	// TK_MATCH(TK_IDENTIFIER);
-	// TK_MATCH(TK_L_PARENTHESIS);
-
-	printf("FUN CALL\n");
-
+	TK_MATCH(TK_IDENTIFIER);
+	TK_MATCH(TK_L_PARENTHESIS);
 	EXECUTE_RULE(rule_eol_opt);
 	EXECUTE_RULE(rule_Arguments);
 	TK_MATCH(TK_R_PARENTHESIS);
@@ -663,7 +656,6 @@ int rule_expressions(parser_t parser) {
 	// Expressions -> 	  	  Expression Expression_n .
 	EXECUTE_RULE(rule_expression);
 	EXECUTE_RULE(rule_expression_n);
-	printf("expressions done\n");
 	return EXIT_SUCCESS;
 }
 
@@ -699,7 +691,6 @@ int rule_expression(parser_t parser) {
 	TK_NEXT();
 	int res = parse_expr(t, parser->scanner);
 	token_free(t);
-
 	return res;
 }
 
