@@ -59,6 +59,9 @@ void rule_i(stack_t *head);
 void rule_brackets(stack_t *head);
 void rule_exit(stack_t *head);
 void rule_un_neg(stack_t *head);
+void rule_mul_div(stack_t *head);
+void rule_rel(stack_t *head);
+
 
 int reduce(stack_t *head);
 

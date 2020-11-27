@@ -16,7 +16,7 @@ int prec_table[11][11] = {
 		{OPEN, CLOSE, OPEN, OPEN, OPEN, OPEN, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},       // ==,   !=
 		{OPEN, CLOSE, OPEN, OPEN, OPEN, OPEN, OPEN, CLOSE, CLOSE, OPEN, CLOSE},        // &&
 		{OPEN, CLOSE, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, CLOSE, OPEN, CLOSE},         // ||
-		{EMPTY, CLOSE, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, CLOSE, EMPTY, CLOSE},       // id, string/int/float/bool literal
+		{EMPTY, CLOSE, OPEN, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, EMPTY, CLOSE},   // id, string/int/float/bool literal
 		{OPEN, EMPTY, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPTY},          // eol?,   eof
 };
 
@@ -32,7 +32,6 @@ prec_token_type convert_type(token_t t) {
 			return PREC_R_BR;
 		case TK_PLUS:
 		case TK_MINUS:
-			// todo
 		case TK_NOT:
 			return PREC_UNARY;
 		case TK_MULTIPLY:
@@ -92,7 +91,7 @@ int push_stack(stack_t *head, token_t token, prec_token_type prec) {
 // grammar rules
 
 void rule_i(stack_t *head) {
-	printf("RULE: E -> i\n");
+	printf("RULE: E -> %d\n", (*head)->token->type);
 	(*head)->prec = DONE;
 }
 
@@ -124,6 +123,27 @@ void rule_un_neg(stack_t *head) {
 	(*head)->prec = DONE;
 }
 
+void rule_mul_div(stack_t *head) {
+	printf("E -> E*/E\n");
+	pop_stack(head);
+	pop_stack(head);
+	(*head)->prec = DONE;
+}
+
+void rule_plus_minus(stack_t *head) {
+	printf("E -> E+-E\n");
+	pop_stack(head);
+	pop_stack(head);
+	(*head)->prec = DONE;
+}
+
+void rule_rel(stack_t *head) {
+	printf("E -> E<>E\n");
+	pop_stack(head);
+	pop_stack(head);
+	(*head)->prec = DONE;
+}
+
 int reduce(stack_t *head) {
 	printf("reduce: ");
 
@@ -133,7 +153,7 @@ int reduce(stack_t *head) {
 				rule_i(head);
 				return EXIT_SUCCESS;
 			} else if ((*head)->next != NULL && (*head)->next->type == PREC_DOLLAR) {
-				rule_exit(head);
+				// rule_exit(head);
 				// no exit_success
 			} else if ((*head)->next != NULL) {
 				switch ((*head)->next->type) {
@@ -156,6 +176,22 @@ int reduce(stack_t *head) {
 						}
 
 						break;
+					case PREC_MUL_DIV:
+						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
+							rule_mul_div(head);
+							return EXIT_SUCCESS;
+						}
+
+					case PREC_PLUS_MINUS:
+						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
+							rule_plus_minus(head);
+							return EXIT_SUCCESS;
+						}
+					case PREC_RELATION:
+						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
+							rule_rel(head);
+							return EXIT_SUCCESS;
+						}
 					default:
 						printf("problem");
 						break;
@@ -193,7 +229,7 @@ int parse_expr(scanner_t scanner) {
 	int res;
 	prec_token_type type = convert_type(scanner_token(scanner));
 	do {
-		// printf("table: %d %d (%d)\n", head->type, type, prec_table[head->type][type]);
+		printf("table: %d %d (%d)\n", head->type, type, prec_table[head->type][type]);
 		switch (prec_table[head->type][type]) {
 			case OPEN:
 				// printf("open\n");
@@ -205,20 +241,18 @@ int parse_expr(scanner_t scanner) {
 			case CLOSE:
 				// printf("close\n");
 				// res = push_stack(&head, scanner_token(scanner), type);
-				if (res != EXIT_SUCCESS) {
-					break;
-				}
-				res = reduce(&head);
-				// printf("result: %d\n", res);
-				if (type == PREC_R_BR && (reduce(&head) == EXIT_SUCCESS)) {
-					printf(",");
-				}
-				if (type == PREC_R_BR && head->type == PREC_I) {
+				res = reduce(&head);                     // expect to be able to reduce one
+				while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
+				printf("\nresult: %d\n", res);
+
+				if (type == PREC_R_BR && head->type == PREC_I) { // push close brackets & reduce
 					printf("reduce more\n");
 					res = push_stack(&head, scanner_token(scanner), type);
 					type = convert_type(scanner_next_token(scanner));
 
 					res = reduce(&head);
+				} else if (type == PREC_DOLLAR && head->type == PREC_I) {
+					rule_exit(&head);
 				}
 
 
@@ -233,7 +267,7 @@ int parse_expr(scanner_t scanner) {
 			case EMPTY:
 				printf("empty\n");
 			default:
-				printf("something went wrong\n");
+				// printf("something went wrong\n");
 				if (head->type == PREC_DOLLAR && type == PREC_DOLLAR) {
 					// remove head
 					pop_stack(&head);
