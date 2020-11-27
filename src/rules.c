@@ -649,6 +649,7 @@ int rule_Argument(parser_t parser) {
 	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 			TK_NEXT();
+			break;
 		default:
 			EXECUTE_RULE(rule_literal);
 			break;
