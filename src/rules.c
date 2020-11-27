@@ -575,6 +575,7 @@ int rule_exprs_funCall(parser_t parser) {
 
 		TK_NEXT();
 		if (TOKEN_TYPE == TK_L_PARENTHESIS) {
+			TK_NEXT();
 			EXECUTE_RULE(rule_funCall);
 		} else {
 			int res = parse_expr(t, parser->scanner);
