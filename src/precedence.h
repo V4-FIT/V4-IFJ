@@ -22,9 +22,9 @@ typedef enum
 typedef enum
 {
 	OPEN,
-	CLOSE,
-	EQUAL,
-	EMPTY,
+	CLOS,
+	EQUA,
+	EMPT,
 	DONE
 } prec;
 
@@ -45,12 +45,12 @@ typedef struct stack
 {
 	token_t token;
 	prec_token_type type;
-	prec prec;
+	bool todo;
 	struct stack *next;
 } * stack_t;
 
 
-prec_token_type convert_type(token_t t1);
+prec_token_type convert_type(stack_t head, token_t t1);
 
 int push_stack(stack_t *head, token_t token, prec_token_type prec);
 void pop_stack(stack_t *head);

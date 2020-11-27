@@ -6,23 +6,23 @@
 // stack operations
 
 int prec_table[11][11] = {
-		//(     )      +-!      */      +-      <>     ==!=     &&      ||       I      EOF
-		{OPEN, EQUAL, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPTY},          // (
-		{EMPTY, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, EMPTY, CLOSE}, // )
-		{OPEN, OPEN, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},     // +,    -,  !
-		{OPEN, CLOSE, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},    // *,    /
-		{OPEN, CLOSE, OPEN, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},     // +,    -
-		{OPEN, CLOSE, OPEN, OPEN, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},      // <,    <=, >,   >=
-		{OPEN, CLOSE, OPEN, OPEN, OPEN, OPEN, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},       // ==,   !=
-		{OPEN, CLOSE, OPEN, OPEN, OPEN, OPEN, OPEN, CLOSE, CLOSE, OPEN, CLOSE},        // &&
-		{OPEN, CLOSE, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, CLOSE, OPEN, CLOSE},         // ||
-		{EMPTY, CLOSE, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPTY, CLOSE},        // id, string/int/float/bool literal
-		{OPEN, EMPTY, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPTY},          // eol?,   eof
+		//(     )    +-!i   */    +-    <>   ==!=   &&    ||     i    EOF
+		{OPEN, EQUA, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPT}, // (
+		{EMPT, CLOS, CLOS, CLOS, CLOS, CLOS, CLOS, CLOS, CLOS, EMPT, CLOS}, // )
+		{OPEN, OPEN, OPEN, CLOS, CLOS, CLOS, CLOS, CLOS, CLOS, OPEN, CLOS}, // +,-,  !
+		{OPEN, CLOS, OPEN, CLOS, CLOS, CLOS, CLOS, CLOS, CLOS, OPEN, CLOS}, // *,/
+		{OPEN, CLOS, OPEN, OPEN, CLOS, CLOS, CLOS, CLOS, CLOS, OPEN, CLOS}, // +,-
+		{OPEN, CLOS, OPEN, OPEN, OPEN, CLOS, CLOS, CLOS, CLOS, OPEN, CLOS}, // <,<=, >, >=
+		{OPEN, CLOS, OPEN, OPEN, OPEN, OPEN, CLOS, CLOS, CLOS, OPEN, CLOS}, // ==,!=
+		{OPEN, CLOS, OPEN, OPEN, OPEN, OPEN, OPEN, CLOS, CLOS, OPEN, CLOS}, // &&
+		{OPEN, CLOS, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, CLOS, OPEN, CLOS}, // ||
+		{EMPT, CLOS, EMPT, CLOS, CLOS, CLOS, CLOS, CLOS, CLOS, EMPT, CLOS}, // id, string/int/float/bool literal
+		{OPEN, EMPT, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPT}, // eol?,   eof
 };
 
-prec_token_type convert_type(token_t t) {
+prec_token_type convert_type(stack_t head, token_t t) {
 	if (t == NULL) {
-		return EMPTY;
+		return EMPT;
 	}
 
 	switch (t->type) {
@@ -30,10 +30,15 @@ prec_token_type convert_type(token_t t) {
 			return PREC_L_BR;
 		case TK_R_PARENTHESIS:
 			return PREC_R_BR;
-		case TK_PLUS:
-		case TK_MINUS:
 		case TK_NOT:
 			return PREC_UNARY;
+		case TK_PLUS:
+		case TK_MINUS:
+			if (head->type == PREC_I || head->type == PREC_R_BR) {
+				return PREC_PLUS_MINUS;
+			} else {
+				return PREC_UNARY;
+			}
 		case TK_MULTIPLY:
 		case TK_DIVIDE:
 			return PREC_MUL_DIV;
@@ -69,7 +74,7 @@ void pop_stack(stack_t *head) {
 	tmp = NULL;
 }
 
-int push_stack(stack_t *head, token_t token, prec_token_type prec) {
+int push_stack(stack_t *head, token_t token, prec_token_type type) {
 	stack_t new = malloc(sizeof(stack_t));
 	if (new == NULL) {
 		fprintf(stderr, "ERROR: malloc failed\n");
@@ -77,8 +82,9 @@ int push_stack(stack_t *head, token_t token, prec_token_type prec) {
 	}
 
 	new->token = token;
-	new->type = prec;
+	new->type = type;
 	new->next = *head;
+	new->todo = true;
 
 	*head = new;
 
@@ -91,28 +97,24 @@ int push_stack(stack_t *head, token_t token, prec_token_type prec) {
 // grammar rules
 
 void rule_i(stack_t *head) {
-	printf("RULE: E -> %d\n", (*head)->token->type);
-	(*head)->prec = DONE;
+	printf("E -> i\n");
+	(*head)->todo = false;
 }
 
 void rule_brackets(stack_t *head) {
-	if ((*head) != NULL &&
-		(*head)->next != NULL &&
-		(*head)->next->next != NULL) {
-		printf("RULE: E -> (E)\n");
+	printf("E -> (E)\n");
 
-		pop_stack(head);
-		pop_stack(head);
-		pop_stack(head);
+	pop_stack(head);
+	pop_stack(head);
+	pop_stack(head);
 
-		push_stack(head, NULL, PREC_I);
-		(*head)->prec = DONE;
-	}
+	push_stack(head, NULL, PREC_I);
+	(*head)->todo = false;
 }
 
 void rule_exit(stack_t *head) {
 	printf("E -> $\n");
-	pop_stack(head);
+	pop_stack(head); // remove E
 }
 
 void rule_un_neg(stack_t *head) {
@@ -120,70 +122,64 @@ void rule_un_neg(stack_t *head) {
 	pop_stack(head);
 	pop_stack(head);
 	push_stack(head, NULL, PREC_I);
-	(*head)->prec = DONE;
+	(*head)->todo = false;
 }
 
 void rule_mul_div(stack_t *head) {
 	printf("E -> E*/E\n");
 	pop_stack(head);
 	pop_stack(head);
-	(*head)->prec = DONE;
+	(*head)->todo = false;
 }
 
 void rule_plus_minus(stack_t *head) {
 	printf("E -> E+-E\n");
 	pop_stack(head);
 	pop_stack(head);
-	(*head)->prec = DONE;
+	(*head)->todo = false;
 }
 
 void rule_rel(stack_t *head) {
 	printf("E -> E<>E\n");
 	pop_stack(head);
 	pop_stack(head);
-	(*head)->prec = DONE;
+	(*head)->todo = false;
 }
 
 void rule_equal(stack_t *head) {
 	printf("E -> E==E\n");
 	pop_stack(head);
 	pop_stack(head);
-	(*head)->prec = DONE;
+	(*head)->todo = false;
 }
 
 void rule_and(stack_t *head) {
 	printf("E -> E && E\n");
 	pop_stack(head);
 	pop_stack(head);
-	(*head)->prec = DONE;
+	(*head)->todo = false;
 }
 
 void rule_or(stack_t *head) {
 	printf("E -> E || E\n");
 	pop_stack(head);
 	pop_stack(head);
-	(*head)->prec = DONE;
+	(*head)->todo = false;
 }
 
 int reduce(stack_t *head) {
-	printf("reduce: ");
+	// printf("reduce: ");
 
 	switch ((*head)->type) {
 		case PREC_I:
-			if ((*head)->prec != DONE) {
+			if ((*head)->todo) {
 				rule_i(head);
 				return EXIT_SUCCESS;
-			} else if ((*head)->next != NULL && (*head)->next->type == PREC_DOLLAR) {
-				// rule_exit(head);
-				// no exit_success
 			} else if ((*head)->next != NULL) {
 				switch ((*head)->next->type) {
 					case PREC_UNARY:
 						if ((*head)->next->next != NULL) {
 							switch ((*head)->next->next->type) {
-								case PREC_I:
-									(*head)->next->type = PREC_PLUS_MINUS;
-									return reduce(head);
 								case PREC_L_BR:
 									rule_un_neg(head);
 									return EXIT_SUCCESS;
@@ -192,10 +188,7 @@ int reduce(stack_t *head) {
 									return EXIT_SUCCESS;
 									break;
 							}
-						} else {
-							printf("we may have a problem\n");
 						}
-
 						break;
 					case PREC_MUL_DIV:
 						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
@@ -230,7 +223,6 @@ int reduce(stack_t *head) {
 							return EXIT_SUCCESS;
 						}
 					default:
-						printf("problem");
 						break;
 				}
 			}
@@ -240,13 +232,11 @@ int reduce(stack_t *head) {
 				(*head)->next->next != NULL && (*head)->next->next->type == PREC_L_BR) {
 				rule_brackets(head);
 				return EXIT_SUCCESS;
-			} else {
-				printf("rule not found\n");
 			}
-
 		default:
 			break;
 	}
+	// printf("rule not found\n");
 	return ERROR_SYN;
 }
 
@@ -264,50 +254,59 @@ int parse_expr(scanner_t scanner) {
 
 	// parse
 	int res;
-	prec_token_type type = convert_type(scanner_token(scanner));
+	prec_token_type type = convert_type(head, scanner_token(scanner));
 	do {
-		printf("table: %d %d (%d)\n", head->type, type, prec_table[head->type][type]);
 		switch (prec_table[head->type][type]) {
 			case OPEN:
 				// printf("open\n");
 				res = push_stack(&head, scanner_token(scanner), type);
-				type = convert_type(scanner_next_token(scanner));
-				head->prec = OPEN;
+				type = convert_type(head, scanner_next_token(scanner));
 
 				break;
-			case CLOSE:
-				// printf("close\n");
-				// res = push_stack(&head, scanner_token(scanner), type);
+			case CLOS:
 				res = reduce(&head);                     // expect to be able to reduce one
 				while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
-				printf("\nresult: %d\n", res);
 
 				if (type == PREC_R_BR && head->type == PREC_I) { // push close brackets & reduce
-					printf("reduce more\n");
 					res = push_stack(&head, scanner_token(scanner), type);
-					type = convert_type(scanner_next_token(scanner));
-
+					type = convert_type(head, scanner_next_token(scanner));
 					res = reduce(&head);
-				} else if (type == PREC_DOLLAR && head->type == PREC_I) {
+
+					while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
+				} else if (type == PREC_DOLLAR && head->type == PREC_I && head->next->type == PREC_DOLLAR) {
 					rule_exit(&head);
+					while (head != NULL) {
+						// printf("%d | ", head->type);
+						pop_stack(&head);
+					}
+					return EXIT_SUCCESS;
 				}
 
+				res = push_stack(&head, scanner_token(scanner), type);
+				type = convert_type(head, scanner_next_token(scanner));
+
 
 				break;
-			case EQUAL:
+			case EQUA:
 				printf("equal\n");
-				// res = push_stack(&head, scanner_token(scanner));
 				pop_stack(&head);
-				type = convert_type(scanner_next_token(scanner));
+				type = convert_type(head, scanner_next_token(scanner));
 
 				break;
-			case EMPTY:
-				printf("empty\n");
+			case EMPT:
 			default:
-				// printf("something went wrong\n");
-				if (head->type == PREC_DOLLAR && type == PREC_DOLLAR) {
-					// remove head
-					pop_stack(&head);
+				if (head == NULL && type == PREC_DOLLAR) {
+					printf("ending\n");
+					return EXIT_SUCCESS;
+				} else if (head != NULL && head->type == PREC_DOLLAR &&
+						   head->next != NULL && head->next->type == PREC_I &&
+						   head->next->next != NULL && head->next->next->type == PREC_DOLLAR) {
+					// printf("case 2\n");
+					rule_exit(&head);
+					while (head != NULL) {
+						// printf("%d | ", head->type);
+						pop_stack(&head);
+					}
 					return EXIT_SUCCESS;
 				} else {
 					printf("(%d) ", type);
@@ -320,10 +319,13 @@ int parse_expr(scanner_t scanner) {
 				}
 				break;
 		}
-	} while (res == EXIT_SUCCESS);
+	} while (res == EXIT_SUCCESS || type != PREC_DOLLAR);
 	// next $ came in
 
+	printf("out of the loop\n");
+
 	if (head->type == PREC_DOLLAR && type == PREC_DOLLAR) {
+		printf("ending\n");
 		// remove head
 		pop_stack(&head);
 		return EXIT_SUCCESS;

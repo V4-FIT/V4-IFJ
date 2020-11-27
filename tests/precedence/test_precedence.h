@@ -21,7 +21,6 @@ public:
 
 	virtual void SetUp() {
 		stream = tmpfile();
-		fprintf(stream, "= ");
 	}
 
 	virtual void TearDown() {
