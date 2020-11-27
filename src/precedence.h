@@ -55,6 +55,11 @@ prec_token_type convert_type(token_t t1);
 int push_stack(stack_t *head, token_t token, prec_token_type prec);
 void pop_stack(stack_t *head);
 
+void rule_i(stack_t *head);
+void rule_brackets(stack_t *head);
+void rule_exit(stack_t *head);
+void rule_un_neg(stack_t *head);
+
 int reduce(stack_t *head);
 
 int parse_expr(scanner_t scanner);

@@ -6,10 +6,10 @@
 // stack operations
 
 int prec_table[11][11] = {
-		//     (     )      +-!      */      +-      <>     ==!=     &&      ||       I      EOF
+		//(     )      +-!      */      +-      <>     ==!=     &&      ||       I      EOF
 		{OPEN, EQUAL, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPTY},          // (
 		{EMPTY, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, EMPTY, CLOSE}, // )
-		{OPEN, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},    // +,    -,  !
+		{OPEN, OPEN, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},     // +,    -,  !
 		{OPEN, CLOSE, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},    // *,    /
 		{OPEN, CLOSE, OPEN, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},     // +,    -
 		{OPEN, CLOSE, OPEN, OPEN, OPEN, CLOSE, CLOSE, CLOSE, CLOSE, OPEN, CLOSE},      // <,    <=, >,   >=
@@ -116,6 +116,14 @@ void rule_exit(stack_t *head) {
 	pop_stack(head);
 }
 
+void rule_un_neg(stack_t *head) {
+	printf("E -> +-!E\n");
+	pop_stack(head);
+	pop_stack(head);
+	push_stack(head, NULL, PREC_I);
+	(*head)->prec = DONE;
+}
+
 int reduce(stack_t *head) {
 	printf("reduce: ");
 
@@ -126,6 +134,32 @@ int reduce(stack_t *head) {
 				return EXIT_SUCCESS;
 			} else if ((*head)->next != NULL && (*head)->next->type == PREC_DOLLAR) {
 				rule_exit(head);
+				// no exit_success
+			} else if ((*head)->next != NULL) {
+				switch ((*head)->next->type) {
+					case PREC_UNARY:
+						if ((*head)->next->next != NULL) {
+							switch ((*head)->next->next->type) {
+								case PREC_I:
+									(*head)->next->type = PREC_PLUS_MINUS;
+									return reduce(head);
+								case PREC_L_BR:
+									rule_un_neg(head);
+									return EXIT_SUCCESS;
+								default:
+									rule_un_neg(head);
+									return EXIT_SUCCESS;
+									break;
+							}
+						} else {
+							printf("we may have a problem\n");
+						}
+
+						break;
+					default:
+						printf("problem");
+						break;
+				}
 			}
 			break;
 		case PREC_R_BR:
@@ -159,7 +193,7 @@ int parse_expr(scanner_t scanner) {
 	int res;
 	prec_token_type type = convert_type(scanner_token(scanner));
 	do {
-		// printf("table: %d, %d\n", head->type, type);
+		// printf("table: %d %d (%d)\n", head->type, type, prec_table[head->type][type]);
 		switch (prec_table[head->type][type]) {
 			case OPEN:
 				// printf("open\n");
@@ -175,6 +209,10 @@ int parse_expr(scanner_t scanner) {
 					break;
 				}
 				res = reduce(&head);
+				// printf("result: %d\n", res);
+				if (type == PREC_R_BR && (reduce(&head) == EXIT_SUCCESS)) {
+					printf(",");
+				}
 				if (type == PREC_R_BR && head->type == PREC_I) {
 					printf("reduce more\n");
 					res = push_stack(&head, scanner_token(scanner), type);
@@ -182,6 +220,8 @@ int parse_expr(scanner_t scanner) {
 
 					res = reduce(&head);
 				}
+
+
 				break;
 			case EQUAL:
 				printf("equal\n");
@@ -193,6 +233,7 @@ int parse_expr(scanner_t scanner) {
 			case EMPTY:
 				printf("empty\n");
 			default:
+				printf("something went wrong\n");
 				if (head->type == PREC_DOLLAR && type == PREC_DOLLAR) {
 					// remove head
 					pop_stack(&head);
@@ -203,6 +244,7 @@ int parse_expr(scanner_t scanner) {
 						printf("%d | ", head->type);
 						pop_stack(&head);
 					}
+					printf("\n");
 					return ERROR_SYN;
 				}
 				break;
@@ -220,6 +262,7 @@ int parse_expr(scanner_t scanner) {
 			printf("%d | ", head->type);
 			pop_stack(&head);
 		}
+		printf("\n");
 		return ERROR_SYN;
 	}
 }
