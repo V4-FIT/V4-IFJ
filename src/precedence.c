@@ -304,6 +304,7 @@ int parse_expr(token_t t, scanner_t scanner) {
 				break;
 			case EMPT:
 			default:
+
 				if (head == NULL && type == PREC_DOLLAR) {
 					// printf("ending\n");
 					return EXIT_SUCCESS;
@@ -332,8 +333,7 @@ int parse_expr(token_t t, scanner_t scanner) {
 	// next $ came in
 
 	// printf("out of the loop\n");
-
-	if (head->type == PREC_DOLLAR && type == PREC_DOLLAR) {
+	if (res == EXIT_SUCCESS && head->type == PREC_DOLLAR && type == PREC_DOLLAR) {
 		// printf("ending\n");
 		// remove head
 		pop_stack(&head);
@@ -345,6 +345,6 @@ int parse_expr(token_t t, scanner_t scanner) {
 			pop_stack(&head);
 		}
 		// printf("\n");
-		return ERROR_SYN;
+		return res;
 	}
 }
