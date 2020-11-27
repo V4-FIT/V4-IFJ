@@ -643,7 +643,7 @@ TEST_F(SyntaxTest, cond_elseif) {
 	PROLOG;
 	OPENFUN("main");
 
-	fprintf(stream, "if foo <= 1 {\n}\n");
+	fprintf(stream, "if foo <= 1 {\n}");
 	fprintf(stream, "else if foo >= 10 {\n}\n");
 
 	CLOSEFUN;
@@ -657,9 +657,9 @@ TEST_F(SyntaxTest, cond_elseif_else) {
 	PROLOG;
 	OPENFUN("main");
 
-	fprintf(stream, "if foo <= 1 {\n}\n");
-	fprintf(stream, "else if foo <= 10 {\n}\n");
-	fprintf(stream, "else {\n}\n");
+	fprintf(stream, "if foo <= 1 {\n}");
+	fprintf(stream, "else if foo <= 10 {\n\n}");
+	fprintf(stream, "else {\n\n}\n");
 
 	CLOSEFUN;
 	TESTVAL(EXIT_SUCCESS);
@@ -674,9 +674,9 @@ TEST_F(SyntaxTest, cond_complex) {
 	PROLOG;
 	OPENFUN("main");
 
-	fprintf(stream, "if foo <= 1 {\n}\n");
-	fprintf(stream, "else if foo <= 10 {\n}\n");
-	fprintf(stream, "else if foo >= 20 {\n}\n");
+	fprintf(stream, "if foo <= 1 {\n}");
+	fprintf(stream, "else if foo <= 10 {\n}");
+	fprintf(stream, "else if foo >= 20 {\n}");
 	fprintf(stream, "else {\n}\n");
 
 	CLOSEFUN;
