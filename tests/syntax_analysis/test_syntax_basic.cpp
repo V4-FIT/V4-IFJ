@@ -697,7 +697,7 @@ TEST_F(SyntaxTest, iterative) {
 	PROLOG;
 	OPENFUN("main");
 
-	fprintf(stream, "for foo = 1; foo <= 10; foo +=1 {\n}\n");
+	fprintf(stream, "for foo := 1; foo <= 10; foo +=1 {\n}\n");
 
 	CLOSEFUN;
 	TESTVAL(EXIT_SUCCESS);
