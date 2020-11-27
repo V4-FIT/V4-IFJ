@@ -20,13 +20,14 @@ token_t token_copy(token_t token_to_copy) {
 	} else {
 		new_token->param = token_to_copy->param;
 	}
+	new_token->type = token_to_copy->type;
 
 	return new_token;
 }
 
 void token_free(token_t token) {
 	if (token->type == TK_IDENTIFIER || token->type == TK_KEYW_MAIN) {
-		free((void*)token->param.s);
+		free((void *)token->param.s);
 	}
 	free(token);
 }
