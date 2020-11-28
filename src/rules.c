@@ -355,6 +355,7 @@ int rule_def_ass_call2(parser_t parser) {
 			break;
 		default:
 			EXECUTE_RULE(rule_assignOp);
+			EXECUTE_RULE(rule_eol_opt);
 			EXECUTE_RULE(rule_exprs_funCall);
 			break;
 	}
