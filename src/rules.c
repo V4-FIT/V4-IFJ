@@ -364,10 +364,10 @@ int rule_def_ass_call2(parser_t parser) {
 /// 17
 int rule_funCall(parser_t parser) {
 	// FunCall ->			  Eol_opt Arguments r_parenthesis .
-	// EXECUTE_RULE(rule_eol_opt);
+	EXECUTE_RULE(rule_eol_opt);
 	EXECUTE_RULE(rule_Arguments);
-
 	TK_MATCH(TK_R_PARENTHESIS);
+
 	return EXIT_SUCCESS;
 }
 

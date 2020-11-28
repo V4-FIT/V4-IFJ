@@ -525,7 +525,7 @@ TEST_F(SyntaxTest, fun_call_eol) {
 	fprintf(stream, "foo(\n 2, true, bar )\n");
 	CLOSEFUN;
 
-	TESTVAL(ERROR_SYN);
+	TESTVAL(EXIT_SUCCESS);
 }
 
 // foo(2, \n true, \n bar)
@@ -592,7 +592,7 @@ TEST_F(SyntaxTest, ass_fun_call3) {
 	fprintf(stream, "i, j, k += foo(\n 2, true, bar)");
 	CLOSEFUN;
 
-	TESTVAL(ERROR_SYN);
+	TESTVAL(EXIT_SUCCESS);
 }
 
 // i, j, k += foo(2,\n true,\n bar)
