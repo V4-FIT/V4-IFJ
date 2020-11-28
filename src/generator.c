@@ -75,7 +75,7 @@ static void builtin_print() {
  * @param fname function name -> one of  {inputi, inputf, inputs, inputb}
  * @param type var type -> one of {int, float, string, bool}
  */
-static void builtin_intput(const char *fname, const char *type) {
+static void builtin_input(const char *fname, const char *type) {
 	COMMENT("Builtin - inputs");
 
 	// function label
@@ -124,10 +124,10 @@ static void builtin_define() {
 	COMMENT("Builtin function definitions");
 
 	builtin_print();
-	builtin_intput("inputi", "int");
-	builtin_intput("inputf", "float");
-	builtin_intput("inputs", "string");
-	builtin_intput("inputb", "bool");
+	builtin_input("inputi", "int");
+	builtin_input("inputf", "float");
+	builtin_input("inputs", "string");
+	builtin_input("inputb", "bool");
 }
 
 /// Public
