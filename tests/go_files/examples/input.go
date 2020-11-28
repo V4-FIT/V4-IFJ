@@ -14,5 +14,5 @@ func main() {
   print("Zadej desetinne cislo: ")
   f, err = inputf()
   print("FLOAT64=", f, ". CHYBA=", err, "\n")
-  
+
 }
