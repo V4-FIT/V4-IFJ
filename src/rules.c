@@ -51,11 +51,6 @@ static int rule_literal(parser_t parser);
 static int rule_eol_opt_n(parser_t parser);
 static int rule_eol_opt(parser_t parser);
 
-// adhoc rules
-static int rule_term(parser_t parser);
-static int rule_binaryOp(parser_t parser);
-static int rule_unaryOp(parser_t parser);
-
 ////// Root
 
 int rule_root(parser_t parser) {
@@ -355,7 +350,6 @@ int rule_def_ass_call2(parser_t parser) {
 			break;
 		default:
 			EXECUTE_RULE(rule_assignOp);
-			EXECUTE_RULE(rule_eol_opt);
 			EXECUTE_RULE(rule_exprs_funCall);
 			break;
 	}
@@ -706,23 +700,6 @@ int rule_expression(parser_t parser) {
 	int res = parse_expr(t, parser->scanner);
 	token_free(t);
 	return res;
-}
-
-int rule_unaryOp(parser_t parser) {
-	TK_MATCH(TK_PLUS, TK_MINUS, TK_NOT);
-	return EXIT_SUCCESS;
-}
-
-int rule_term(parser_t parser) {
-	// adhoc rule
-	TK_MATCH(TK_IDENTIFIER, TK_INT_LIT, TK_FLOAT_LIT, TK_STR_LIT, TK_KEYW_TRUE, TK_KEYW_FALSE);
-	return EXIT_SUCCESS;
-}
-
-int rule_binaryOp(parser_t parser) {
-	// adhoc rule
-	TK_MATCH(TK_PLUS, TK_MINUS, TK_MULTIPLY, TK_DIVIDE, TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_ASSIGN, TK_EQUAL, TK_NOT_EQUAL, TK_LESS, TK_GREATER, TK_LESS_EQUAL, TK_GREATER_EQUAL, TK_OR, TK_AND);
-	return EXIT_SUCCESS;
 }
 
 /// 38
