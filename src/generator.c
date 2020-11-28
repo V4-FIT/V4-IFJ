@@ -5,10 +5,22 @@
 /**
  * Some notes on code generation
  *
- * Function parameters are stored on the stack, until nil is met (stack root value must be nil)
+ * TERMINOLOGY
+ * return stack vs argument stack - same physical stack but in a different context
+ *
+ * CALLING CONVENTION:
+ * Functions use the CDECL calling convention with the exception that
+ * return values are pushed onto the stack instead of passed trough a register
+ * (this design choice is the result of multiple possible return values instead of one)
+ * The root of argument stack is NIL -> for variadic arguments as in print(...)
+ * RETURN VAUES are in order from LEFT to RIGHT [fun(2, 1, 0) (0, 1, 2)] (order of stack pushes)
+ * TL;DR: Function arguments and return values are stored on the stack until nil is met (stack root value must be nil)
+ *
+ * Allowed label chars:
+ *  _ - $ & % * ! ?
  *
  * Label prefixes:
- * ^! -> function end (cleanup)
+ * ^! -> function end (cleanup or error)
  * ^? -> loop label
  */
 
@@ -35,7 +47,7 @@ do { \
     fputs("\n", stdout); \
 } while (0)
 
-////// Builtin functions (private)
+////// Builtin function definitions (private)
 
 static void builtin_print() {
 	COMMENT("Builtin - print");
@@ -48,8 +60,7 @@ static void builtin_print() {
 
 	// pop arg and test if type is nil -> if yes jump to end
 	INSTRUCTION("POPS GF@rega");
-	INSTRUCTION("TYPE GF@regb GF@rega");
-	INSTRUCTION("JUMPIFEQ !print GF@regb nil@nil");
+	INSTRUCTION("JUMPIFEQ !print GF@rega nil@nil");
 
 	// if here, print the arg and loop back
 	INSTRUCTION("WRITE GF@rega");
@@ -57,6 +68,36 @@ static void builtin_print() {
 
 	// end
 	INSTRUCTION("LABEL !print");
+	INSTRUCTION("RETURN");
+}
+
+/**
+ * @param fname function name -> one of  {inputi, inputf, inputs, inputb}
+ * @param type var type -> one of {int, float, string, bool}
+ */
+static void builtin_intput(const char *fname, const char *type) {
+	COMMENT("Builtin - inputs");
+
+	// function label
+	INSTRUCTION("LABEL ", fname);
+
+	// initialize return stack
+	INSTRUCTION("PUSHS nil@nil");
+
+	// read stdin and push on return stack
+	INSTRUCTION("READ GF@rega ", type);
+	INSTRUCTION("PUSHS GF@rega");
+
+	// test type, jump to error if nil
+	INSTRUCTION("JUMPIFEQ !", fname, " GF@rega nil@nil");
+
+	// on success push return values to stack and return
+	INSTRUCTION("PUSHS int@0");
+	INSTRUCTION("RETURN");
+
+	// end - error
+	INSTRUCTION("LABEL !", fname);
+	INSTRUCTION("PUSHS int@1");
 	INSTRUCTION("RETURN");
 }
 
@@ -83,6 +124,10 @@ static void builtin_define() {
 	COMMENT("Builtin function definitions");
 
 	builtin_print();
+	builtin_intput("inputi", "int");
+	builtin_intput("inputf", "float");
+	builtin_intput("inputs", "string");
+	builtin_intput("inputb", "bool");
 }
 
 /// Public
