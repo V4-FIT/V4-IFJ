@@ -101,6 +101,32 @@ static void builtin_input(const char *fname, const char *type) {
 	INSTRUCTION("RETURN");
 }
 
+static void builtin_int2float() {
+	COMMENT("Builtin - int2float");
+
+	// function label
+	INSTRUCTION("LABEL int2float");
+
+	// convert the argument (no other stack operation is neccessary)
+	INSTRUCTION("INT2FLOATS");
+
+	// end
+	INSTRUCTION("RETURN");
+}
+
+static void builtin_float2int() {
+	COMMENT("Builtin - float2int");
+
+	// function label
+	INSTRUCTION("LABEL float2int");
+
+	// convert the argument (no other stack operation is neccessary)
+	INSTRUCTION("FLOAT2INTS");
+
+	// end
+	INSTRUCTION("RETURN");
+}
+
 ////// Code segment generation
 
 /// Private
@@ -111,6 +137,7 @@ static void header() {
 	INSTRUCTION(".IFJcode20");
 
 	// some global "registers" to avoid frame creation for simple functions
+	// TODO: Remove unused registers
 	INSTRUCTION("DEFVAR GF@rega");
 	INSTRUCTION("DEFVAR GF@regb");
 	INSTRUCTION("DEFVAR GF@regc");
@@ -128,6 +155,8 @@ static void builtin_define() {
 	builtin_input("inputf", "float");
 	builtin_input("inputs", "string");
 	builtin_input("inputb", "bool");
+	builtin_int2float();
+	builtin_float2int();
 }
 
 /// Public
