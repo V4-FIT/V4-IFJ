@@ -555,6 +555,7 @@ int rule_assignOp(parser_t parser) {
 	//						| divide_assign
 	//						| assign .
 	TK_MATCH(TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_ASSIGN);
+	EXECUTE_RULE(rule_eol_opt);
 	return EXIT_SUCCESS;
 }
 
