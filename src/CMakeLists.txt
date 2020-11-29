@@ -7,6 +7,8 @@ set(
         parser.c
         rules.c
         symtable.c
+        precedence.c
+		tokens.c
 )
 
 include_directories(

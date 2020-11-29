@@ -11,6 +11,7 @@ env:
   BUILD_TYPE: Release
   CACHE_DIR: cache
   CACHED_GTEST_DIR: cache/gtest
+  JOBS: 12
 
 jobs:
   build:
@@ -62,17 +63,19 @@ jobs:
       working-directory: ${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}/build
       run: |
         cmake ${{runner.workspace}}/${{env.CACHED_GTEST_DIR}} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=ON
-        cmake --build . --config $BUILD_TYPE
+        cmake --build . -j $JOBS --config $BUILD_TYPE
 
     - name: Install Google Test
       shell: bash
       working-directory: ${{runner.workspace}}/${{env.CACHED_GTEST_DIR}}/build
-      run: sudo cmake --build . --config $BUILD_TYPE --target install
+      run: sudo cmake --build . -j $JOBS --config $BUILD_TYPE --target install
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
       shell: bash
+      env:
+        CXX: g++-10
       working-directory: ${{runner.workspace}}/build
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
@@ -83,7 +86,7 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . -j $JOBS --config $BUILD_TYPE
 
     - name: Test
       working-directory: ${{runner.workspace}}/build

@@ -8,11 +8,11 @@ extern "C" {
 }
 
 #define TK(_name, _type)              \
-	token_t _name = new struct Token; \
+	token_t _name = new struct token; \
 	_name->type = _type;
 
 #define TK_ID(_name, _param)          \
-	token_t _name = new struct Token; \
+	token_t _name = new struct token; \
 	_name->type = TK_IDENTIFIER;      \
 	_name->param.s = _param;
 

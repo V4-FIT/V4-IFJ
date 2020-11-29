@@ -1,18 +1,43 @@
 #include <stdlib.h>
 
 #include "parser.h"
-#include "scanner.h"
 #include "error.h"
 #include "rules.h"
+#include "precedence.h"
+#include "tokens.h"
 
-int parse(FILE *stream) {
-	scanner_t scanner = scanner_init(stream);
-	if (scanner == NULL) {
-		return ERROR_MISC;
+parser_t parser_init(tklist_t tklist) {
+	parser_t parser = malloc(sizeof(struct parser));
+	if (parser == NULL) {
+		return NULL;
 	}
 
-	int res = rule_root(scanner);
+	parser->symtable = symtable_init();
+	if (parser->symtable == NULL) {
+		free(parser);
+		return NULL;
+	}
 
-	scanner_free(scanner);
+	parser->tklist = tklist;
+	parser->token = tklist_front(tklist);
+
+	return parser;
+}
+
+int parser_parse(tklist_t tklist) {
+	parser_t parser = parser_init(tklist);
+	int res = rule_root(parser);
+
+	// SEM - check for undefined functions
+	if (!res && symtable_undefined_funcs(parser->symtable)) {
+		res = ERROR_DEFINITION;
+	}
+
+	parser_free(parser);
 	return res;
+}
+
+void parser_free(parser_t parser) {
+	symtable_free(parser->symtable);
+	free(parser);
 }

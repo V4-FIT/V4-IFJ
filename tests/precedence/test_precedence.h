@@ -1,5 +1,5 @@
-#ifndef IFJ_TEST_SYNTAX_H
-#define IFJ_TEST_SYNTAX_H
+#ifndef IFJ_TEST_PRECEDENCE_H
+#define IFJ_TEST_PRECEDENCE_H
 
 #include <cstdio>
 #include <gtest/gtest.h>
@@ -7,18 +7,11 @@
 extern "C" {
 #include "error.h"
 #include "tokens.h"
-#include "parser.h"
+#include "precedence.h"
 #include "scanner.h"
+#include "parser.h"
 }
 
-#define PROLOG fprintf(stream, "package main\n")
-
-#define OPENFUN(name)         \
-	fprintf(stream, "func "); \
-	fprintf(stream, name);    \
-	fprintf(stream, "()() {\n")
-
-#define CLOSEFUN fprintf(stream, "\n}\n")
 
 #define TESTVAL(val)                                      \
 	do {                                                  \
@@ -26,15 +19,17 @@ extern "C" {
 		if (scanner_scan(stream, tklist)) {               \
 			fprintf(stderr, "ERROR: Lexical analysis\n"); \
 		} else {                                          \
-			EXPECT_EQ(parser_parse(tklist), val);         \
+			s_parser = parser_init(tklist);               \
+			EXPECT_EQ(parse_expr(s_parser), val);         \
 		}                                                 \
 	} while (0)
 
-class SyntaxTest : public testing::Test
+class Precedence : public testing::Test
 {
 public:
 	FILE *stream;
 	tklist_t tklist;
+	parser_t s_parser;
 
 	virtual void SetUp() {
 		stream = tmpfile();
@@ -42,9 +37,10 @@ public:
 	}
 
 	virtual void TearDown() {
+		parser_free(s_parser);
 		tklist_free(tklist);
 		fclose(stream);
 	}
 };
 
-#endif // !IFJ_TEST_SYNTAX_H
+#endif // !IFJ_TEST_PRECEDENCE_H

@@ -3,21 +3,22 @@
 #include "scanner.h"
 #include "scanner_states.h"
 #include "hash_map.h"
+#include "error.h"
 
 #define HMAP_BUCKET_COUNT 53
 
 // Helper macro for mapping keywords to tokens and checking for allocation errors
-#define MAP_KEYWORD_TOKEN(keyword, token) \
-do { \
-    token_type_t tok = token; \
-    hmap_iterator_t it = hmap_insert(scanner->keyw_tok_map, keyword, &tok); \
-    if (hmap_it_eq(it, hmap_end(scanner->keyw_tok_map))) { \
-        charseq_free(scanner->charseq); \
-        hmap_free(scanner->keyw_tok_map); \
-        free(scanner); \
-        return  NULL; \
-    } \
-} while(0)
+#define MAP_KEYWORD_TOKEN(keyword, token)                                       \
+	do {                                                                        \
+		token_type_t tok = token;                                               \
+		hmap_iterator_t it = hmap_insert(scanner->keyw_tok_map, keyword, &tok); \
+		if (hmap_it_eq(it, hmap_end(scanner->keyw_tok_map))) {                  \
+			charseq_free(scanner->charseq);                                     \
+			hmap_free(scanner->keyw_tok_map);                                   \
+			free(scanner);                                                      \
+			return NULL;                                                        \
+		}                                                                       \
+	} while (0)
 
 // Private
 
@@ -60,7 +61,7 @@ scanner_t scanner_init(FILE *stream) {
 		return NULL;
 	}
 
-	scanner->token = malloc(sizeof(struct Token));
+	scanner->token = malloc(sizeof(struct token));
 	if (scanner->token == NULL) {
 		free(scanner);
 		return NULL;
@@ -99,7 +100,7 @@ scanner_t scanner_init(FILE *stream) {
 	return scanner;
 }
 
-token_t scanner_retrieve_token(scanner_t scanner) {
+token_t scanner_next_token(scanner_t scanner) {
 	charseq_clear(scanner->charseq);
 
 	scanner_state_t state = S_START;
@@ -111,8 +112,33 @@ token_t scanner_retrieve_token(scanner_t scanner) {
 }
 
 // just a public wrapper function
-token_t scanner_get_token_ptr(scanner_t scanner) {
+token_t scanner_token(scanner_t scanner) {
 	return get_tok(scanner);
+}
+
+int scanner_scan(FILE *stream, tklist_t token_list) {
+	scanner_t scanner = scanner_init(stream);
+	int ret = EXIT_SUCCESS;
+
+	token_t tk;
+	while ((tk = scanner_next_token(scanner))->type != TK_EOF) {
+		if (tk->type == TK_ERROR) {
+			ret = tk->param.i;
+			goto SS_ERROR;
+		}
+		if (!tklist_push_back(token_list, tk)) {
+			ret = ERROR_MISC;
+			goto SS_ERROR;
+		}
+	}
+	if (!tklist_push_back(token_list, tk)) {
+		ret = ERROR_MISC;
+		goto SS_ERROR;
+	}
+
+SS_ERROR:
+	scanner_free(scanner);
+	return ret;
 }
 
 void scanner_free(scanner_t scanner) {

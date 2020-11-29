@@ -1,83 +1,118 @@
 #ifndef IFJ_RULEMACROS_H
 #define IFJ_RULEMACROS_H
 
-////// Defines
-
-// for eps return a special return code
-#define EPS_RETVAL 0xDEAD
-
+#include <stdbool.h>
+#include "error.h"
 ////// Macros
+
+#define TOKEN_TYPE parser->token->type
+#define TOKEN_SECOND_TYPE tklist_second(parser->tklist)->type
 
 //// Terminals
 
 /**
- * expects keyword, if not then accepts everything but immediately returns with eps return value
- * how the eps value will be handled depends on REQUIRE_NONTERMINAL and EXPECT_NONTERMINAL
- */
-#define REQUIRE_TERMINAL(_KEYW) \
-do { \
-    token_t _tmp_token = scanner_retrieve_token(scanner); \
-    if (_tmp_token->type != _KEYW) { \
-        return EPS_RETVAL; \
-    } \
-} while(0)
+* Get next token from the parser and check for error
+*/
+#define TK_NEXT()                                     \
+	do {                                              \
+		tklist_pop_front(parser->tklist);             \
+		parser->token = tklist_front(parser->tklist); \
+	} while (0)
 
 /**
- * expects keyword, if not then accepts everything but immediately returns silently
+ * Get next token from the parser if current token is equal to _TOKEN
  */
-#define EXPECT_TERMINAL(_KEYW) \
-do { \
-    token_t _tmp_token = scanner_retrieve_token(scanner); \
-    if (_tmp_token->type != _KEYW) { \
-        return EXIT_SUCCESS; \
-    } \
-} while(0)
-
-
+#define TK_MATCH(...)                                        \
+	do {                                                     \
+		token_type_t _TKS[] = {__VA_ARGS__};                 \
+		size_t _TKNUM = sizeof(_TKS) / sizeof(token_type_t); \
+		bool found = false;                                  \
+		for (int i = 0; i < _TKNUM; ++i) {                   \
+			if (parser->token->type == _TKS[i]) {            \
+				found = true;                                \
+				break;                                       \
+			}                                                \
+		}                                                    \
+		if (!found) {                                        \
+			return ERROR_SYN;                                \
+		} else {                                             \
+			TK_NEXT();                                       \
+		}                                                    \
+	} while (0)
 /**
- * same as above but over a set
- */
-#define EXPECT_TERMINAL_SET(_KEYWSET, _KWSETSIZE) \
-do { \
-    token_t _tmp_token = scanner_retrieve_token(scanner); \
-    int found = 0; \
-    for (int i = 0; i < _KWSETSIZE; ++i) { \
-        if (_tmp_token->type == _KEYWSET[i]) { \
-            found = 1; \
-        } \
-    } \
-    if (found == 0) { \
-        return EXIT_SUCCESS; \
-    } \
-} while (0)
+* Check syntax against current token
+*/
+#define TK_TEST(...)                                         \
+	do {                                                     \
+		token_type_t _TKS[] = {__VA_ARGS__};                 \
+		size_t _TKNUM = sizeof(_TKS) / sizeof(token_type_t); \
+		bool found = false;                                  \
+		for (int i = 0; i < _TKNUM; ++i) {                   \
+			if (parser->token->type == _TKS[i]) {            \
+				found = true;                                \
+				break;                                       \
+			}                                                \
+		}                                                    \
+		if (!found) {                                        \
+			return ERROR_SYN;                                \
+		}                                                    \
+	} while (0)
+
+#define TK_PREC_NEXT()                        \
+	do {                                      \
+		switch (TOKEN_TYPE) {                 \
+			case TK_L_PARENTHESIS:            \
+			case TK_PLUS:                     \
+			case TK_MINUS:                    \
+			case TK_MULTIPLY:                 \
+			case TK_DIVIDE:                   \
+			case TK_EQUAL:                    \
+			case TK_NOT_EQUAL:                \
+			case TK_LESS:                     \
+			case TK_GREATER:                  \
+			case TK_LESS_EQUAL:               \
+			case TK_GREATER_EQUAL:            \
+			case TK_OR:                       \
+			case TK_AND:                      \
+				TK_NEXT();                    \
+				EXECUTE_RULE(rule_eol_opt_n); \
+				break;                        \
+			case TK_EOL:                      \
+				break;                        \
+			default:                          \
+				TK_NEXT();                    \
+				break;                        \
+		}                                     \
+	} while (0);
 
 //// Non-terminals
 
-/**
- * if a child returns eps -> syntactic error
- */
-#define REQUIRE_NONTERMINAL(_SUBFUNC) \
-do { \
-    int _err_retval = _SUBFUNC(scanner); \
-    if (_err_retval != EXIT_SUCCESS) { \
-        if (_err_retval == EPS_RETVAL) { \
-            _err_retval = ERROR_SYN; \
-        } \
-        return _err_retval; \
-    } \
-} while(0)
+#define EXECUTE_RULE(_RULEFUNC)      \
+	do {                             \
+		int ret = _RULEFUNC(parser); \
+		if (ret != EXIT_SUCCESS) {   \
+			return ret;              \
+		}                            \
+	} while (0)
 
-/**
- * accepts EPS from child -> in this case it returns immediately
- */
-#define EXPECT_NONTERMINAL(_SUBFUNC) \
-do { \
-    int _err_retval = _SUBFUNC(scanner); \
-    if (_err_retval == EPS_RETVAL) { \
-        return EXIT_SUCCESS; \
-    } else if (_err_retval != EXIT_SUCCESS) { \
-        return _err_retval; \
-    } \
-} while(0)
+//// Semantics
 
-#endif //IFJ_RULEMACROS_H
+#define SEM_DEFINE_FUNC()                                                       \
+	do {                                                                        \
+		symbol_ref_t symbol = symtable_find(parser->symtable, parser->token);   \
+		if (symbol_valid(symbol)) {                                             \
+			if (symbol.symbol->func.defined) {                                  \
+				return ERROR_DEFINITION; /*redefinition*/                       \
+			} else {                                                            \
+				symbol.symbol->func.defined = true;                             \
+			}                                                                   \
+		} else {                                                                \
+			symbol = symtable_insert(parser->symtable, parser->token, ST_FUNC); \
+			if (!symbol_valid(symbol)) {                                        \
+				return ERROR_MISC; /*allocation error*/                         \
+			}                                                                   \
+			symbol.symbol->func.defined = true;                                 \
+		}                                                                       \
+	} while (0)
+
+#endif // !IFJ_RULEMACROS_H
