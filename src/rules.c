@@ -45,7 +45,6 @@ static int rule_expressions(parser_t parser);
 static int rule_expression_n(parser_t parser);
 static int rule_expression(parser_t parser);
 static int rule_literal(parser_t parser);
-static int rule_eol_opt_n(parser_t parser);
 
 ////// Root
 

@@ -3,6 +3,7 @@
 #include "precedence.h"
 #include "error.h"
 #include "rulemacros.h"
+#include "rules.h"
 
 // stack operations
 
@@ -265,7 +266,7 @@ int parse_expr(parser_t parser) {
 			case OPEN:
 				// printf("open\n");
 				res = push_stack(&head, parser->token, type);
-				TK_NEXT();
+				TK_PREC_NEXT();
 				type = convert_type(head, parser->token);
 
 				break;
@@ -275,7 +276,7 @@ int parse_expr(parser_t parser) {
 
 				if (type == PREC_R_BR && head->type == PREC_I) { // push close brackets & reduce
 					res = push_stack(&head, parser->token, type);
-					TK_NEXT();
+					TK_PREC_NEXT();
 					type = convert_type(head, parser->token);
 					res = reduce(&head);
 
@@ -291,7 +292,7 @@ int parse_expr(parser_t parser) {
 				}
 
 				res = push_stack(&head, parser->token, type);
-				TK_NEXT();
+				TK_PREC_NEXT();
 				type = convert_type(head, parser->token);
 
 
@@ -299,7 +300,7 @@ int parse_expr(parser_t parser) {
 			case EQUA:
 				// printf("equal\n");
 				pop_stack(&head);
-				TK_NEXT();
+				TK_PREC_NEXT();
 				type = convert_type(head, parser->token);
 
 				break;

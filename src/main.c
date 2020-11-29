@@ -5,10 +5,10 @@
 int main() {
 	tklist_t tklist = tklist_init();
 	int ret;
-	if (!(ret = scanner_scan(stdin, tklist))) {
+	if ((ret = scanner_scan(stdin, tklist)) != EXIT_SUCCESS) {
 		goto EXIT_ERROR;
 	}
-	if (!(ret = parser_parse(tklist))) {
+	if ((ret = parser_parse(tklist)) != EXIT_SUCCESS) {
 		goto EXIT_ERROR;
 	}
 
