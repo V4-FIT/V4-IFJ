@@ -15,18 +15,17 @@ class ScannerTest : public testing::Test
 public:
 	FILE *stream;
 	scanner_t scanner;
-	token_t token;
+	token_t token = NULL;
 
 	virtual void SetUp() {
 		stream = tmpfile();
 		scanner = scanner_init(stream);
-		token = new struct Token;
+		token = scanner_token(scanner);
 	}
 
 	virtual void TearDown() {
 		fclose(stream);
 		scanner_free(scanner);
-		delete token;
 	}
 };
 

@@ -4,6 +4,11 @@ set(
         main.c
         scanner.c
         scanner_states.c
+        parser.c
+        rules.c
+        symtable.c
+        precedence.c
+		tokens.c
 )
 
 include_directories(

@@ -5,20 +5,20 @@ TEST_F(ScannerTest, expression_basic) {
 	rewind(stream);
 
 	// 5
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 5);
 
 	// +
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_PLUS);
 
 	// 5
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 5);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -27,20 +27,20 @@ TEST_F(ScannerTest, expression_basic_spaces) {
 	rewind(stream);
 
 	// 5
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 5);
 
 	// +
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_PLUS);
 
 	// 5
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 5);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -49,19 +49,19 @@ TEST_F(ScannerTest, expression_basic_nospaces) {
 	rewind(stream);
 
 	// 5
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 5);
 
 	// +
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_PLUS);
 
 	// 5
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 5);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }

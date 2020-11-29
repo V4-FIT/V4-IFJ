@@ -25,11 +25,11 @@ TEST_F(ScannerTest, dec_underscore) {
 	fprintf(stream, "4_2");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 42);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -37,11 +37,11 @@ TEST_F(ScannerTest, dec_underscores) {
 	fprintf(stream, "1_7_0_1_4_1_1_8_3");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 170141183);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -49,11 +49,11 @@ TEST_F(ScannerTest, bin_underscores) {
 	fprintf(stream, "0b1_10_1");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 13);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -61,11 +61,11 @@ TEST_F(ScannerTest, oct_underscores) {
 	fprintf(stream, "0o7_7");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 63);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -73,11 +73,11 @@ TEST_F(ScannerTest, hex_underscores) {
 	fprintf(stream, "0xBad_Face");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 0xBadFace);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -87,11 +87,11 @@ TEST_F(ScannerTest, dec_literal) {
 	fprintf(stream, "123");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 123);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -99,11 +99,11 @@ TEST_F(ScannerTest, bin_literal) {
 	fprintf(stream, "0b11");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 3);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -111,11 +111,11 @@ TEST_F(ScannerTest, bin_literal_alt_char) {
 	fprintf(stream, "0B11");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 3);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -123,11 +123,11 @@ TEST_F(ScannerTest, bin_literal_prefix) {
 	fprintf(stream, "0b00000011");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 3);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -135,11 +135,11 @@ TEST_F(ScannerTest, oct_literal) {
 	fprintf(stream, "0o77");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 63);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -147,11 +147,11 @@ TEST_F(ScannerTest, oct_literal_alt_char) {
 	fprintf(stream, "0O77");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 63);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -159,11 +159,11 @@ TEST_F(ScannerTest, oct_literal_prefix) {
 	fprintf(stream, "0o0077");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 63);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -171,11 +171,11 @@ TEST_F(ScannerTest, hex_literal) {
 	fprintf(stream, "0xFF");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 255);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -183,11 +183,11 @@ TEST_F(ScannerTest, hex_literal_alt_char) {
 	fprintf(stream, "0XFF");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 255);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -195,11 +195,11 @@ TEST_F(ScannerTest, hex_literal_prefix) {
 	fprintf(stream, "0x00FF");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 255);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -207,11 +207,11 @@ TEST_F(ScannerTest, hex_literal_lowercase) {
 	fprintf(stream, "0x00ff");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_INT_LIT);
 	EXPECT_EQ(token->param.i, 255);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
@@ -223,7 +223,7 @@ TEST_F(ScannerTest, int_literal_lex_error_leading_zeroes) {
 	fprintf(stream, "02");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -232,7 +232,7 @@ TEST_F(ScannerTest, bin_literal_lex_error_offbyone) {
 	fprintf(stream, "0b2");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -241,7 +241,7 @@ TEST_F(ScannerTest, oct_literal_lex_error_offbyone) {
 	fprintf(stream, "0o8");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -250,7 +250,7 @@ TEST_F(ScannerTest, hex_literal_lex_error_offbyone) {
 	fprintf(stream, "0xG");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -261,7 +261,7 @@ TEST_F(ScannerTest, int_literal_lex_error_underscore) {
 	fprintf(stream, "0_x");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -270,7 +270,7 @@ TEST_F(ScannerTest, dec_literal_lex_error_underscore_infix) {
 	fprintf(stream, "4__2");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -279,7 +279,7 @@ TEST_F(ScannerTest, dec_literal_lex_error_underscore_postfix) {
 	fprintf(stream, "42_");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -288,7 +288,7 @@ TEST_F(ScannerTest, bin_literal_lex_error_underscore_infix) {
 	fprintf(stream, "0b1__0");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -297,7 +297,7 @@ TEST_F(ScannerTest, bin_literal_lex_error_underscore_postfix) {
 	fprintf(stream, "0b10_");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -306,7 +306,7 @@ TEST_F(ScannerTest, oct_literal_lex_error_underscore_infix) {
 	fprintf(stream, "0o7__2");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -315,7 +315,7 @@ TEST_F(ScannerTest, oct_literal_lex_error_underscore_postfix) {
 	fprintf(stream, "0o72_");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -324,7 +324,7 @@ TEST_F(ScannerTest, hex_literal_lex_error_underscore_infix) {
 	fprintf(stream, "0xB__B");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }
@@ -333,7 +333,7 @@ TEST_F(ScannerTest, hex_literal_lex_error_underscore_postfix) {
 	fprintf(stream, "0xBB_");
 	rewind(stream);
 
-	scanner_retrieve_token(scanner, token);
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_ERROR);
 	ASSERT_EQ(token->param.i, ERROR_LEX);
 }

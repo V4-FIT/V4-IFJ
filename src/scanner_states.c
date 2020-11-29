@@ -56,6 +56,7 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 	switch (c) {
 		// whitespace skip
 		case ' ':
+		case '\r':
 		case '\t':
 			return S_START;
 
@@ -266,8 +267,8 @@ scanner_state_t s_slash(scanner_t scanner, int c) {
 scanner_state_t s_sl_comment(scanner_t scanner, int c) {
 	switch (c) {
 		case EOF:
-			ungetc(c, get_stream(scanner));
 		case '\n':
+			ungetc(c, get_stream(scanner));
 			return S_START;
 		default:
 			return S_SL_COMMENT;
@@ -785,11 +786,14 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, get_stream(scanner));
 		hmap_iterator_t it = hmap_find(get_keyw_tok_map(scanner), charseq_data(get_charseq(scanner)));
-		if (hmap_it_eq(it, hmap_end(get_keyw_tok_map(scanner)))) {
+		if (hmap_it_eq(it, hmap_end(get_keyw_tok_map(scanner)))) { // not a keyword
 			get_tok(scanner)->type = TK_IDENTIFIER;
 			get_tok(scanner)->param.s = charseq_data(get_charseq(scanner));
-		} else {
+		} else { // keyword
 			get_tok(scanner)->type = *(token_type_t *)hmap_get_value(it);
+			if (get_tok(scanner)->type == TK_KEYW_MAIN) {
+				get_tok(scanner)->param.s = "main";
+			}
 		}
 		return S_END;
 	}
