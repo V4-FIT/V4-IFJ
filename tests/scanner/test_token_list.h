@@ -1,5 +1,5 @@
-#ifndef IFJ_TEST_SYNTAX_FILE_H
-#define IFJ_TEST_SYNTAX_FILE_H
+#ifndef IFJ_TEST_TOKEN_LIST_H
+#define IFJ_TEST_TOKEN_LIST_H
 
 #include <cstdio>
 #include <gtest/gtest.h>
@@ -9,10 +9,9 @@ extern "C" {
 #include "error.h"
 #include "tokens.h"
 #include "scanner.h"
-#include "parser.h"
 }
 
-class SyntaxTestFile : public testing::Test
+class TokenListTestFile : public testing::Test
 {
 public:
 	FILE *stream;
@@ -25,18 +24,16 @@ public:
 			std::cout << "Non-existent file: " << std::filesystem::current_path().c_str() << "/" << filepath << std::endl;
 		}
 		tklist = tklist_init();
-		if (!scanner_scan(stream, tklist)) {
-			std::cout << "ERROR: Lexical analysis\n";
-		}
+		scanner_scan(stream, tklist);
 	}
 
 	virtual void TearDown() {
-		tklist_free(tklist);
 		if (stream != nullptr) {
 			fclose(stream);
 			stream = nullptr;
 		}
+		tklist_free(tklist);
 	}
 };
 
-#endif // !IFJ_TEST_SYNTAX_FILE_H
+#endif // !IFJ_TEST_TOKEN_LIST_H

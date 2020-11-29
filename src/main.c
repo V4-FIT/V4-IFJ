@@ -1,15 +1,18 @@
+#include "scanner.h"
 #include "parser.h"
 #include "error.h"
 
 int main() {
-	parser_t parser = parser_init(stdin);
-	if (parser == NULL) {
-		return ERROR_MISC;
+	tklist_t tklist = tklist_init();
+	int ret;
+	if (!(ret = scanner_scan(stdin, tklist))) {
+		goto EXIT_ERROR;
+	}
+	if (!(ret = parser_parse(tklist))) {
+		goto EXIT_ERROR;
 	}
 
-	int res = parser_parse(parser);
-
-	parser_free(parser);
-
-	return res;
+EXIT_ERROR:
+	tklist_free(tklist);
+	return ret;
 }

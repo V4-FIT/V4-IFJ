@@ -3,6 +3,7 @@
 #include "scanner.h"
 #include "scanner_states.h"
 #include "hash_map.h"
+#include "error.h"
 
 #define HMAP_BUCKET_COUNT 53
 
@@ -60,7 +61,7 @@ scanner_t scanner_init(FILE *stream) {
 		return NULL;
 	}
 
-	scanner->token = malloc(sizeof(struct Token));
+	scanner->token = malloc(sizeof(struct token));
 	if (scanner->token == NULL) {
 		free(scanner);
 		return NULL;
@@ -113,6 +114,31 @@ token_t scanner_next_token(scanner_t scanner) {
 // just a public wrapper function
 token_t scanner_token(scanner_t scanner) {
 	return get_tok(scanner);
+}
+
+int scanner_scan(FILE *stream, tklist_t token_list) {
+	scanner_t scanner = scanner_init(stream);
+	int ret = EXIT_SUCCESS;
+
+	token_t tk;
+	while ((tk = scanner_next_token(scanner))->type != TK_EOF) {
+		if (tk->type == TK_ERROR) {
+			ret = tk->param.i;
+			goto SS_ERROR;
+		}
+		if (!tklist_push_back(token_list, tk)) {
+			ret = ERROR_MISC;
+			goto SS_ERROR;
+		}
+	}
+	if (!tklist_push_back(token_list, tk)) {
+		ret = ERROR_MISC;
+		goto SS_ERROR;
+	}
+
+SS_ERROR:
+	scanner_free(scanner);
+	return ret;
 }
 
 void scanner_free(scanner_t scanner) {

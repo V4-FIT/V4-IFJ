@@ -43,11 +43,26 @@ bool flist_empty(flist_t flist);
 bool flist_push_front(flist_t flist, void *data);
 
 /**
+ * @brief	Inserts a new node to the back of the list
+ * @param	flist
+ * @param	data		The memory area to copy from
+ * @return	true on success, false on allocation error
+ */
+bool flist_push_back(flist_t flist, void *data);
+
+/**
  * @brief	Allocates memory for a new node at the front of the list
  * @param	flist
  * @return	iterator to the inserted element or flist_end(flist) iterator if init failed
  */
 flist_iterator_t flist_init_front(flist_t flist);
+
+/**
+ * @brief	Allocates memory for a new node at the back of the list
+ * @param	flist
+ * @return	iterator to the inserted element or flist_end(flist) iterator if init failed
+ */
+flist_iterator_t flist_init_back(flist_t flist);
 
 /**
  * @brief	Deletes a node from the front of the list
@@ -56,11 +71,24 @@ flist_iterator_t flist_init_front(flist_t flist);
 void flist_pop_front(flist_t flist);
 
 /**
+ * @brief	Deletes a node from the back of the list (has to walk the list to the end)
+ * @param	flist
+ */
+void flist_pop_back(flist_t flist);
+
+/**
  * @brief	Returns the data at the front of the list
  * @param	flist 
  * @return	pointer to the data at the front or NULL if the list is empty
 */
 void *flist_front(flist_t flist);
+
+/**
+ * @brief	Returns the data at the back of the list
+ * @param	flist 
+ * @return	pointer to the data at the back or NULL if the list is empty
+*/
+void *flist_back(flist_t flist);
 
 /**
  * @brief	Deletes all nodes from the list

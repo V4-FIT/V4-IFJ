@@ -8,6 +8,7 @@ extern "C" {
 #include "error.h"
 #include "tokens.h"
 #include "parser.h"
+#include "scanner.h"
 }
 
 #define PROLOG fprintf(stream, "package main\n")
@@ -19,23 +20,29 @@ extern "C" {
 
 #define CLOSEFUN fprintf(stream, "\n}\n")
 
-#define TESTVAL(val) \
-	rewind(stream);  \
-	EXPECT_EQ(parser_parse(parser), val)
+#define TESTVAL(val)                                      \
+	do {                                                  \
+		rewind(stream);                                   \
+		if (scanner_scan(stream, tklist)) {               \
+			fprintf(stderr, "ERROR: Lexical analysis\n"); \
+		} else {                                          \
+			EXPECT_EQ(parser_parse(tklist), val);         \
+		}                                                 \
+	} while (0)
 
 class SyntaxTest : public testing::Test
 {
 public:
 	FILE *stream;
-	parser_t parser;
+	tklist_t tklist;
 
 	virtual void SetUp() {
 		stream = tmpfile();
-		parser = parser_init(stream);
+		tklist = tklist_init();
 	}
 
 	virtual void TearDown() {
-		parser_free(parser);
+		tklist_free(tklist);
 		fclose(stream);
 	}
 };

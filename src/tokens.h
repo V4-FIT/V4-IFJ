@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "char_sequence.h"
+#include "forward_list.h"
 
 /*tokens produced by scanner*/
 typedef enum
@@ -75,7 +76,7 @@ typedef enum
 
 
 /*data type to represent tokens created by scanner*/
-struct Token
+struct token
 {
 	token_type_t type;
 	union
@@ -86,7 +87,89 @@ struct Token
 	} param;
 };
 
-typedef struct Token *token_t;
+typedef struct token *token_t;
+
+// token_list is a specialization of forward_list
+typedef flist_t tklist_t;
+typedef flist_iterator_t tklist_iterator_t;
+
+/**
+ * @brief	Allocates and initializes a token list
+ * @return	the initialized forward list or NULL if allocation fails
+ */
+tklist_t tklist_init();
+
+/**
+ * @brief	Deletes a token from the front of the list
+ * @param	tklist
+ */
+void tklist_pop_front(tklist_t tklist);
+
+/**
+ * @brief	Inserts a new token to the back of the list
+ * @param	tklist
+ * @param	token
+ * @return	true on success, false on allocation error
+ */
+bool tklist_push_back(tklist_t tklist, token_t token);
+
+/**
+ * @brief	Returns the token at the front of the list
+ * @param	tklist 
+ * @return	pointer to the token at the front or NULL if the list is empty
+*/
+token_t tklist_front(tklist_t tklist);
+
+/**
+ * @brief	Returns the second token from the front of the list
+ * @param	tklist 
+ * @return	pointer to the second token from the front or NULL if the list is empty or there is no second
+*/
+token_t tklist_second(tklist_t tklist);
+
+/**
+ * @brief	Returns an iterator to the beginning
+ * @param	tklist
+ * @return	iterator to the first element, if the tklist is empty the returned iterator will be equal to tklist_end(tklist)
+ */
+tklist_iterator_t tklist_begin(tklist_t tklist);
+
+/**
+ * @brief	Returns an iterator to the end
+ * @param	tklist
+ * @return	iterator to the element following the last element
+ */
+tklist_iterator_t tklist_end(tklist_t tklist);
+
+/**
+ * @brief	Increment an iterator
+ * @param	iterator
+ * @return	the next iterator in the list or tklist_end(flist) if we reached the end
+ * @note	calling this function on an unitialized iterator is an error
+ */
+tklist_iterator_t tklist_it_next(tklist_iterator_t iterator);
+
+/**
+ * @brief	iterator != tklist_end_iterator
+ * @param	iterator 
+ * @return	return true if the iterator is valid
+*/
+bool tklist_it_valid(tklist_iterator_t iterator);
+
+/**
+ * @brief	Access the data from the iterator
+ * @param	iterator
+ * @return	a pointer to the iterator data or NULL if iterator isn't pointing to a valid element
+ * @note	calling this function on an iterator pointing to an invalid element is an error
+ */
+token_t tklist_get(tklist_iterator_t iterator);
+
+/**
+ * @brief	Free the allocated list and delete all nodes
+ * @param	flist
+ * @note	Invalidates tklist and all iterators
+ */
+void tklist_free(tklist_t tklist);
 
 /**
  * @brief	Create a deep copy of a token

@@ -897,13 +897,9 @@ TEST_F(Precedence, or_combo2) {
 TEST_F(Precedence, comma) {
 	fprintf(stream, "a+a, b+b");
 	TESTVAL(EXIT_SUCCESS);
-
-	scanner_t Scanner = scanner_init(stream);
-	scanner_next_token(Scanner);
-	token_t t = token_copy(scanner_token(Scanner));
-	scanner_next_token(Scanner);
-	EXPECT_EQ(parse_expr(t, Scanner), EXIT_SUCCESS);
-	token_free(t);
+	tklist_pop_front(tklist);
+	s_parser->token = tklist_front(tklist);
+	EXPECT_EQ(parse_expr(s_parser), EXIT_SUCCESS);
 }
 
 

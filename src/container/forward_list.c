@@ -15,6 +15,7 @@ struct flist_node
 struct flist
 {
 	flist_node_t head;
+	flist_node_t tail;
 	size_t data_size;
 };
 
@@ -27,6 +28,7 @@ flist_t flist_init(size_t data_size) {
 	}
 
 	flist->head = NULL;
+	flist->tail = NULL;
 	flist->data_size = data_size;
 	return flist;
 }
@@ -38,6 +40,16 @@ bool flist_empty(flist_t flist) {
 
 bool flist_push_front(flist_t flist, void *data) {
 	flist_iterator_t it = flist_init_front(flist);
+	if (!flist_it_valid(it)) {
+		return false;
+	}
+
+	memcpy(it.ptr->data, data, flist->data_size);
+	return true;
+}
+
+bool flist_push_back(flist_t flist, void *data) {
+	flist_iterator_t it = flist_init_back(flist);
 	if (!flist_it_valid(it)) {
 		return false;
 	}
@@ -61,23 +73,85 @@ flist_iterator_t flist_init_front(flist_t flist) {
 
 	new_node->next = flist->head;
 	flist->head = new_node;
+	if (flist->tail == NULL) {
+		flist->tail = new_node;
+	}
 	return flist_begin(flist);
+}
+
+flist_iterator_t flist_init_back(flist_t flist) {
+	assert(flist);
+	flist_node_t new_node = malloc(sizeof(struct flist_node));
+	if (new_node == NULL) {
+		return flist_end(flist);
+	}
+
+	new_node->data = malloc(flist->data_size);
+	if (new_node->data == NULL) {
+		free(new_node);
+		return flist_end(flist);
+	}
+
+	new_node->next = NULL;
+	if (flist->tail) {
+		flist->tail->next = new_node;
+	}
+	flist->tail = new_node;
+	if (flist->head == NULL) {
+		flist->head = new_node;
+	}
+	flist_iterator_t it = {flist->tail, flist};
+	return it;
 }
 
 void flist_pop_front(flist_t flist) {
 	assert(flist);
 	flist_node_t node = flist->head;
 	if (node) {
+		if (flist->tail == flist->head) {
+			flist->tail = NULL;
+		}
 		flist->head = node->next;
 		free(node->data);
 		free(node);
 	}
 }
 
+void flist_pop_back(flist_t flist) {
+	assert(flist);
+	flist_iterator_t it = flist_begin(flist);
+	if (!flist_it_valid(it)) {
+		return;
+	}
+
+	assert(flist->tail);
+	flist_node_t node = flist->tail;
+	if (it.ptr == flist->tail) {
+		flist->tail = NULL;
+		flist->head = NULL;
+	} else {
+		while (it.ptr->next != flist->tail) {
+			it = flist_it_next(it);
+		};
+		flist->tail = it.ptr;
+	}
+	free(node->data);
+	free(node);
+}
+
 void *flist_front(flist_t flist) {
 	assert(flist);
 	if (flist->head) {
 		return flist->head->data;
+	} else {
+		return NULL;
+	}
+}
+
+void *flist_back(flist_t flist) {
+	assert(flist);
+	if (flist->tail) {
+		return flist->tail->data;
 	} else {
 		return NULL;
 	}
