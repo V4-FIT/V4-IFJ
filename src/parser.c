@@ -6,42 +6,38 @@
 #include "precedence.h"
 #include "tokens.h"
 
-parser_t parser_init(FILE *stream) {
+parser_t parser_init(tklist_t tklist) {
 	parser_t parser = malloc(sizeof(struct parser));
 	if (parser == NULL) {
 		return NULL;
 	}
 
-	parser->scanner = scanner_init(stream);
-	if (parser->scanner == NULL) {
+	parser->symtable = symtable_init();
+	if (parser->symtable == NULL) {
 		free(parser);
 		return NULL;
 	}
 
-	parser->symtable = symtable_init();
-	if (parser->symtable == NULL) {
-		scanner_free(parser->scanner);
-		free(parser);
-		return NULL;
-	}
+	parser->tklist = tklist;
+	parser->token = tklist_front(tklist);
 
 	return parser;
 }
 
-int parser_parse(parser_t parser) {
-
+int parser_parse(tklist_t tklist) {
+	parser_t parser = parser_init(tklist);
 	int res = rule_root(parser);
 
 	// SEM - check for undefined functions
-	if (symtable_undefined_funcs(parser->symtable)) {
+	if (!res && symtable_undefined_funcs(parser->symtable)) {
 		res = ERROR_DEFINITION;
 	}
 
+	parser_free(parser);
 	return res;
 }
 
 void parser_free(parser_t parser) {
-	scanner_free(parser->scanner);
 	symtable_free(parser->symtable);
 	free(parser);
 }

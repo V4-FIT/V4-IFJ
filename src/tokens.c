@@ -32,8 +32,10 @@ tklist_t tklist_init() {
 void tklist_pop_front(tklist_t tklist) {
 	tklist_iterator_t it = tklist_begin(tklist);
 	if (tklist_it_valid(it)) {
-		token_free(tklist_get(it));
-		flist_pop_front(tklist);
+		if (tklist->head != tklist->tail) {
+			token_free(tklist_get(it));
+			flist_pop_front(tklist);
+		}
 	}
 }
 
@@ -46,7 +48,11 @@ bool tklist_push_back(tklist_t tklist, token_t token) {
 }
 
 token_t tklist_front(tklist_t tklist) {
-	return *(token_t *)flist_front(tklist);
+	if (flist_front(tklist)) {
+		return *(token_t *)flist_front(tklist);
+	} else {
+		return NULL;
+	}
 }
 
 token_t tklist_second(tklist_t tklist) {
@@ -76,9 +82,11 @@ bool tklist_it_valid(tklist_iterator_t iterator) {
 
 void tklist_clear(tklist_t tklist) {
 	assert(tklist);
-	while (tklist->head) {
+	while (tklist->head != tklist->tail) {
 		tklist_pop_front(tklist);
 	}
+	token_free(tklist_front(tklist));
+	flist_pop_front(tklist);
 }
 
 token_t tklist_get(tklist_iterator_t iterator) {
@@ -92,6 +100,7 @@ void tklist_free(tklist_t tklist) {
 }
 
 token_t token_copy(token_t token_to_copy) {
+	assert(token_to_copy);
 	token_t new_token = malloc(sizeof(struct Token));
 	if (new_token == NULL) {
 		return NULL;

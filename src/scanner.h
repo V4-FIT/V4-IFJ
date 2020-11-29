@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include "tokens.h"
-#include "forward_list.h"
 
 #define ESCAPE_SEQUENCE_BUFFER_SIZE 3
 

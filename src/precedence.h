@@ -1,7 +1,7 @@
 #ifndef IFJ_PRECEDENCE_H
 #define IFJ_PRECEDENCE_H
 
-#include "scanner.h"
+#include "parser.h"
 
 typedef enum
 {
@@ -68,6 +68,6 @@ void rule_or(stack *head);
 
 int reduce(stack *head);
 
-int parse_expr(token_t t, scanner_t scanner);
+int parse_expr(parser_t parser);
 
 #endif

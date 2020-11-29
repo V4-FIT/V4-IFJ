@@ -8,19 +8,19 @@
 
 #include <stdio.h>
 
-#include "scanner.h"
+#include "tokens.h"
 #include "symtable.h"
 
 typedef struct parser
 {
-	scanner_t scanner;
+	tklist_t tklist;
 	symtable_t symtable;
 	token_t token;
 } * parser_t;
 
-parser_t parser_init(FILE *stream);
+parser_t parser_init(tklist_t tklist);
 
-int parser_parse(parser_t parser);
+int parser_parse(tklist_t tklist);
 
 void parser_free(parser_t parser);
 

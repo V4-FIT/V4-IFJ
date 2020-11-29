@@ -2,6 +2,7 @@
 
 #include "precedence.h"
 #include "error.h"
+#include "rulemacros.h"
 
 // stack operations
 
@@ -69,7 +70,9 @@ prec_token_type convert_type(stack head, token_t t) {
 void pop_stack(stack *head) {
 	stack tmp = *head;
 	(*head) = (*head)->next;
-
+	if (tmp->token) {
+		token_free(tmp->token);
+	}
 	free(tmp);
 	tmp = NULL;
 }
@@ -81,7 +84,7 @@ int push_stack(stack *head, token_t token, prec_token_type type) {
 		return ERROR_MISC;
 	}
 
-	new->token = token;
+	new->token = token ? token_copy(token) : NULL;
 	new->type = type;
 	new->next = *head;
 	new->todo = true;
@@ -240,9 +243,7 @@ int reduce(stack *head) {
 	return ERROR_SYN;
 }
 
-int parse_expr(token_t t, scanner_t scanner) {
-	bool read = false;
-
+int parse_expr(parser_t parser) {
 	// init stack to $
 	stack head = malloc(sizeof(struct Stack));
 	if (head == NULL) {
@@ -256,16 +257,16 @@ int parse_expr(token_t t, scanner_t scanner) {
 
 	// parse
 	int res;
-	prec_token_type type = convert_type(head, t);
+	prec_token_type type = convert_type(head, parser->token);
 	do {
 		// printf("expr parsing (%d)\n", type);
 
 		switch (prec_table[head->type][type]) {
 			case OPEN:
 				// printf("open\n");
-				res = push_stack(&head, read ? scanner_token(scanner) : t, type);
-				type = convert_type(head, read ? scanner_next_token(scanner) : scanner_token(scanner));
-				read = true;
+				res = push_stack(&head, parser->token, type);
+				TK_NEXT();
+				type = convert_type(head, parser->token);
 
 				break;
 			case CLOS:
@@ -273,10 +274,10 @@ int parse_expr(token_t t, scanner_t scanner) {
 				while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
 
 				if (type == PREC_R_BR && head->type == PREC_I) { // push close brackets & reduce
-					res = push_stack(&head, read ? scanner_token(scanner) : t, type);
-					type = convert_type(head, read ? scanner_next_token(scanner) : scanner_token(scanner));
+					res = push_stack(&head, parser->token, type);
+					TK_NEXT();
+					type = convert_type(head, parser->token);
 					res = reduce(&head);
-					read = true;
 
 
 					while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
@@ -289,17 +290,17 @@ int parse_expr(token_t t, scanner_t scanner) {
 					return EXIT_SUCCESS;
 				}
 
-				res = push_stack(&head, read ? scanner_token(scanner) : t, type);
-				type = convert_type(head, read ? scanner_next_token(scanner) : scanner_token(scanner));
-				read = true;
+				res = push_stack(&head, parser->token, type);
+				TK_NEXT();
+				type = convert_type(head, parser->token);
 
 
 				break;
 			case EQUA:
 				// printf("equal\n");
 				pop_stack(&head);
-				type = convert_type(head, read ? scanner_next_token(scanner) : scanner_token(scanner));
-				read = true;
+				TK_NEXT();
+				type = convert_type(head, parser->token);
 
 				break;
 			case EMPT:

@@ -108,6 +108,9 @@ void flist_pop_front(flist_t flist) {
 	assert(flist);
 	flist_node_t node = flist->head;
 	if (node) {
+		if (flist->tail == flist->head) {
+			flist->tail = NULL;
+		}
 		flist->head = node->next;
 		free(node->data);
 		free(node);

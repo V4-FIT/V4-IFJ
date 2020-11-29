@@ -8,6 +8,7 @@
 extern "C" {
 #include "error.h"
 #include "tokens.h"
+#include "scanner.h"
 #include "parser.h"
 }
 
@@ -15,7 +16,7 @@ class SyntaxTestFile : public testing::Test
 {
 public:
 	FILE *stream;
-	parser_t parser;
+	tklist_t tklist;
 
 	void SetUp(const std::string &path, const std::string &filename) {
 		std::string filepath = path + "/" + filename;
@@ -23,15 +24,18 @@ public:
 		if (stream == nullptr) {
 			std::cout << "Non-existent file: " << std::filesystem::current_path().c_str() << "/" << filepath << std::endl;
 		}
-		parser = parser_init(stream);
+		tklist = tklist_init();
+		if (!scanner_scan(stream, tklist)) {
+			std::cout << "ERROR: Lexical analysis\n";
+		}
 	}
 
 	virtual void TearDown() {
+		tklist_free(tklist);
 		if (stream != nullptr) {
 			fclose(stream);
 			stream = nullptr;
 		}
-		parser_free(parser);
 	}
 };
 

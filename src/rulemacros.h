@@ -6,18 +6,17 @@
 ////// Macros
 
 #define TOKEN_TYPE parser->token->type
+#define TOKEN_SECOND_TYPE tklist_second(parser->tklist)->type
 
 //// Terminals
 
 /**
 * Get next token from the parser and check for error
 */
-#define TK_NEXT()                                            \
-	do {                                                     \
-		parser->token = scanner_next_token(parser->scanner); \
-		if (parser->token->type == TK_ERROR) {               \
-			return parser->token->param.i;                   \
-		}                                                    \
+#define TK_NEXT()                                     \
+	do {                                              \
+		tklist_pop_front(parser->tklist);             \
+		parser->token = tklist_front(parser->tklist); \
 	} while (0)
 
 /**

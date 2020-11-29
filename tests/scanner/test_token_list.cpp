@@ -37,6 +37,8 @@ TEST_F(TokenListTestFile, example1) {
 	TK_MATCH(TK_R_CURLY);
 	TK_MATCH(TK_EOL);
 	TK_MATCH(TK_EOF);
+	TK_MATCH(TK_EOF);
+	TK_MATCH(TK_EOF);
 }
 
 TEST(token_list, basic) {
