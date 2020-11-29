@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "tokens.h"
+#include "forward_list.h"
 
 #define ESCAPE_SEQUENCE_BUFFER_SIZE 3
 
@@ -30,6 +31,14 @@ token_t scanner_next_token(scanner_t scanner);
  * @note this function DOES NOT update the token values
  */
 token_t scanner_token(scanner_t scanner);
+
+/**
+ * @brief	Scans the stream and populates token_list
+ * @param	stream 
+ * @param	token_list 
+ * @return	return code: 0 - success, 1 - lexical error, 99 - misc error
+*/
+int scanner_scan(FILE *stream, tklist_t token_list);
 
 /**
  * Free the allocated scanner
