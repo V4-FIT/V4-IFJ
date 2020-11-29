@@ -46,7 +46,6 @@ static int rule_expression_n(parser_t parser);
 static int rule_expression(parser_t parser);
 static int rule_literal(parser_t parser);
 static int rule_eol_opt_n(parser_t parser);
-static int rule_eol_opt(parser_t parser);
 
 ////// Root
 
@@ -147,7 +146,7 @@ int rule_param_n(parser_t parser) {
 	switch (TOKEN_TYPE) {
 		case TK_COMMA:
 			TK_NEXT();
-			EXECUTE_RULE(rule_eol_opt);
+			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_param);
 			EXECUTE_RULE(rule_param_n);
 			break;
@@ -199,7 +198,7 @@ int rule_type_n(parser_t parser) {
 	switch (TOKEN_TYPE) {
 		case TK_COMMA:
 			TK_NEXT();
-			EXECUTE_RULE(rule_eol_opt);
+			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_typename);
 			EXECUTE_RULE(rule_type_n);
 		default:
@@ -285,7 +284,7 @@ int rule_def_ass_call(parser_t parser) {
 	//						| Id defineOp Expression eol .
 	if (TOKEN_SECOND_TYPE == TK_VAR_INIT) {
 		TK_MATCH(TK_IDENTIFIER); // TK_IDENTIFIER
-		TK_NEXT(); // TK_VAR_INIT;
+		TK_NEXT();               // TK_VAR_INIT;
 		EXECUTE_RULE(rule_expression);
 	} else if (TOKEN_SECOND_TYPE == TK_L_PARENTHESIS) {
 		EXECUTE_RULE(rule_functionCall);
@@ -481,7 +480,7 @@ int rule_assignOp(parser_t parser) {
 	//						| divide_assign
 	//						| assign .
 	TK_MATCH(TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_ASSIGN);
-	EXECUTE_RULE(rule_eol_opt);
+	EXECUTE_RULE(rule_eol_opt_n);
 	return EXIT_SUCCESS;
 }
 
@@ -502,7 +501,7 @@ int rule_functionCall(parser_t parser) {
 	// FunctionCall -> 		  id l_parenthesis Eol_opt Arguments r_parenthesis .
 	TK_MATCH(TK_IDENTIFIER);
 	TK_MATCH(TK_L_PARENTHESIS);
-	EXECUTE_RULE(rule_eol_opt);
+	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_Arguments);
 	TK_MATCH(TK_R_PARENTHESIS);
 	return EXIT_SUCCESS;
@@ -535,7 +534,7 @@ int rule_Argument_n(parser_t parser) {
 	switch (TOKEN_TYPE) {
 		case TK_COMMA:
 			TK_NEXT();
-			EXECUTE_RULE(rule_eol_opt);
+			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_Argument);
 			EXECUTE_RULE(rule_Argument_n);
 		default:
@@ -623,21 +622,6 @@ int rule_eol_opt_n(parser_t parser) {
 		case TK_EOL:
 			TK_NEXT();
 			EXECUTE_RULE(rule_eol_opt_n);
-			break;
-		default:
-			// eps
-			break;
-	}
-	return EXIT_SUCCESS;
-}
-
-/// 39
-int rule_eol_opt(parser_t parser) {
-	// Eol_opt ->			  eol
-	//						| eps .
-	switch (TOKEN_TYPE) {
-		case TK_EOL:
-			TK_NEXT();
 			break;
 		default:
 			// eps
