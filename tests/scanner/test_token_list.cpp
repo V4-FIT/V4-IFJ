@@ -42,7 +42,7 @@ TEST_F(TokenListTestFile, example1) {
 }
 
 TEST(token_list, basic) {
-	struct Token token;
+	struct token token;
 	tklist_t tklist = tklist_init();
 	ASSERT_NE(tklist, nullptr);
 

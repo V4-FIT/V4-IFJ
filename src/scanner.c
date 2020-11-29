@@ -61,7 +61,7 @@ scanner_t scanner_init(FILE *stream) {
 		return NULL;
 	}
 
-	scanner->token = malloc(sizeof(struct Token));
+	scanner->token = malloc(sizeof(struct token));
 	if (scanner->token == NULL) {
 		free(scanner);
 		return NULL;

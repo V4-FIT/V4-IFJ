@@ -101,7 +101,7 @@ void tklist_free(tklist_t tklist) {
 
 token_t token_copy(token_t token_to_copy) {
 	assert(token_to_copy);
-	token_t new_token = malloc(sizeof(struct Token));
+	token_t new_token = malloc(sizeof(struct token));
 	if (new_token == NULL) {
 		return NULL;
 	}

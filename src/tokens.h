@@ -76,7 +76,7 @@ typedef enum
 
 
 /*data type to represent tokens created by scanner*/
-struct Token
+struct token
 {
 	token_type_t type;
 	union
@@ -87,7 +87,7 @@ struct Token
 	} param;
 };
 
-typedef struct Token *token_t;
+typedef struct token *token_t;
 
 // token_list is a specialization of forward_list
 typedef flist_t tklist_t;
