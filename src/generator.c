@@ -1,6 +1,7 @@
 #include "generator.h"
 
 #include <stdio.h>
+#include <ctype.h>
 
 /**
  * Some notes on code generation
@@ -10,10 +11,12 @@
  *
  * CALLING CONVENTION:
  * Functions use the CDECL calling convention with the exception that
+ * arguments are in reverse order and
  * return values are pushed onto the stack instead of passed trough a register
  * (this design choice is the result of multiple possible return values instead of one)
  * The root of argument stack is NIL -> for variadic arguments as in print(...)
- * RETURN VAUES are in order from LEFT to RIGHT [fun(2, 1, 0) (0, 1, 2)] (order of stack pushes)
+ * RETURN VAUES are in order from LEFT to RIGHT [fun(0, 1, 2) (0, 1, 2)] (order of stack pushes)
+ * TODO: When 2-pass is complete decide which order would be better
  * TL;DR: Function arguments and return values are stored on the stack until nil is met (stack root value must be nil)
  *
  * Allowed label chars:
@@ -22,7 +25,29 @@
  * Label prefixes:
  * ^! -> function end (cleanup or error)
  * ^? -> loop label
+ * !_main -> program end
  */
+
+////// Conversion tables and functions
+
+static const char *tk2type[] = {
+		[TK_STR_LIT] = "string",
+		[TK_INT_LIT] = "string",
+		[TK_FLOAT_LIT] = "float",
+		[TK_KEYW_TRUE] = "bool",
+		[TK_KEYW_FALSE] = "bool",
+};
+
+static const char *encode_string_literal(const char *string) {
+	for (const char *c = string; *c != '\0'; c++) {
+		if (isalnum(*c)) {
+			putc(*c, stdout);
+		} else {
+			printf("\\%03d", *c);
+		}
+	}
+	return ""; // to be able to be passed to fputs
+}
 
 ////// Macros
 
@@ -35,15 +60,31 @@ do { \
 } while (0)
 
 /**
- * Print variadic arguments and insert a newline
+ * Print variadic arguments
  */
-#define INSTRUCTION(...) \
+#define INSTRUCTION_PART(...) \
 do { \
     const char *_asm[] = {__VA_ARGS__}; \
     size_t count = sizeof(_asm)/sizeof(const char *); \
     for (int i = 0; i < count; ++i) { \
         fputs(_asm[i], stdout); \
     } \
+} while (0)
+
+/**
+ * Insert a newline
+ */
+#define INSTRUCTION_END(...) \
+do { \
+    fputs("\n", stdout); \
+} while (0)
+
+/**
+ * Print variadic arguments and insert a newline
+ */
+#define INSTRUCTION(...) \
+do { \
+    INSTRUCTION_PART(__VA_ARGS__); \
     fputs("\n", stdout); \
 } while (0)
 
@@ -143,8 +184,9 @@ static void header() {
 	INSTRUCTION("DEFVAR GF@regc");
 
 	INSTRUCTION("CREATEFRAME");
-	INSTRUCTION("PUSHFRAME");
-	INSTRUCTION("JUMP main");
+	INSTRUCTION("CALL main");
+
+	INSTRUCTION("JUMP !_main");
 }
 
 static void builtin_define() {
@@ -173,6 +215,51 @@ void gen_func_begin(const char *identifier) {
 	INSTRUCTION("PUSHFRAME");
 }
 
+void gen_func_init_frame() {
+	INSTRUCTION("CREATEFRAME");
+}
+
+void gen_func_init_stack() {
+	INSTRUCTION("PUSHS nil@nil");
+}
+
+void gen_func_param(const char *identifier) {
+	INSTRUCTION("DEFVAR TF@", identifier);
+	INSTRUCTION("POPS TF@", identifier);
+}
+
+void gen_func_call(const char *identifier) {
+	INSTRUCTION("CALL ", identifier);
+}
+
+void gen_func_callarg_literal(token_t token) {
+	switch (token->type) {
+		case TK_INT_LIT:
+			INSTRUCTION_PART("PUSHS int@");
+			printf("%lld", token->param.i);
+			INSTRUCTION_END();
+			break;
+		case TK_FLOAT_LIT:
+			INSTRUCTION_PART("PUSHS float@");
+			printf("%a", token->param.f);
+			INSTRUCTION_END();
+			break;
+		case TK_STR_LIT:
+			INSTRUCTION_PART("PUSHS string@");
+			encode_string_literal(token->param.s);
+			INSTRUCTION_END();
+			break;
+		case TK_KEYW_TRUE:
+			INSTRUCTION("PUSHS bool@true");
+			break;
+		case TK_KEYW_FALSE:
+			INSTRUCTION("PUSHS bool@false");
+			break;
+		default:
+			break;
+	}
+}
+
 void gen_func_end() {
 	COMMENT("End funtion");
 
@@ -181,7 +268,7 @@ void gen_func_end() {
 }
 
 void gen_finish() {
-	INSTRUCTION("POPFRAME");
+	INSTRUCTION("LABEL !_main");
 
 	// just for the sake of completeness
 	fflush(stdout);
