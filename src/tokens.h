@@ -82,7 +82,7 @@ struct token
 	union
 	{
 		const char *s;
-		uint64_t i;
+		int64_t i;
 		double f;
 	} param;
 };
