@@ -24,7 +24,7 @@ int prec_table[11][11] = {
 
 prec_token_type convert_type(stack head, token_t t) {
 	if (t == NULL) {
-		return EMPT;
+		return PREC_ERROR;
 	}
 
 	switch (t->type) {
@@ -261,9 +261,11 @@ int parse_expr(parser_t parser) {
 	// parse
 	int res;
 	prec_token_type type = convert_type(head, parser->token);
+	CHECK_TYPE;
 	do {
 		switch (prec_table[head->type][type]) {
 			case OPEN:
+				// just continue
 				LOAD_NEXT;
 				break;
 			case CLOS:
@@ -271,6 +273,7 @@ int parse_expr(parser_t parser) {
 				while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
 				CHECK_RES;
 
+				// has the whole expression been parsed?
 				if (type == PREC_DOLLAR && head->type == PREC_I && head->next->type == PREC_DOLLAR) {
 					rule_exit(&head);
 					delete_stack(head);
@@ -278,30 +281,11 @@ int parse_expr(parser_t parser) {
 				}
 
 				LOAD_NEXT;
-
 				break;
-			case EQUA:
-				pop_stack(&head);
-				TK_PREC_NEXT();
-
-				type = convert_type(head, parser->token);
-				CHECK_TYPE;
-				break;
-			case EMPT:
-			default:
-				if (head == NULL && type == PREC_DOLLAR) {
-					return EXIT_SUCCESS;
-				} else if (head != NULL && head->type == PREC_DOLLAR &&
-						   head->next != NULL && head->next->type == PREC_I &&
-						   head->next->next != NULL && head->next->next->type == PREC_DOLLAR) {
-					rule_exit(&head);
-					delete_stack(head);
-					return EXIT_SUCCESS;
-				} else {
-					delete_stack(head);
-					return ERROR_SYN;
-				}
-				break;
+			case EQUA: // '()' in expression is syntax error
+			case EMPT: // empty means error
+				delete_stack(head);
+				return ERROR_SYN;
 		}
-	} while (res == EXIT_SUCCESS);
+	} while (true);
 }

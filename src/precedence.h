@@ -16,7 +16,7 @@
 	do {                          \
 		if (type == PREC_ERROR) { \
 			delete_stack(head);   \
-			return ERROR_SYN;     \
+			return ERROR_MISC;    \
 		}                         \
 	} while (0)
 
