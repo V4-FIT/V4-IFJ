@@ -263,29 +263,26 @@ int parse_expr(parser_t parser) {
 	prec_token_type type = convert_type(head, parser->token);
 	CHECK_TYPE;
 	do {
+		LOAD_NEXT;
 		switch (prec_table[head->type][type]) {
 			case OPEN:
 				// just continue
-				LOAD_NEXT;
 				break;
 			case CLOS:
 				res = reduce(&head);                     // expect to be able to reduce one
 				while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
 				CHECK_RES;
 
-				// has the whole expression been parsed?
-				if (type == PREC_DOLLAR && head->type == PREC_I && head->next->type == PREC_DOLLAR) {
-					rule_exit(&head);
-					delete_stack(head);
-					return EXIT_SUCCESS;
-				}
-
-				LOAD_NEXT;
 				break;
 			case EQUA: // '()' in expression is syntax error
 			case EMPT: // empty means error
 				delete_stack(head);
 				return ERROR_SYN;
 		}
-	} while (true);
+	} while (!(type == PREC_DOLLAR && head->type == PREC_I && head->next->type == PREC_DOLLAR));
+
+	// clear stack and exit
+	rule_exit(&head);
+	delete_stack(head);
+	return EXIT_SUCCESS;
 }
