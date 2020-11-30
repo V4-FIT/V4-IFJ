@@ -129,4 +129,17 @@
 		}                                                                       \
 	} while (0)
 
+////// Code generation
+
+/**
+ * Generate only on the second pass
+ * @note used everywhere before FIRST_PASS_END
+ */
+#define GENERATE_ONCE(_asm)        \
+	do {                           \
+		if (!parser->first_pass) { \
+			_asm;                  \
+		}                          \
+	} while (0)
+
 #endif // !IFJ_RULEMACROS_H
