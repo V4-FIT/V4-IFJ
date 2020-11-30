@@ -26,27 +26,6 @@
  * !_main -> program end
  */
 
-////// Conversion tables and functions
-
-static const char *tk2type[] = {
-		[TK_STR_LIT] = "string",
-		[TK_INT_LIT] = "string",
-		[TK_FLOAT_LIT] = "float",
-		[TK_KEYW_TRUE] = "bool",
-		[TK_KEYW_FALSE] = "bool",
-};
-
-static const char *encode_string_literal(const char *string) {
-	for (const char *c = string; *c != '\0'; c++) {
-		if (isalnum(*c)) {
-			putc(*c, stdout);
-		} else {
-			printf("\\%03d", *c);
-		}
-	}
-	return ""; // to be able to be passed to fputs
-}
-
 ////// Macros
 
 /**
@@ -85,6 +64,26 @@ static const char *encode_string_literal(const char *string) {
 		INSTRUCTION_PART(__VA_ARGS__); \
 		fputs("\n", stdout);           \
 	} while (0)
+
+////// Conversion tables and functions (private)
+
+static const char *tk2type[] = {
+		[TK_INT_LIT] = "int",
+		[TK_FLOAT_LIT] = "float",
+		[TK_STR_LIT] = "string",
+		[TK_KEYW_TRUE] = "bool",
+		[TK_KEYW_FALSE] = "bool",
+};
+
+static void encode_string_literal(const char *string) {
+	for (const char *c = string; *c != '\0'; c++) {
+		if (isalnum(*c)) {
+			putc(*c, stdout);
+		} else {
+			printf("\\%03d", *c);
+		}
+	}
+}
 
 ////// Builtin function definitions (private)
 
