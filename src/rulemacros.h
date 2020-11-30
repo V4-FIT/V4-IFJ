@@ -6,17 +6,31 @@
 ////// Macros
 
 #define TOKEN_TYPE parser->token->type
-#define TOKEN_SECOND_TYPE tklist_second(parser->tklist)->type
+#define TOKEN_SECOND_TYPE parser->token_second->type
+
+#define FIRST_PASS_END()                                                 \
+	do {                                                                 \
+		if (parser->first_pass) {                                        \
+			while (TOKEN_TYPE != TK_KEYW_FUNC && TOKEN_TYPE != TK_EOF) { \
+				TK_NEXT();                                               \
+			}                                                            \
+			return EXIT_SUCCESS;                                         \
+		}                                                                \
+	} while (0)
 
 //// Terminals
 
 /**
 * Get next token from the parser and check for error
 */
-#define TK_NEXT()                                     \
-	do {                                              \
-		tklist_pop_front(parser->tklist);             \
-		parser->token = tklist_front(parser->tklist); \
+#define TK_NEXT()                                            \
+	do {                                                     \
+		parser->token = parser->token_second;                \
+		tklist_iterator_t it = tklist_it_next(parser->tkit); \
+		if (tklist_it_valid(it)) {                           \
+			parser->tkit = it;                               \
+			parser->token_second = tklist_get(it);           \
+		}                                                    \
 	} while (0)
 
 /**

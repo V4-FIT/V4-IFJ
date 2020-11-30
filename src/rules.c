@@ -5,6 +5,7 @@
 
 #include "rulemacros.h"
 #include "precedence.h"
+#include "parser.h"
 
 ////// Forward declarations
 
@@ -49,6 +50,7 @@ static int rule_literal(parser_t parser);
 ////// Root
 
 int rule_root(parser_t parser) {
+	EXECUTE_RULE(parser_setup);
 	EXECUTE_RULE(rule_program);
 	return EXIT_SUCCESS;
 }
@@ -101,7 +103,7 @@ int rule_function(parser_t parser) {
 	TK_MATCH(TK_KEYW_FUNC);
 
 	TK_TEST(TK_IDENTIFIER, TK_KEYW_MAIN);
-	SEM_DEFINE_FUNC();
+	// SEM_DEFINE_FUNC();
 	TK_NEXT();
 
 	TK_MATCH(TK_L_PARENTHESIS);
@@ -109,6 +111,8 @@ int rule_function(parser_t parser) {
 	TK_MATCH(TK_R_PARENTHESIS);
 
 	EXECUTE_RULE(rule_return_list);
+
+	FIRST_PASS_END();
 
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
