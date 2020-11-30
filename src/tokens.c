@@ -125,7 +125,9 @@ token_t token_copy(token_t token_to_copy) {
 }
 
 void token_free(token_t token) {
-	if (token->type == TK_IDENTIFIER || token->type == TK_KEYW_MAIN) {
+	if (token->type == TK_IDENTIFIER
+		|| token->type == TK_KEYW_MAIN
+		|| token->type == TK_STR_LIT) {
 		free((void *)token->param.s);
 	}
 	free(token);
