@@ -261,9 +261,9 @@ int parse_expr(parser_t parser) {
 	// parse
 	int res;
 	prec_token_type type = convert_type(head, parser->token);
-	CHECK_TYPE;
+	CHECK_TYPE();
 	do {
-		LOAD_NEXT;
+		LOAD_NEXT();
 		switch (prec_table[head->type][type]) {
 			case OPEN:
 				// just continue
@@ -271,7 +271,7 @@ int parse_expr(parser_t parser) {
 			case CLOS:
 				res = reduce(&head);                     // expect to be able to reduce one
 				while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
-				CHECK_RES;
+				CHECK_RES();
 
 				break;
 			case EQUA: // '()' in expression is syntax error

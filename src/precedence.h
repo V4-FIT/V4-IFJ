@@ -4,7 +4,7 @@
 #include "parser.h"
 
 
-#define CHECK_RES                  \
+#define CHECK_RES()                \
 	do {                           \
 		if (res != EXIT_SUCCESS) { \
 			delete_stack(head);    \
@@ -12,7 +12,7 @@
 		}                          \
 	} while (0)
 
-#define CHECK_TYPE                \
+#define CHECK_TYPE()              \
 	do {                          \
 		if (type == PREC_ERROR) { \
 			delete_stack(head);   \
@@ -20,12 +20,12 @@
 		}                         \
 	} while (0)
 
-#define LOAD_NEXT                                 \
+#define LOAD_NEXT()                               \
 	res = push_stack(&head, parser->token, type); \
 	TK_PREC_NEXT();                               \
 	type = convert_type(head, parser->token);     \
-	CHECK_TYPE;                                   \
-	CHECK_RES
+	CHECK_TYPE();                                 \
+	CHECK_RES()
 
 
 typedef enum
