@@ -11,12 +11,10 @@
  *
  * CALLING CONVENTION:
  * Functions use the CDECL calling convention with the exception that
- * arguments are in reverse order and
  * return values are pushed onto the stack instead of passed trough a register
  * (this design choice is the result of multiple possible return values instead of one)
  * The root of argument stack is NIL -> for variadic arguments as in print(...)
- * RETURN VAUES are in order from LEFT to RIGHT [fun(0, 1, 2) (0, 1, 2)] (order of stack pushes)
- * TODO: When 2-pass is complete decide which order would be better
+ * RETURN VAUES are in order from LEFT to RIGHT [fun(2, 1, 0) (0, 1, 2)] (order of stack pushes)
  * TL;DR: Function arguments and return values are stored on the stack until nil is met (stack root value must be nil)
  *
  * Allowed label chars:
@@ -54,39 +52,39 @@ static const char *encode_string_literal(const char *string) {
 /**
  * Single line comment
  */
-#define COMMENT(_txt) \
-do { \
-    fputs("# " _txt "\n", stdout); \
-} while (0)
+#define COMMENT(_txt)                  \
+	do {                               \
+		fputs("# " _txt "\n", stdout); \
+	} while (0)
 
 /**
  * Print variadic arguments
  */
-#define INSTRUCTION_PART(...) \
-do { \
-    const char *_asm[] = {__VA_ARGS__}; \
-    size_t count = sizeof(_asm)/sizeof(const char *); \
-    for (int i = 0; i < count; ++i) { \
-        fputs(_asm[i], stdout); \
-    } \
-} while (0)
+#define INSTRUCTION_PART(...)                               \
+	do {                                                    \
+		const char *_asm[] = {__VA_ARGS__};                 \
+		size_t count = sizeof(_asm) / sizeof(const char *); \
+		for (int i = 0; i < count; ++i) {                   \
+			fputs(_asm[i], stdout);                         \
+		}                                                   \
+	} while (0)
 
 /**
  * Insert a newline
  */
 #define INSTRUCTION_END(...) \
-do { \
-    fputs("\n", stdout); \
-} while (0)
+	do {                     \
+		fputs("\n", stdout); \
+	} while (0)
 
 /**
  * Print variadic arguments and insert a newline
  */
-#define INSTRUCTION(...) \
-do { \
-    INSTRUCTION_PART(__VA_ARGS__); \
-    fputs("\n", stdout); \
-} while (0)
+#define INSTRUCTION(...)               \
+	do {                               \
+		INSTRUCTION_PART(__VA_ARGS__); \
+		fputs("\n", stdout);           \
+	} while (0)
 
 ////// Builtin function definitions (private)
 
@@ -270,8 +268,10 @@ void gen_func_end() {
 void gen_finish() {
 	INSTRUCTION("LABEL !_main");
 
+#ifndef NDEBUG
+	INSTRUCTION("BREAK");
+#endif
+
 	// just for the sake of completeness
 	fflush(stdout);
 }
-
-
