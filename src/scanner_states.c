@@ -1,9 +1,25 @@
 #include <stdio.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "scanner_states.h"
 #include "hash_map.h"
 #include "error.h"
+
+////// Literal conversion
+
+static bool strto64bit(const char *str, int64_t *val, int base) {
+	char *endptr;
+	long long int tmp = strtoll(str, &endptr, base);
+	if (errno == ERANGE || *endptr != '\0' || tmp < 0) {
+		return false;
+	}
+
+	*val = (int64_t)tmp;
+	return true;
+}
+
+////// Scanner states
 
 // defined in scanner.c
 FILE *get_stream(scanner_t scanner);
@@ -491,11 +507,9 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 			} else {
 				ungetc(c, get_stream(scanner));
 				get_tok(scanner)->type = TK_INT_LIT;
-				char *endptr;
-				get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 10);
-				if (*endptr != '\0') {
+				if (!strto64bit(charseq_data(get_charseq(scanner)), &(get_tok(scanner)->param.i), 10)) {
 					get_tok(scanner)->type = TK_ERROR;
-					get_tok(scanner)->param.i = ERROR_MISC;
+					get_tok(scanner)->param.i = ERROR_LEX;
 				}
 				return S_END;
 			}
@@ -636,11 +650,9 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
-		char *endptr;
-		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 16);
-		if (*endptr != '\0') {
+		if (!strto64bit(charseq_data(get_charseq(scanner)), &(get_tok(scanner)->param.i), 16)) {
 			get_tok(scanner)->type = TK_ERROR;
-			get_tok(scanner)->param.i = ERROR_MISC;
+			get_tok(scanner)->param.i = ERROR_LEX;
 		}
 		return S_END;
 	}
@@ -692,11 +704,9 @@ scanner_state_t s_oct_lit2(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
-		char *endptr;
-		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 8);
-		if (*endptr != '\0') {
+		if (!strto64bit(charseq_data(get_charseq(scanner)), &(get_tok(scanner)->param.i), 8)) {
 			get_tok(scanner)->type = TK_ERROR;
-			get_tok(scanner)->param.i = ERROR_MISC;
+			get_tok(scanner)->param.i = ERROR_LEX;
 		}
 		return S_END;
 	}
@@ -748,11 +758,9 @@ scanner_state_t s_bin_lit2(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
-		char *endptr;
-		get_tok(scanner)->param.i = (uint64_t)strtoull(charseq_data(get_charseq(scanner)), &endptr, 2);
-		if (*endptr != '\0') {
+		if (!strto64bit(charseq_data(get_charseq(scanner)), &(get_tok(scanner)->param.i), 2)) {
 			get_tok(scanner)->type = TK_ERROR;
-			get_tok(scanner)->param.i = ERROR_MISC;
+			get_tok(scanner)->param.i = ERROR_LEX;
 		}
 		return S_END;
 	}
