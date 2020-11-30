@@ -3,6 +3,31 @@
 
 #include "parser.h"
 
+
+#define CHECK_RES                  \
+	do {                           \
+		if (res != EXIT_SUCCESS) { \
+			delete_stack(head);    \
+			return res;            \
+		}                          \
+	} while (0)
+
+#define CHECK_TYPE                \
+	do {                          \
+		if (type == PREC_ERROR) { \
+			delete_stack(head);   \
+			return ERROR_SYN;     \
+		}                         \
+	} while (0)
+
+#define LOAD_NEXT                                 \
+	res = push_stack(&head, parser->token, type); \
+	TK_PREC_NEXT();                               \
+	type = convert_type(head, parser->token);     \
+	CHECK_TYPE;                                   \
+	CHECK_RES
+
+
 typedef enum
 {
 	PREC_L_BR,       // (
@@ -54,6 +79,7 @@ prec_token_type convert_type(stack head, token_t t1);
 
 int push_stack(stack *head, token_t token, prec_token_type prec);
 void pop_stack(stack *head);
+void delete_stack(stack head);
 
 void rule_i(stack *head);
 void rule_brackets(stack *head);
