@@ -106,8 +106,9 @@ token_t token_copy(token_t token_to_copy) {
 		return NULL;
 	}
 
-	if (token_to_copy->type == TK_IDENTIFIER || token_to_copy->type == TK_KEYW_MAIN ||
-		token_to_copy->type == TK_STR_LIT) {
+	if (token_to_copy->type == TK_IDENTIFIER
+		|| token_to_copy->type == TK_KEYW_MAIN
+		|| token_to_copy->type == TK_STR_LIT) {
 		size_t size = strlen(token_to_copy->param.s) + 1;
 		new_token->param.s = malloc(size);
 		if (new_token->param.s == NULL) {
