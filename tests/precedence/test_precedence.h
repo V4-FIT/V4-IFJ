@@ -20,6 +20,7 @@ extern "C" {
 			fprintf(stderr, "ERROR: Lexical analysis\n"); \
 		} else {                                          \
 			s_parser = parser_init(tklist);               \
+			parser_setup(s_parser);                       \
 			EXPECT_EQ(parse_expr(s_parser), val);         \
 		}                                                 \
 	} while (0)
