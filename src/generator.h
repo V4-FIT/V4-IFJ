@@ -18,4 +18,9 @@ void gen_func_end();
 void gen_func_call(const char *identifier);
 void gen_func_call_arg_literal(token_t token);
 
+/// Variable
+void gen_var_define(const char *identifier);
+void gen_var_assign_id(const char *to, const char *from);
+void gen_var_assign_literal(const char *to, tk_param_t param, token_type_t token_type);
+
 #endif //IFJ_GENERATOR_H

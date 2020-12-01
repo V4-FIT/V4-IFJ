@@ -67,12 +67,13 @@
 
 ////// Conversion tables and functions (private)
 
-static const char *tk2type[] = {
+static const char *tk_type2type[] = {
 		[TK_INT_LIT] = "int",
 		[TK_FLOAT_LIT] = "float",
 		[TK_STR_LIT] = "string",
 		[TK_KEYW_TRUE] = "bool",
 		[TK_KEYW_FALSE] = "bool",
+		[TK_KEYW_BOOL] = NULL, // last
 };
 
 static void encode_string_literal(const char *string) {
@@ -237,10 +238,10 @@ void gen_func_param(const char *identifier) {
 }
 
 void gen_func_end() {
-	COMMENT("End funtion");
-
 	INSTRUCTION("POPFRAME");
 	INSTRUCTION("RETURN");
+
+	COMMENT("End funtion");
 }
 
 /// Function call
@@ -271,6 +272,42 @@ void gen_func_call_arg_literal(token_t token) {
 			break;
 		case TK_KEYW_FALSE:
 			INSTRUCTION("PUSHS bool@false");
+			break;
+		default:
+			break;
+	}
+}
+
+void gen_var_define(const char *identifier) {
+	INSTRUCTION("DEFVAR TF@", identifier);
+}
+
+void gen_var_assign_id(const char *to, const char *from) {
+	INSTRUCTION("MOVE TF@", to, " TF@", from);
+}
+
+void gen_var_assign_literal(const char *to, tk_param_t param, token_type_t token_type) {
+	switch (token_type) {
+		case TK_INT_LIT:
+			INSTRUCTION_PART("MOVE TF@", to, " int@");
+			printf("%lld", param.i);
+			INSTRUCTION_END();
+			break;
+		case TK_FLOAT_LIT:
+			INSTRUCTION_PART("MOVE TF@", to, " float@");
+			printf("%a", param.f);
+			INSTRUCTION_END();
+			break;
+		case TK_STR_LIT:
+			INSTRUCTION_PART("MOVE TF@", to, " string@");
+			encode_string_literal(param.s);
+			INSTRUCTION_END();
+			break;
+		case TK_KEYW_TRUE:
+			INSTRUCTION("MOVE TF@", to, " bool@true");
+			break;
+		case TK_KEYW_FALSE:
+			INSTRUCTION("MOVE TF@", to, " bool@false");
 			break;
 		default:
 			break;
