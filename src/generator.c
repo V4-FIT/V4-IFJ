@@ -165,9 +165,7 @@ static void builtin_float2int() {
 	INSTRUCTION("RETURN");
 }
 
-////// Code segment generation
-
-/// Private
+////// Code segment generation -> private generators
 
 static void header() {
 	COMMENT("begin");
@@ -198,12 +196,25 @@ static void builtin_define() {
 	builtin_float2int();
 }
 
-/// Public
+////// Code segment generation -> public interface implementation
 
 void gen_init() {
 	header();
 	builtin_define();
 }
+
+void gen_finish() {
+	INSTRUCTION("LABEL !_main");
+
+#ifndef NDEBUG
+	INSTRUCTION("BREAK");
+#endif
+
+	// just for the sake of completeness
+	fflush(stdout);
+}
+
+/// Function definition
 
 void gen_func_begin(const char *identifier) {
 	COMMENT("Begin function");
@@ -225,11 +236,20 @@ void gen_func_param(const char *identifier) {
 	INSTRUCTION("POPS TF@", identifier);
 }
 
+void gen_func_end() {
+	COMMENT("End funtion");
+
+	INSTRUCTION("POPFRAME");
+	INSTRUCTION("RETURN");
+}
+
+/// Function call
+
 void gen_func_call(const char *identifier) {
 	INSTRUCTION("CALL ", identifier);
 }
 
-void gen_func_callarg_literal(token_t token) {
+void gen_func_call_arg_literal(token_t token) {
 	switch (token->type) {
 		case TK_INT_LIT:
 			INSTRUCTION_PART("PUSHS int@");
@@ -255,22 +275,4 @@ void gen_func_callarg_literal(token_t token) {
 		default:
 			break;
 	}
-}
-
-void gen_func_end() {
-	COMMENT("End funtion");
-
-	INSTRUCTION("POPFRAME");
-	INSTRUCTION("RETURN");
-}
-
-void gen_finish() {
-	INSTRUCTION("LABEL !_main");
-
-#ifndef NDEBUG
-	INSTRUCTION("BREAK");
-#endif
-
-	// just for the sake of completeness
-	fflush(stdout);
 }
