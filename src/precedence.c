@@ -24,7 +24,7 @@ int prec_table[11][11] = {
 
 prec_token_type convert_type(stack head, token_t t) {
 	if (t == NULL) {
-		return EMPT;
+		return PREC_ERROR;
 	}
 
 	switch (t->type) {
@@ -92,11 +92,14 @@ int push_stack(stack *head, token_t token, prec_token_type type) {
 
 	*head = new;
 
-	// printf("new: %d\n", (*head)->type);
-
 	return EXIT_SUCCESS;
 }
 
+void delete_stack(stack head) {
+	while (head != NULL) {
+		pop_stack(&head);
+	}
+}
 
 // grammar rules
 
@@ -251,7 +254,6 @@ int parse_expr(parser_t parser) {
 		fprintf(stderr, "ERROR: malloc failed\n");
 		return ERROR_MISC;
 	}
-
 	head->token = NULL;
 	head->type = PREC_DOLLAR;
 	head->next = NULL;
@@ -259,94 +261,28 @@ int parse_expr(parser_t parser) {
 	// parse
 	int res;
 	prec_token_type type = convert_type(head, parser->token);
+	CHECK_TYPE();
 	do {
-		// printf("expr parsing (%d)\n", type);
-
+		LOAD_NEXT();
 		switch (prec_table[head->type][type]) {
 			case OPEN:
-				// printf("open\n");
-				res = push_stack(&head, parser->token, type);
-				TK_PREC_NEXT();
-				type = convert_type(head, parser->token);
-
+				// just continue
 				break;
 			case CLOS:
 				res = reduce(&head);                     // expect to be able to reduce one
 				while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
-
-				if (type == PREC_R_BR && head->type == PREC_I) { // push close brackets & reduce
-					res = push_stack(&head, parser->token, type);
-					TK_PREC_NEXT();
-					type = convert_type(head, parser->token);
-					res = reduce(&head);
-
-
-					while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
-				} else if (type == PREC_DOLLAR && head->type == PREC_I && head->next->type == PREC_DOLLAR) {
-					rule_exit(&head);
-					while (head != NULL) {
-						// printf("%d | ", head->type);
-						pop_stack(&head);
-					}
-					return EXIT_SUCCESS;
-				}
-
-				res = push_stack(&head, parser->token, type);
-				TK_PREC_NEXT();
-				type = convert_type(head, parser->token);
-
+				CHECK_RES();
 
 				break;
-			case EQUA:
-				// printf("equal\n");
-				pop_stack(&head);
-				TK_PREC_NEXT();
-				type = convert_type(head, parser->token);
-
-				break;
-			case EMPT:
-			default:
-
-				if (head == NULL && type == PREC_DOLLAR) {
-					// printf("ending\n");
-					return EXIT_SUCCESS;
-				} else if (head != NULL && head->type == PREC_DOLLAR &&
-						   head->next != NULL && head->next->type == PREC_I &&
-						   head->next->next != NULL && head->next->next->type == PREC_DOLLAR) {
-					// printf("case 2\n");
-					rule_exit(&head);
-					while (head != NULL) {
-						// printf("%d | ", head->type);
-						pop_stack(&head);
-					}
-					return EXIT_SUCCESS;
-				} else {
-					// printf("(%d) ", type);
-					while (head != NULL) {
-						// printf("%d | ", head->type);
-						pop_stack(&head);
-					}
-					// printf("\n");
-					return ERROR_SYN;
-				}
-				break;
+			case EQUA: // '()' in expression is syntax error
+			case EMPT: // empty means error
+				delete_stack(head);
+				return ERROR_SYN;
 		}
-	} while (res == EXIT_SUCCESS || type != PREC_DOLLAR);
-	// next $ came in
+	} while (!(type == PREC_DOLLAR && head->type == PREC_I && head->next->type == PREC_DOLLAR));
 
-	// printf("out of the loop\n");
-	if (res == EXIT_SUCCESS && head->type == PREC_DOLLAR && type == PREC_DOLLAR) {
-		// printf("ending\n");
-		// remove head
-		pop_stack(&head);
-		return EXIT_SUCCESS;
-	} else {
-		// printf("(%d) ", type);
-		while (head != NULL) {
-			// printf("%d | ", head->type);
-			pop_stack(&head);
-		}
-		// printf("\n");
-		return res;
-	}
+	// clear stack and exit
+	rule_exit(&head);
+	delete_stack(head);
+	return EXIT_SUCCESS;
 }
