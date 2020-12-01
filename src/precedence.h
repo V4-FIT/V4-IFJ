@@ -72,27 +72,27 @@ typedef struct Stack
 	prec_token_type type;
 	bool todo;
 	struct Stack *next;
-} * stack;
+} * prec_stack_t;
 
 
-prec_token_type convert_type(stack head, token_t t1);
+prec_token_type convert_type(prec_stack_t head, token_t t1);
 
-int push_stack(stack *head, token_t token, prec_token_type prec);
-void pop_stack(stack *head);
-void delete_stack(stack head);
+int push_stack(prec_stack_t *head, token_t token, prec_token_type prec);
+void pop_stack(prec_stack_t *head);
+void delete_stack(prec_stack_t head);
 
-void rule_i(stack *head);
-void rule_brackets(stack *head);
-void rule_exit(stack *head);
-void rule_un_neg(stack *head);
-void rule_mul_div(stack *head);
-void rule_rel(stack *head);
-void rule_equal(stack *head);
-void rule_and(stack *head);
-void rule_or(stack *head);
+void rule_i(prec_stack_t *head);
+void rule_brackets(prec_stack_t *head);
+void rule_exit(prec_stack_t *head);
+void rule_un_neg(prec_stack_t *head);
+void rule_mul_div(prec_stack_t *head);
+void rule_rel(prec_stack_t *head);
+void rule_equal(prec_stack_t *head);
+void rule_and(prec_stack_t *head);
+void rule_or(prec_stack_t *head);
 
 
-int reduce(stack *head);
+int reduce(prec_stack_t *head);
 
 int parse_expr(parser_t parser);
 

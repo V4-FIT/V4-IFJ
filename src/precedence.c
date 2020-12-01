@@ -22,7 +22,7 @@ int prec_table[11][11] = {
 		{OPEN, EMPT, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, OPEN, EMPT}, // eol?,   eof
 };
 
-prec_token_type convert_type(stack head, token_t t) {
+prec_token_type convert_type(prec_stack_t head, token_t t) {
 	if (t == NULL) {
 		return PREC_ERROR;
 	}
@@ -68,8 +68,8 @@ prec_token_type convert_type(stack head, token_t t) {
 	}
 }
 
-void pop_stack(stack *head) {
-	stack tmp = *head;
+void pop_stack(prec_stack_t *head) {
+	prec_stack_t tmp = *head;
 	(*head) = (*head)->next;
 	if (tmp->token) {
 		token_free(tmp->token);
@@ -78,8 +78,8 @@ void pop_stack(stack *head) {
 	tmp = NULL;
 }
 
-int push_stack(stack *head, token_t token, prec_token_type type) {
-	stack new = malloc(sizeof(struct Stack));
+int push_stack(prec_stack_t *head, token_t token, prec_token_type type) {
+	prec_stack_t new = malloc(sizeof(struct Stack));
 	if (new == NULL) {
 		fprintf(stderr, "ERROR: malloc failed\n");
 		return ERROR_MISC;
@@ -95,7 +95,7 @@ int push_stack(stack *head, token_t token, prec_token_type type) {
 	return EXIT_SUCCESS;
 }
 
-void delete_stack(stack head) {
+void delete_stack(prec_stack_t head) {
 	while (head != NULL) {
 		pop_stack(&head);
 	}
@@ -103,12 +103,12 @@ void delete_stack(stack head) {
 
 // grammar rules
 
-void rule_i(stack *head) {
+void rule_i(prec_stack_t *head) {
 	// printf("E -> i\n");
 	(*head)->todo = false;
 }
 
-void rule_brackets(stack *head) {
+void rule_brackets(prec_stack_t *head) {
 	// printf("E -> (E)\n");
 
 	pop_stack(head);
@@ -119,12 +119,12 @@ void rule_brackets(stack *head) {
 	(*head)->todo = false;
 }
 
-void rule_exit(stack *head) {
+void rule_exit(prec_stack_t *head) {
 	// printf("E -> $\n");
 	pop_stack(head); // remove E
 }
 
-void rule_un_neg(stack *head) {
+void rule_un_neg(prec_stack_t *head) {
 	// printf("E -> +-!E\n");
 	pop_stack(head);
 	pop_stack(head);
@@ -132,49 +132,49 @@ void rule_un_neg(stack *head) {
 	(*head)->todo = false;
 }
 
-void rule_mul_div(stack *head) {
+void rule_mul_div(prec_stack_t *head) {
 	// printf("E -> E*/E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
-void rule_plus_minus(stack *head) {
+void rule_plus_minus(prec_stack_t *head) {
 	// printf("E -> E+-E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
-void rule_rel(stack *head) {
+void rule_rel(prec_stack_t *head) {
 	// printf("E -> E<>E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
-void rule_equal(stack *head) {
+void rule_equal(prec_stack_t *head) {
 	// printf("E -> E==E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
-void rule_and(stack *head) {
+void rule_and(prec_stack_t *head) {
 	// printf("E -> E && E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
-void rule_or(stack *head) {
+void rule_or(prec_stack_t *head) {
 	// printf("E -> E || E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
 }
 
-int reduce(stack *head) {
+int reduce(prec_stack_t *head) {
 	// printf("reduce: ");
 
 	switch ((*head)->type) {
@@ -249,7 +249,7 @@ int reduce(stack *head) {
 
 int parse_expr(parser_t parser) {
 	// init stack to $
-	stack head = malloc(sizeof(struct Stack));
+	prec_stack_t head = malloc(sizeof(struct Stack));
 	if (head == NULL) {
 		fprintf(stderr, "ERROR: malloc failed\n");
 		return ERROR_MISC;

@@ -74,17 +74,18 @@ typedef enum
 	TK_KEYW_BOOL,
 } token_type_t;
 
+typedef union
+{
+	const char *s;
+	int64_t i;
+	double f;
+} tk_param_t;
 
 /*data type to represent tokens created by scanner*/
 struct token
 {
 	token_type_t type;
-	union
-	{
-		const char *s;
-		int64_t i;
-		double f;
-	} param;
+	tk_param_t param;
 };
 
 typedef struct token *token_t;
