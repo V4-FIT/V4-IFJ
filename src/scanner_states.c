@@ -11,7 +11,7 @@
 static bool strto64bit(const char *str, int64_t *val, int base) {
 	char *endptr;
 	long long int tmp = strtoll(str, &endptr, base);
-	if (errno == ERANGE || *endptr != '\0' || tmp < 0) {
+	if (errno == ERANGE || *endptr != '\0' || tmp < 0 || tmp > INT64_MAX) {
 		return false;
 	}
 
