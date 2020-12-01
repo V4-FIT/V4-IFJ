@@ -71,6 +71,9 @@ prec_token_type convert_type(stack_t head, token_t t) {
 void pop_stack(stack_t *head) {
 	stack_t tmp = *head;
 	(*head) = (*head)->next;
+	if (tmp->token) {
+		token_free(tmp->token);
+	}
 	free(tmp);
 	tmp = NULL;
 }
@@ -82,7 +85,7 @@ int push_stack(stack_t *head, token_t token, prec_token_type type) {
 		return ERROR_MISC;
 	}
 
-	new->token = token;
+	new->token = token ? token_copy(token) : NULL;
 	new->type = type;
 	new->next = *head;
 	new->todo = true;
