@@ -35,26 +35,6 @@
 	} while (0)
 
 
-// Get next token from the parser if current token is equal to _TOKEN
-#define TK_MATCH(...)                                        \
-	do {                                                     \
-		token_type_t _TKS[] = {__VA_ARGS__};                 \
-		size_t _TKNUM = sizeof(_TKS) / sizeof(token_type_t); \
-		bool found = false;                                  \
-		for (int i = 0; i < _TKNUM; ++i) {                   \
-			if (parser->token->type == _TKS[i]) {            \
-				found = true;                                \
-				break;                                       \
-			}                                                \
-		}                                                    \
-		if (!found) {                                        \
-			return ERROR_SYN;                                \
-		} else {                                             \
-			TK_NEXT();                                       \
-		}                                                    \
-	} while (0)
-
-
 // Check syntax against current token
 #define TK_TEST(...)                                         \
 	do {                                                     \
@@ -70,6 +50,13 @@
 		if (!found) {                                        \
 			return ERROR_SYN;                                \
 		}                                                    \
+	} while (0)
+
+// Check syntax against current token and then get the next one
+#define TK_MATCH(...)         \
+	do {                      \
+		TK_TEST(__VA_ARGS__); \
+		TK_NEXT();            \
 	} while (0)
 
 // Get next token and skip TK_EOLs when possible
