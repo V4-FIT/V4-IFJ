@@ -248,7 +248,7 @@ int parse_expr(parser_t parser) {
 				delete_stack(head);
 				return ERROR_SYN;
 		}
-	} while (!(type == PREC_DOLLAR && head->type == PREC_I && head->next->type == PREC_DOLLAR));
+	} while (!(type == PREC_DOLLAR && head->type == PREC_I && !head->todo && head->next->type == PREC_DOLLAR));
 
 	// clear stack and exit
 	rule_exit(&head);
