@@ -124,7 +124,7 @@ void rule_exit(prec_stack_t *head) {
 	pop_stack(head); // remove E
 }
 
-void rule_un_neg(prec_stack_t *head) {
+void rule_un(prec_stack_t *head) {
 	// printf("E -> +-!E\n");
 	pop_stack(head);
 	pop_stack(head);
@@ -175,75 +175,44 @@ void rule_or(prec_stack_t *head) {
 }
 
 int reduce(prec_stack_t *head) {
-	// printf("reduce: ");
+	if ((*head)->todo && (*head)->type == PREC_I) {
+		rule_i(head);
+		return EXIT_SUCCESS;
+	} else if ((*head)->type == PREC_I && (*head)->todo == false &&
+			   (*head)->next != NULL && (*head)->next->type == PREC_UNARY) {
+		rule_un(head);
+		return EXIT_SUCCESS;
+	} else if ((*head)->type == PREC_R_BR && (*head)->next != NULL &&
+			   (*head)->next->type == PREC_I && (*head)->next->next != NULL &&
+			   (*head)->next->next->type == PREC_L_BR) {
+		rule_brackets(head);
+		return EXIT_SUCCESS;
+	} else if ((*head)->type == PREC_I && (*head)->next != NULL &&
+			   (*head)->next->next != NULL && (*head)->next->next->type == PREC_I && (*head)->next->next->todo == true) {
 
-	switch ((*head)->type) {
-		case PREC_I:
-			if ((*head)->todo) {
-				rule_i(head);
+		switch ((*head)->next->type) {
+			case PREC_PLUS_MINUS:
+				rule_plus_minus(head);
 				return EXIT_SUCCESS;
-			} else if ((*head)->next != NULL) {
-				switch ((*head)->next->type) {
-					case PREC_UNARY:
-						if ((*head)->next->next != NULL) {
-							switch ((*head)->next->next->type) {
-								case PREC_L_BR:
-									rule_un_neg(head);
-									return EXIT_SUCCESS;
-								default:
-									rule_un_neg(head);
-									return EXIT_SUCCESS;
-									break;
-							}
-						}
-						break;
-					case PREC_MUL_DIV:
-						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
-							rule_mul_div(head);
-							return EXIT_SUCCESS;
-						}
-
-					case PREC_PLUS_MINUS:
-						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
-							rule_plus_minus(head);
-							return EXIT_SUCCESS;
-						}
-					case PREC_RELATION:
-						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
-							rule_rel(head);
-							return EXIT_SUCCESS;
-						}
-					case PREC_EQUAL:
-						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
-							rule_equal(head);
-							return EXIT_SUCCESS;
-						}
-					case PREC_AND:
-						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
-							rule_and(head);
-							return EXIT_SUCCESS;
-						}
-
-					case PREC_OR:
-						if ((*head)->next->next != NULL && (*head)->next->next->type == PREC_I) {
-							rule_or(head);
-							return EXIT_SUCCESS;
-						}
-					default:
-						break;
-				}
-			}
-			break;
-		case PREC_R_BR:
-			if ((*head)->next != NULL && (*head)->next->type == PREC_I &&
-				(*head)->next->next != NULL && (*head)->next->next->type == PREC_L_BR) {
-				rule_brackets(head);
+			case PREC_MUL_DIV:
+				rule_mul_div(head);
 				return EXIT_SUCCESS;
-			}
-		default:
-			break;
+			case PREC_RELATION:
+				rule_rel(head);
+				return EXIT_SUCCESS;
+			case PREC_EQUAL:
+				rule_equal(head);
+				return EXIT_SUCCESS;
+			case PREC_AND:
+				rule_and(head);
+				return EXIT_SUCCESS;
+			case PREC_OR:
+				rule_or(head);
+				return EXIT_SUCCESS;
+			default:
+				break;
+		}
 	}
-	// printf("rule not found\n");
 	return ERROR_SYN;
 }
 
@@ -263,18 +232,18 @@ int parse_expr(parser_t parser) {
 	prec_token_type type = convert_type(head, parser->token);
 	CHECK_TYPE();
 	do {
-		LOAD_NEXT();
-		switch (prec_table[head->type][type]) {
+		switch (prec_table[HEAD()->type][type]) {
 			case OPEN:
-				// just continue
+				head->todo = true;
+				LOAD_NEXT();
 				break;
 			case CLOS:
-				res = reduce(&head);                     // expect to be able to reduce one
-				while (reduce(&head) == EXIT_SUCCESS) {} // try reducing some more
+				res = reduce(&head); // expect to be able to reduce one
 				CHECK_RES();
-
 				break;
-			case EQUA: // '()' in expression is syntax error
+			case EQUA:
+				LOAD_NEXT();
+				break;
 			case EMPT: // empty means error
 				delete_stack(head);
 				return ERROR_SYN;
@@ -284,5 +253,6 @@ int parse_expr(parser_t parser) {
 	// clear stack and exit
 	rule_exit(&head);
 	delete_stack(head);
+
 	return EXIT_SUCCESS;
 }

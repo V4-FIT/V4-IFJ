@@ -3,6 +3,8 @@
 
 #include "parser.h"
 
+// don't acount for E in stack head
+#define HEAD() (head->type == PREC_I && head->todo == false && head->next->type != PREC_UNARY ? head->next : head)
 
 #define CHECK_RES()                \
 	do {                           \
@@ -53,9 +55,6 @@ typedef enum
 	DONE
 } prec;
 
-// rule definitions
-
-
 typedef enum
 {
 	R_EMPTY,
@@ -81,10 +80,12 @@ int push_stack(prec_stack_t *head, token_t token, prec_token_type prec);
 void pop_stack(prec_stack_t *head);
 void delete_stack(prec_stack_t head);
 
+
+// rule definitions
 void rule_i(prec_stack_t *head);
 void rule_brackets(prec_stack_t *head);
 void rule_exit(prec_stack_t *head);
-void rule_un_neg(prec_stack_t *head);
+void rule_un(prec_stack_t *head);
 void rule_mul_div(prec_stack_t *head);
 void rule_rel(prec_stack_t *head);
 void rule_equal(prec_stack_t *head);
