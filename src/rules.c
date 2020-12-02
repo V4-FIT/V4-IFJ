@@ -53,6 +53,7 @@ static int rule_literal(parser_t parser);
 int rule_root(parser_t parser) {
 	EXECUTE_RULE(parser_setup);
 	EXECUTE_RULE(rule_program);
+	SEM_CHECK(sem_main_defined);
 	return EXIT_SUCCESS;
 }
 

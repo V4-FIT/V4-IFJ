@@ -98,3 +98,18 @@ int sem_func_callable(parser_t parser) {
 	}
 	return EXIT_SUCCESS;
 }
+
+int sem_main_defined(parser_t parser) {
+	if (parser->first_pass) {
+		struct token tk = {TK_IDENTIFIER, "main"};
+		symbol_ref_t symbol = symtable_find(parser->symtable, &tk);
+		if (symbol_valid(symbol)) {
+			if (symbol.symbol->func.param_count || symbol.symbol->func.return_count) {
+				return ERROR_PARAM;
+			}
+		} else {
+			return ERROR_DEFINITION;
+		}
+	}
+	return EXIT_SUCCESS;
+}
