@@ -91,7 +91,7 @@ int sem_func_callable(parser_t parser) {
 		if (symbol.symbol->type == ST_FUNC) {
 			parser->sem.func = symbol;
 		} else {
-			return ERROR_DEFINITION; // might be ERROR_SEM if there is func like that defined behind the variable
+			return ERROR_SEM;
 		}
 	} else {
 		return ERROR_DEFINITION;
