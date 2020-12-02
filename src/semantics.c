@@ -84,3 +84,17 @@ int sem_func_add_return_type(parser_t parser) {
 	}
 	return success ? EXIT_SUCCESS : ERROR_MISC;
 }
+
+int sem_func_callable(parser_t parser) {
+	symbol_ref_t symbol = symtable_find(parser->symtable, parser->token);
+	if (symbol_valid(symbol)) {
+		if (symbol.symbol->type == ST_FUNC) {
+			parser->sem.func = symbol;
+		} else {
+			return ERROR_DEFINITION; // might be ERROR_SEM if there is func like that defined behind the variable
+		}
+	} else {
+		return ERROR_DEFINITION;
+	}
+	return EXIT_SUCCESS;
+}

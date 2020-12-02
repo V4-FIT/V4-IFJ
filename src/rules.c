@@ -512,7 +512,9 @@ int rule_exprs_funCall(parser_t parser) {
 /// 30
 int rule_functionCall(parser_t parser) {
 	// FunctionCall -> 		  id l_parenthesis Eol_opt Arguments r_parenthesis .
-	TK_MATCH(TK_IDENTIFIER);
+	TK_TEST(TK_IDENTIFIER);
+	SEM_CHECK(sem_func_callable);
+	TK_NEXT();
 	TK_MATCH(TK_L_PARENTHESIS);
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_Arguments);
@@ -576,6 +578,7 @@ int rule_Argument(parser_t parser) {
 int rule_return(parser_t parser) {
 	// Return -> 			  return Expressions eol.
 	TK_MATCH(TK_KEYW_RETURN);
+	// TODO: expressions are optional because of functions with no returns
 	EXECUTE_RULE(rule_expressions);
 	TK_MATCH(TK_EOL);
 	return EXIT_SUCCESS;
