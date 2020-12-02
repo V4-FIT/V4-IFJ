@@ -152,7 +152,6 @@ symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_
 		symbol.name = hmap_get_key(symbol_ref.it);
 		// init type specific data
 		if (symbol_type == ST_FUNC) {
-			symbol.func.defined = false;
 			symbol.func.param_count = 0;
 			symbol.func.return_count = 0;
 			symbol.func.param_list = flist_init(sizeof(data_type_t));
@@ -177,28 +176,13 @@ symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_
 	return symbol_ref;
 }
 
-bool symtable_undefined_funcs(symtable_t symtable) {
-	assert(symtable);
-	assert(!flist_empty(symtable->tables));
-
-	hmap_t hmap = symtable_front(symtable);
-	for (hmap_iterator_t it = hmap_begin(hmap); hmap_it_valid(it); it = hmap_it_next(it)) {
-		symbol_t *symbol = hmap_get_value(it);
-		assert(symbol->type == ST_FUNC);
-		if (symbol->func.defined == false) {
-			return true;
-		}
-	}
-	return false;
-}
-
 bool symbol_func_add_param(symbol_ref_t symbol_ref, data_type_t data_type) {
 	assert(symbol_valid(symbol_ref));
 	assert(symbol_ref.symbol->type == ST_FUNC);
 
 	flist_t list = symbol_ref.symbol->func.param_list;
 	symbol_ref.symbol->func.param_count++;
-	return flist_push_front(list, &data_type);
+	return flist_push_back(list, &data_type);
 }
 
 bool symbol_func_add_return(symbol_ref_t symbol_ref, data_type_t data_type) {
@@ -207,7 +191,7 @@ bool symbol_func_add_return(symbol_ref_t symbol_ref, data_type_t data_type) {
 
 	flist_t list = symbol_ref.symbol->func.return_list;
 	symbol_ref.symbol->func.return_count++;
-	return flist_push_front(list, &data_type);
+	return flist_push_back(list, &data_type);
 }
 
 void symbol_var_set_data(symbol_ref_t symbol_ref, sym_var_t sym_var_data) {

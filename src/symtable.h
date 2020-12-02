@@ -52,7 +52,6 @@ typedef struct
 	flist_t param_list;
 	unsigned int return_count;
 	flist_t return_list;
-	bool defined;
 } sym_func_t;
 
 /**
@@ -138,13 +137,6 @@ symbol_ref_t symtable_find(symtable_t symtable, token_t id_token);
  * @return	a reference to the inserted symbol, must be checked with symbol_valid() for allocation errors
 */
 symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_t symbol_type);
-
-/**
- * @brief	checks if there are any undefined functions
- * @param	symtable 
- * @return	true if there is an undefined function, false if all functions are defined
-*/
-bool symtable_undefined_funcs(symtable_t symtable);
 
 /**
  * @brief	Add a parameter to the functions parameter list

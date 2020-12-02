@@ -11,6 +11,11 @@
 #include "tokens.h"
 #include "symtable.h"
 
+typedef struct semantics
+{
+	symbol_ref_t func;
+} semantics_t;
+
 typedef struct parser
 {
 	symtable_t symtable;
@@ -19,6 +24,7 @@ typedef struct parser
 	token_t token;
 	token_t token_second;
 	bool first_pass;
+	semantics_t sem;
 } * parser_t;
 
 /**

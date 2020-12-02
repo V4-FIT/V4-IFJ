@@ -3,26 +3,27 @@
 
 #include <stdbool.h>
 #include "error.h"
+
 ////// Macros
 
 #define TOKEN_TYPE parser->token->type
 #define TOKEN_SECOND_TYPE parser->token_second->type
 
+// Ends the first pass by skipping all the tokens until the next function
 #define FIRST_PASS_END()                                                 \
 	do {                                                                 \
 		if (parser->first_pass) {                                        \
 			while (TOKEN_TYPE != TK_KEYW_FUNC && TOKEN_TYPE != TK_EOF) { \
 				TK_NEXT();                                               \
 			}                                                            \
+			SEM_EXIT_SCOPE();                                            \
 			return EXIT_SUCCESS;                                         \
 		}                                                                \
 	} while (0)
 
 //// Terminals
 
-/**
-* Get next token from the parser and check for error
-*/
+// Get the next token and token_second
 #define TK_NEXT()                                            \
 	do {                                                     \
 		parser->token = parser->token_second;                \
@@ -33,9 +34,8 @@
 		}                                                    \
 	} while (0)
 
-/**
- * Get next token from the parser if current token is equal to _TOKEN
- */
+
+// Get next token from the parser if current token is equal to _TOKEN
 #define TK_MATCH(...)                                        \
 	do {                                                     \
 		token_type_t _TKS[] = {__VA_ARGS__};                 \
@@ -53,9 +53,9 @@
 			TK_NEXT();                                       \
 		}                                                    \
 	} while (0)
-/**
-* Check syntax against current token
-*/
+
+
+// Check syntax against current token
 #define TK_TEST(...)                                         \
 	do {                                                     \
 		token_type_t _TKS[] = {__VA_ARGS__};                 \
@@ -72,6 +72,7 @@
 		}                                                    \
 	} while (0)
 
+// Get next token and skip TK_EOLs when possible
 #define TK_PREC_NEXT()                        \
 	do {                                      \
 		switch (TOKEN_TYPE) {                 \
@@ -101,6 +102,7 @@
 
 //// Non-terminals
 
+// Execute a grammar rule and check for errors
 #define EXECUTE_RULE(_RULEFUNC)      \
 	do {                             \
 		int ret = _RULEFUNC(parser); \
@@ -111,22 +113,24 @@
 
 //// Semantics
 
-#define SEM_DEFINE_FUNC()                                                       \
-	do {                                                                        \
-		symbol_ref_t symbol = symtable_find(parser->symtable, parser->token);   \
-		if (symbol_valid(symbol)) {                                             \
-			if (symbol.symbol->func.defined) {                                  \
-				return ERROR_DEFINITION; /*redefinition*/                       \
-			} else {                                                            \
-				symbol.symbol->func.defined = true;                             \
-			}                                                                   \
-		} else {                                                                \
-			symbol = symtable_insert(parser->symtable, parser->token, ST_FUNC); \
-			if (!symbol_valid(symbol)) {                                        \
-				return ERROR_MISC; /*allocation error*/                         \
-			}                                                                   \
-			symbol.symbol->func.defined = true;                                 \
-		}                                                                       \
+// Execute a semantic action and check for semantic errors
+#define SEM_CHECK(_SEM_FUNC)         \
+	do {                             \
+		int ret = _SEM_FUNC(parser); \
+		if (ret != EXIT_SUCCESS) {   \
+			return ret;              \
+		}                            \
 	} while (0)
+
+// Creates a new scope for storing symbols
+#define SEM_ENTER_SCOPE()                              \
+	do {                                               \
+		if (!symtable_enter_scope(parser->symtable)) { \
+			return ERROR_MISC;                         \
+		}                                              \
+	} while (0)
+
+// Exits the current scope
+#define SEM_EXIT_SCOPE() symtable_exit_scope(parser->symtable)
 
 #endif // !IFJ_RULEMACROS_H
