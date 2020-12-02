@@ -67,7 +67,6 @@ int rule_program(parser_t parser) {
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_functions);
 	EXECUTE_RULE(rule_eol_opt_n);
-
 	TK_TEST(TK_EOF);
 	return EXIT_SUCCESS;
 }
@@ -122,7 +121,6 @@ int rule_function(parser_t parser) {
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
-	TK_MATCH(TK_EOL);
 	SEM_EXIT_SCOPE();
 
 	return EXIT_SUCCESS;
