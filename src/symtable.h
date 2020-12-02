@@ -27,11 +27,11 @@ typedef enum
 */
 typedef enum
 {
+	DT_UNDEFINED,
 	DT_INTEGER,
 	DT_FLOAT64,
 	DT_STRING,
-	DT_BOOL,
-	DT_UNDEFINED
+	DT_BOOL
 } data_type_t;
 
 /**

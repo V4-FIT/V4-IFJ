@@ -167,9 +167,11 @@ int rule_param(parser_t parser) {
 	//						| id int
 	//						| id string
 	//						| id bool .
-	TK_MATCH(TK_IDENTIFIER);
+	TK_TEST(TK_IDENTIFIER);
+	SEM_CHECK(sem_func_declare_param);
+	TK_NEXT();
 	TK_TEST(TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
-	SEM_CHECK(sem_func_add_param);
+	SEM_CHECK(sem_func_add_param_type);
 	TK_NEXT();
 	return EXIT_SUCCESS;
 }
@@ -224,7 +226,7 @@ int rule_typename(parser_t parser) {
 	//						| string
 	//						| bool .
 	TK_TEST(TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
-	SEM_CHECK(sem_func_add_return);
+	SEM_CHECK(sem_func_add_return_type);
 	TK_NEXT();
 	return EXIT_SUCCESS;
 }

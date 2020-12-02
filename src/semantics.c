@@ -17,7 +17,33 @@ int sem_define_func(parser_t parser) {
 	return EXIT_SUCCESS;
 }
 
-int sem_func_add_param(parser_t parser) {
+int sem_func_declare_param(parser_t parser) {
+	if (!parser->first_pass) {
+		symbol_ref_t symbol = symtable_insert(parser->symtable, parser->token, ST_VAR);
+		if (!symbol_valid(symbol)) {
+			return ERROR_MISC;
+		}
+		sym_var_t var_data = {0};
+		switch (parser->token_second->type) {
+			case TK_KEYW_FLOAT64:
+				var_data.data_type = DT_FLOAT64;
+				break;
+			case TK_KEYW_INT:
+				var_data.data_type = DT_INTEGER;
+				break;
+			case TK_KEYW_STRING:
+				var_data.data_type = DT_STRING;
+				break;
+			case TK_KEYW_BOOL:
+				var_data.data_type = DT_BOOL;
+				break;
+		}
+		symbol_var_set_data(symbol, var_data);
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_func_add_param_type(parser_t parser) {
 	bool success = true;
 	if (parser->first_pass) {
 		switch (parser->token->type) {
@@ -38,7 +64,7 @@ int sem_func_add_param(parser_t parser) {
 	return success ? EXIT_SUCCESS : ERROR_MISC;
 }
 
-int sem_func_add_return(parser_t parser) {
+int sem_func_add_return_type(parser_t parser) {
 	bool success = true;
 	if (parser->first_pass) {
 		switch (parser->token->type) {
