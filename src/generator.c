@@ -298,7 +298,11 @@ void gen_var_define(const char *identifier) {
  * Pushes the literal/variable onto the stack for further computation
  * @param token literal or identifier token
  */
-void gen_var_literal(token_t token) {
+void gen_var_load(token_t token) {
+	if (token == NULL) {
+		return;
+	}
+
 	push_token(token);
 }
 
