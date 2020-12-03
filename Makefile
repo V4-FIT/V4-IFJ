@@ -42,7 +42,7 @@ pack/Makefile: Makefile.template $(PACK_DIR)
 	sed -i "s/TMPLT_SRCS/$(shell find $(PACK_DIR) -type f -name '*.c' -exec basename {} \;)/g" $@
 	sed -i "s/TMPLT_INCL/$(shell find $(PACK_DIR) -type f -name '*.h' -exec basename {} \;)/g" $@
 
-$(PACK_DIR): $(SOURCELIST)
+$(PACK_DIR): $(SOURCELIST) rozdeleni rozsireni
 	mkdir -p $@
 	cp $^ $@
 
