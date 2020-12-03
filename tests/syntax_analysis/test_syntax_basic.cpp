@@ -17,8 +17,9 @@ TEST_F(SyntaxTest, prolog_incomplete) {
 
 // PROLOG -> package main eol
 TEST_F(SyntaxTest, prolog_complete) {
-	// missing keyword main, EXPECT SYNTAX ERROR
 	PROLOG;
+	OPENFUN("main");
+	CLOSEFUN;
 	TESTVAL(EXIT_SUCCESS);
 }
 
@@ -134,7 +135,10 @@ TEST_F(SyntaxTest, params_empty) {
 // func main (foo int)() {\n}
 TEST_F(SyntaxTest, params) {
 	PROLOG;
-	fprintf(stream, "func main (foo int) (){\n");
+	fprintf(stream, "func fun (foo int) (){\n");
+	CLOSEFUN;
+
+	OPENFUN("main");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -152,7 +156,10 @@ TEST_F(SyntaxTest, params_inclomplete) {
 // func main (foo float64, bar string) () {\n}
 TEST_F(SyntaxTest, params2) {
 	PROLOG;
-	fprintf(stream, "func main (foo float64, bar string) () {\n");
+	fprintf(stream, "func fun (foo float64, bar string) () {\n");
+	CLOSEFUN;
+
+	OPENFUN("main");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -161,7 +168,10 @@ TEST_F(SyntaxTest, params2) {
 // func main (foo float64,\n bar string) () {\n}
 TEST_F(SyntaxTest, params_eol) {
 	PROLOG;
-	fprintf(stream, "func main (foo float64,\n bar bool) () {\n");
+	fprintf(stream, "func fun (foo float64,\n bar bool) () {\n");
+	CLOSEFUN;
+
+	OPENFUN("main");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -232,7 +242,10 @@ TEST_F(SyntaxTest, return_vals_incomplete) {
 // func main () (int, string, float64, bool) {\n}
 TEST_F(SyntaxTest, return_vals) {
 	PROLOG;
-	fprintf(stream, "func main () (int, string, float64, bool) {\n");
+	fprintf(stream, "func foo () (int, string, float64, bool) {\n");
+	CLOSEFUN;
+
+	OPENFUN("main");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -251,7 +264,10 @@ TEST_F(SyntaxTest, return_val_eol) {
 // func main () (int, \n float64) {\n}
 TEST_F(SyntaxTest, return_val_eol2) {
 	PROLOG;
-	fprintf(stream, "func main () (int, \n float64) {\n");
+	fprintf(stream, "func foo () (int, \n float64) {\n");
+	CLOSEFUN;
+
+	OPENFUN("main");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -495,6 +511,9 @@ TEST_F(SyntaxTest, fun_call_no_args) {
 	fprintf(stream, "foo()\n");
 	CLOSEFUN;
 
+	fprintf(stream, "func foo () {\n");
+	CLOSEFUN;
+
 	TESTVAL(EXIT_SUCCESS);
 }
 
@@ -503,6 +522,9 @@ TEST_F(SyntaxTest, fun_call_arg) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "foo(\"Hello world\")\n");
+	CLOSEFUN;
+
+	fprintf(stream, "func foo (v1 string) () {\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -515,6 +537,9 @@ TEST_F(SyntaxTest, fun_call_args) {
 	fprintf(stream, "foo(2, \"Hello world\", 1.234, true, bar )\n");
 	CLOSEFUN;
 
+	fprintf(stream, "func foo (v1 int, v2 string, v3 float64, v4 bool, v5 int) () {\n");
+	CLOSEFUN;
+
 	TESTVAL(EXIT_SUCCESS);
 }
 
@@ -523,6 +548,9 @@ TEST_F(SyntaxTest, fun_call_eol) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "foo(\n 2, true, bar )\n");
+	CLOSEFUN;
+
+	fprintf(stream, "func foo (v1 int, v2 bool, v3 int) {\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -535,6 +563,9 @@ TEST_F(SyntaxTest, fun_call_eol2) {
 	fprintf(stream, "foo(2,\n true,\n bar)\n");
 	CLOSEFUN;
 
+	fprintf(stream, "func foo (v1 int, v2 bool, v3 int) {\n");
+	CLOSEFUN;
+
 	TESTVAL(EXIT_SUCCESS);
 }
 
@@ -543,6 +574,9 @@ TEST_F(SyntaxTest, fun_call_eol3) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "foo(\n 2,\n true,\n bar\n)\n");
+	CLOSEFUN;
+
+	fprintf(stream, "func foo (v1 int, v2 bool, v3 int) {\n");
 	CLOSEFUN;
 
 	TESTVAL(ERROR_SYN);
@@ -572,6 +606,9 @@ TEST_F(SyntaxTest, ass_fun_call) {
 	fprintf(stream, "i = foo(\"Hello world\")");
 	CLOSEFUN;
 
+	fprintf(stream, "func foo (bar string) {\n");
+	CLOSEFUN;
+
 	TESTVAL(EXIT_SUCCESS);
 }
 
@@ -582,6 +619,9 @@ TEST_F(SyntaxTest, ass_fun_call2) {
 	fprintf(stream, "i, j, k, l, m = foo(2, \"Hello world\", 1.234, true, bar)");
 	CLOSEFUN;
 
+	fprintf(stream, "func foo (v1 int, v2 string, v3 float64, v4 bool, v5 int) (int,int,int,int,int) {\n");
+	CLOSEFUN;
+
 	TESTVAL(EXIT_SUCCESS);
 }
 
@@ -589,7 +629,10 @@ TEST_F(SyntaxTest, ass_fun_call2) {
 TEST_F(SyntaxTest, ass_fun_call3) {
 	PROLOG;
 	OPENFUN("main");
-	fprintf(stream, "i, j, k += foo(\n 2, true, bar)");
+	fprintf(stream, "i, j, k = foo(\n 2, true, bar)");
+	CLOSEFUN;
+
+	fprintf(stream, "func foo (v1 int, v2 bool, v3 int) (int,int,int) {\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -600,6 +643,9 @@ TEST_F(SyntaxTest, ass_fun_call4) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "i, j, k = foo(2,\n true,\n bar)");
+	CLOSEFUN;
+
+	fprintf(stream, "func foo (v1 int, v2 bool, v3 int) (int,int,int) {\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
