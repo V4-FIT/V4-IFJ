@@ -86,6 +86,7 @@ struct token
 {
 	token_type_t type;
 	tk_param_t param;
+	int line_number;
 };
 
 typedef struct token *token_t;

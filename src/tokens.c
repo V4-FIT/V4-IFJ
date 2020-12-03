@@ -120,7 +120,7 @@ token_t token_copy(token_t token_to_copy) {
 		new_token->param = token_to_copy->param;
 	}
 	new_token->type = token_to_copy->type;
-
+	new_token->line_number = token_to_copy->line_number;
 	return new_token;
 }
 
