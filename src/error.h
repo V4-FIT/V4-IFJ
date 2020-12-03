@@ -19,14 +19,14 @@ enum CompilerErrors
 	ERROR_MISC = 99,       ///< internal errors such as allocation error
 };
 
-#define ERROR_MSG(msg_format, ...)            \
+#define ERROR_MSG(...)            \
 	fprintf(stderr, "ERROR - ");              \
-	fprintf(stderr, msg_format, __VA_ARGS__); \
+	fprintf(stderr, __VA_ARGS__); \
 	fprintf(stderr, "\n")
 
-#define PARSER_ERROR_MSG(msg_format, ...)                              \
+#define PARSER_ERROR_MSG(...)                              \
 	fprintf(stderr, "ERROR (line %d) - ", parser->token->line_number); \
-	fprintf(stderr, msg_format, __VA_ARGS__);                          \
+	fprintf(stderr, __VA_ARGS__);                          \
 	fprintf(stderr, "\n")
 
 #define ALLOCATION_ERROR_MSG() fprintf(stderr, "ERROR - Allocation failed\n")
