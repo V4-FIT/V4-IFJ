@@ -19,13 +19,12 @@ public:
 	tklist_t tklist;
 
 	void SetUp(const std::string &path, const std::string &filename) {
+		tklist = tklist_init();
 		std::string filepath = path + "/" + filename;
 		stream = fopen(filepath.c_str(), "r");
 		if (stream == nullptr) {
 			std::cout << "Non-existent file: " << std::filesystem::current_path().c_str() << "/" << filepath << std::endl;
-		}
-		tklist = tklist_init();
-		if (scanner_scan(stream, tklist) != EXIT_SUCCESS) {
+		} else if (scanner_scan(stream, tklist) != EXIT_SUCCESS) {
 			std::cout << "ERROR: Lexical analysis\n";
 		}
 	}

@@ -85,8 +85,10 @@ void tklist_clear(tklist_t tklist) {
 	while (tklist->head != tklist->tail) {
 		tklist_pop_front(tklist);
 	}
-	token_free(tklist_front(tklist));
-	flist_pop_front(tklist);
+	if (tklist->head) {
+		token_free(tklist_front(tklist));
+		flist_pop_front(tklist);
+	}
 }
 
 token_t tklist_get(tklist_iterator_t iterator) {
