@@ -43,6 +43,7 @@ static int rule_Arguments(parser_t parser);
 static int rule_Argument_n(parser_t parser);
 static int rule_Argument(parser_t parser);
 static int rule_return(parser_t parser);
+static int rule_expressions_opt(parser_t parser);
 static int rule_expressions(parser_t parser);
 static int rule_expression_n(parser_t parser);
 static int rule_expression(parser_t parser);
@@ -575,11 +576,24 @@ int rule_Argument(parser_t parser) {
 
 /// 34
 int rule_return(parser_t parser) {
-	// Return -> 			  return Expressions eol.
+	// Return -> 			  return Expressions_opt eol.
 	TK_MATCH(TK_KEYW_RETURN);
-	// TODO: expressions are optional because of functions with no returns
-	EXECUTE_RULE(rule_expressions);
+	EXECUTE_RULE(rule_expressions_opt);
 	TK_MATCH(TK_EOL);
+	return EXIT_SUCCESS;
+}
+
+
+int rule_expressions_opt(parser_t parser) {
+	// Expressions -> 	  	  Expression Expression_n
+	//						| eps .
+	switch (TOKEN_TYPE) {
+		case TK_EOL:
+			break;
+		default:
+			EXECUTE_RULE(rule_expressions);
+			break;
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -611,10 +625,7 @@ int rule_expression_n(parser_t parser) {
 
 /// 37
 int rule_expression(parser_t parser) {
-	// Expression -> 	  	  Term
-	//						| Term BinaryOp Term
-	//						| l_parenthesis Eol_opt Term r_parenthesis .
-	// TODO: expression shits and don't forget other shits that are kinda expression related
+	// Expression -> 	  	 expression .
 	return parse_expr(parser);
 }
 
