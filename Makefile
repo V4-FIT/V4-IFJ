@@ -35,7 +35,7 @@ pack-build: $(PACK_DIR) pack/Makefile
 	$(MAKE) -C $<
 
 zip: $(PACK_DIR) pack/Makefile
-	cd $< && zip ../$(ZIPFILE) *.c *.h Makefile
+	cd $< && zip ../$(ZIPFILE) *.c *.h Makefile rozdeleni rozsireni
 
 pack/Makefile: Makefile.template $(PACK_DIR)
 	cp $< $@
