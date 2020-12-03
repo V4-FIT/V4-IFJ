@@ -98,7 +98,7 @@ scanner_t scanner_init(FILE *stream) {
 	MAP_KEYWORD_TOKEN("bool", TK_KEYW_BOOL);
 
 	scanner->stream = stream;
-	scanner->line_number = 0;
+	scanner->line_number = 1;
 	return scanner;
 }
 
