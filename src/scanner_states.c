@@ -653,6 +653,8 @@ scanner_state_t s_hex_lit1(scanner_t scanner, int c) {
 			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
+	} else if (c == '_') {
+		return S_HEX_LIT_UNDERSCORE;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
@@ -708,6 +710,8 @@ scanner_state_t s_oct_lit1(scanner_t scanner, int c) {
 			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
+	} else if (c == '_') {
+		return S_OCT_LIT_UNDERSCORE;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
@@ -763,6 +767,8 @@ scanner_state_t s_bin_lit1(scanner_t scanner, int c) {
 			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
+	} else if (c == '_') {
+		return S_BIN_LIT_UNDERSCORE;
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
