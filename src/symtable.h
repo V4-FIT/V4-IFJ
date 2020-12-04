@@ -35,6 +35,11 @@ typedef enum
 } data_type_t;
 
 /**
+ * @brief	data_type_t to string map for printing error messages
+*/
+extern const char *dt2str_map[];
+
+/**
  * @brief	stored information about variables
 */
 typedef struct

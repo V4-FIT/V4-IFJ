@@ -167,6 +167,7 @@ scanner_state_t s_start(scanner_t scanner, int c) {
 scanner_state_t s_pipe(scanner_t scanner, int c) {
 	if (c == '|') {
 		get_tok(scanner)->type = TK_OR;
+		get_tok(scanner)->lexeme = "||";
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
@@ -177,6 +178,7 @@ scanner_state_t s_pipe(scanner_t scanner, int c) {
 scanner_state_t s_ampersand(scanner_t scanner, int c) {
 	if (c == '&') {
 		get_tok(scanner)->type = TK_AND;
+		get_tok(scanner)->lexeme = "&&";
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
@@ -187,6 +189,7 @@ scanner_state_t s_ampersand(scanner_t scanner, int c) {
 scanner_state_t s_colon(scanner_t scanner, int c) {
 	if (c == '=') {
 		get_tok(scanner)->type = TK_VAR_INIT;
+		get_tok(scanner)->lexeme = ":=";
 	} else {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
@@ -197,8 +200,10 @@ scanner_state_t s_colon(scanner_t scanner, int c) {
 scanner_state_t s_assign(scanner_t scanner, int c) {
 	if (c == '=') {
 		get_tok(scanner)->type = TK_EQUAL;
+		get_tok(scanner)->lexeme = "==";
 	} else {
 		get_tok(scanner)->type = TK_ASSIGN;
+		get_tok(scanner)->lexeme = "=";
 		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
@@ -207,8 +212,10 @@ scanner_state_t s_assign(scanner_t scanner, int c) {
 scanner_state_t s_less(scanner_t scanner, int c) {
 	if (c == '=') {
 		get_tok(scanner)->type = TK_LESS_EQUAL;
+		get_tok(scanner)->lexeme = "<=";
 	} else {
 		get_tok(scanner)->type = TK_LESS;
+		get_tok(scanner)->lexeme = "<";
 		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
@@ -217,8 +224,10 @@ scanner_state_t s_less(scanner_t scanner, int c) {
 scanner_state_t s_greater(scanner_t scanner, int c) {
 	if (c == '=') {
 		get_tok(scanner)->type = TK_GREATER_EQUAL;
+		get_tok(scanner)->lexeme = ">=";
 	} else {
 		get_tok(scanner)->type = TK_GREATER;
+		get_tok(scanner)->lexeme = ">";
 		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
@@ -227,8 +236,10 @@ scanner_state_t s_greater(scanner_t scanner, int c) {
 scanner_state_t s_not(scanner_t scanner, int c) {
 	if (c == '=') {
 		get_tok(scanner)->type = TK_NOT_EQUAL;
+		get_tok(scanner)->lexeme = "!=";
 	} else {
 		get_tok(scanner)->type = TK_NOT;
+		get_tok(scanner)->lexeme = "!";
 		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
@@ -237,8 +248,10 @@ scanner_state_t s_not(scanner_t scanner, int c) {
 scanner_state_t s_plus(scanner_t scanner, int c) {
 	if (c == '=') {
 		get_tok(scanner)->type = TK_PLUS_ASSIGN;
+		get_tok(scanner)->lexeme = "+=";
 	} else {
 		get_tok(scanner)->type = TK_PLUS;
+		get_tok(scanner)->lexeme = "+";
 		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
@@ -247,8 +260,10 @@ scanner_state_t s_plus(scanner_t scanner, int c) {
 scanner_state_t s_minus(scanner_t scanner, int c) {
 	if (c == '=') {
 		get_tok(scanner)->type = TK_MINUS_ASSIGN;
+		get_tok(scanner)->lexeme = "-=";
 	} else {
 		get_tok(scanner)->type = TK_MINUS;
+		get_tok(scanner)->lexeme = "-";
 		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
@@ -257,8 +272,10 @@ scanner_state_t s_minus(scanner_t scanner, int c) {
 scanner_state_t s_star(scanner_t scanner, int c) {
 	if (c == '=') {
 		get_tok(scanner)->type = TK_MULTIPLY_ASSIGN;
+		get_tok(scanner)->lexeme = "*=";
 	} else {
 		get_tok(scanner)->type = TK_MULTIPLY;
+		get_tok(scanner)->lexeme = "*";
 		ungetc(c, get_stream(scanner));
 	}
 	return S_END;
@@ -268,6 +285,7 @@ scanner_state_t s_slash(scanner_t scanner, int c) {
 	switch (c) {
 		case '=':
 			get_tok(scanner)->type = TK_DIVIDE_ASSIGN;
+			get_tok(scanner)->lexeme = "/=";
 			return S_END;
 		case '/':
 			return S_SL_COMMENT;
@@ -275,6 +293,7 @@ scanner_state_t s_slash(scanner_t scanner, int c) {
 			return S_ML_COMMENT1;
 		default:
 			get_tok(scanner)->type = TK_DIVIDE;
+			get_tok(scanner)->lexeme = "/";
 			ungetc(c, get_stream(scanner));
 			return S_END;
 	}
@@ -323,7 +342,7 @@ scanner_state_t s_str_lit(scanner_t scanner, int c) {
 			return S_ESCAPE_SEQ;
 		case '\"':
 			get_tok(scanner)->type = TK_STR_LIT;
-			get_tok(scanner)->param.s = charseq_data(get_charseq(scanner));
+			get_tok(scanner)->lexeme = charseq_data(get_charseq(scanner));
 			return S_END;
 		default:
 			if (c < ' ') { //includes all unprintables, EOL and EOF
@@ -418,6 +437,7 @@ scanner_state_t s_underscore(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_UNDERSCORE;
+		get_tok(scanner)->lexeme = "_";
 		return S_END;
 	}
 }
@@ -470,6 +490,7 @@ scanner_state_t s_zero(scanner_t scanner, int c) {
 				ungetc(c, get_stream(scanner));
 				get_tok(scanner)->type = TK_INT_LIT;
 				get_tok(scanner)->param.i = 0u;
+				get_tok(scanner)->lexeme = "0";
 				return S_END;
 			}
 	}
@@ -507,6 +528,7 @@ scanner_state_t s_dec_lit(scanner_t scanner, int c) {
 			} else {
 				ungetc(c, get_stream(scanner));
 				get_tok(scanner)->type = TK_INT_LIT;
+				get_tok(scanner)->lexeme = charseq_data(get_charseq(scanner));
 				if (!strto64bit(charseq_data(get_charseq(scanner)), &(get_tok(scanner)->param.i), 10)) {
 					get_tok(scanner)->type = TK_ERROR;
 					get_tok(scanner)->param.i = ERROR_LEX;
@@ -544,6 +566,7 @@ scanner_state_t s_float_sci_lit(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_FLOAT_LIT;
+		get_tok(scanner)->lexeme = charseq_data(get_charseq(scanner));
 		char *endptr;
 		get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
 		if (*endptr != '\0') {
@@ -577,6 +600,7 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 			} else {
 				ungetc(c, get_stream(scanner));
 				get_tok(scanner)->type = TK_FLOAT_LIT;
+				get_tok(scanner)->lexeme = charseq_data(get_charseq(scanner));
 				char *endptr;
 				get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
 				if (*endptr != '\0') {
@@ -650,6 +674,7 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
+		get_tok(scanner)->lexeme = charseq_data(get_charseq(scanner));
 		if (!strto64bit(charseq_data(get_charseq(scanner)), &(get_tok(scanner)->param.i), 16)) {
 			get_tok(scanner)->type = TK_ERROR;
 			get_tok(scanner)->param.i = ERROR_LEX;
@@ -704,6 +729,7 @@ scanner_state_t s_oct_lit2(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
+		get_tok(scanner)->lexeme = charseq_data(get_charseq(scanner));
 		if (!strto64bit(charseq_data(get_charseq(scanner)), &(get_tok(scanner)->param.i), 8)) {
 			get_tok(scanner)->type = TK_ERROR;
 			get_tok(scanner)->param.i = ERROR_LEX;
@@ -758,6 +784,7 @@ scanner_state_t s_bin_lit2(scanner_t scanner, int c) {
 	} else {
 		ungetc(c, get_stream(scanner));
 		get_tok(scanner)->type = TK_INT_LIT;
+		get_tok(scanner)->lexeme = charseq_data(get_charseq(scanner));
 		if (!strto64bit(charseq_data(get_charseq(scanner)), &(get_tok(scanner)->param.i), 2)) {
 			get_tok(scanner)->type = TK_ERROR;
 			get_tok(scanner)->param.i = ERROR_LEX;
@@ -796,13 +823,10 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 		hmap_iterator_t it = hmap_find(get_keyw_tok_map(scanner), charseq_data(get_charseq(scanner)));
 		if (hmap_it_eq(it, hmap_end(get_keyw_tok_map(scanner)))) { // not a keyword
 			get_tok(scanner)->type = TK_IDENTIFIER;
-			get_tok(scanner)->param.s = charseq_data(get_charseq(scanner));
 		} else { // keyword
 			get_tok(scanner)->type = *(token_type_t *)hmap_get_value(it);
-			if (get_tok(scanner)->type == TK_KEYW_MAIN) {
-				get_tok(scanner)->param.s = "main";
-			}
 		}
+		get_tok(scanner)->lexeme = charseq_data(get_charseq(scanner));
 		return S_END;
 	}
 

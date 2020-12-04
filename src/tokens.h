@@ -76,7 +76,6 @@ typedef enum
 
 typedef union
 {
-	const char *s;
 	int64_t i;
 	double f;
 } tk_param_t;
@@ -87,6 +86,7 @@ struct token
 	token_type_t type;
 	tk_param_t param;
 	int line_number;
+	const char *lexeme;
 };
 
 typedef struct token *token_t;

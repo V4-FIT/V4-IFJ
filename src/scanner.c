@@ -104,6 +104,7 @@ scanner_t scanner_init(FILE *stream) {
 
 token_t scanner_next_token(scanner_t scanner) {
 	charseq_clear(scanner->charseq);
+	scanner->token->lexeme = "";
 
 	scanner_state_t state = S_START;
 	while (state != S_END) {

@@ -7,7 +7,7 @@
 int sem_func_define(parser_t parser) {
 	if (parser->first_pass) {
 		if (symtable_has_func(parser->symtable, parser->token)) {
-			PARSER_ERROR_MSG("The function '%s' has already been defined.", parser->token->param.s);
+			PARSER_ERROR_MSG("The function '%s' has already been defined.", parser->token->lexeme);
 			return ERROR_DEFINITION;
 		} else {
 			symbol_ref_t symbol_ref = symtable_insert(parser->symtable, parser->token, ST_FUNC);
@@ -118,11 +118,11 @@ int sem_func_callable(parser_t parser) {
 		if (symbol_ref.symbol->type == ST_FUNC) {
 			parser->sem.func_call = symbol_ref;
 		} else {
-			PARSER_ERROR_MSG("The function is hidden by the variable '%s'", parser->token->param.s);
+			PARSER_ERROR_MSG("The function is hidden by the variable '%s'", parser->token->lexeme);
 			return ERROR_SEM;
 		}
 	} else {
-		PARSER_ERROR_MSG("The function '%s' has not been defined.", parser->token->param.s);
+		PARSER_ERROR_MSG("The function '%s' has not been defined.", parser->token->lexeme);
 		return ERROR_DEFINITION;
 	}
 	return EXIT_SUCCESS;
@@ -130,7 +130,7 @@ int sem_func_callable(parser_t parser) {
 
 int sem_main_defined(parser_t parser) {
 	if (parser->first_pass) {
-		struct token tk = {TK_IDENTIFIER, "main"};
+		struct token tk = { .type = TK_IDENTIFIER, .lexeme = "main"};
 		symbol_ref_t symbol_ref = symtable_find(parser->symtable, &tk);
 		if (symbol_valid(symbol_ref)) {
 			if (symbol_ref.symbol->func.param_count || symbol_ref.symbol->func.return_count) {
@@ -158,4 +158,15 @@ int sem_var_define(parser_t parser) {
 	}
 	parser->sem.var = symbol_ref;
 	return EXIT_SUCCESS;
+}
+
+int sem_var_check(parser_t parser) {
+	if (parser->token->type == TK_IDENTIFIER) {
+		symbol_ref_t symbol_ref = symtable_find(parser->symtable, parser->token);
+		if (!symbol_valid(symbol_ref)) {
+			PARSER_ERROR_MSG("Undefined: %s", parser->token->lexeme);
+			return ERROR_DEFINITION;
+		}
+	}
+	return 0;
 }

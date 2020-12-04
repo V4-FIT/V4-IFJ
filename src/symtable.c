@@ -22,6 +22,8 @@ hmap_t symtable_front(symtable_t symtable) {
 
 ////// Public
 
+const char *dt2str_map[] = {"undefined", "int", "float64", "string", "bool"};
+
 symtable_t symtable_init() {
 	symtable_t symtable = malloc(sizeof(struct symtable));
 	if (symtable == NULL) {
@@ -84,7 +86,7 @@ bool symtable_has_func(symtable_t symtable, token_t id_token) {
 	symbol_ref_t symbol_ref;
 	symbol_ref.symbol = NULL;
 	symbol_ref.symtable = symtable;
-	symbol_ref.it = hmap_find(symtable->global_table, id_token->param.s);
+	symbol_ref.it = hmap_find(symtable->global_table, id_token->lexeme);
 	if (hmap_it_valid(symbol_ref.it)) {
 		symbol_ref.symbol = hmap_get_value(symbol_ref.it);
 		if (symbol_ref.symbol->type == ST_FUNC) {
@@ -108,9 +110,9 @@ symbol_ref_t symtable_find(symtable_t symtable, token_t id_token) {
 	assert(symtable && id_token);
 	assert(!flist_empty(symtable->tables));
 	assert(id_token->type == TK_IDENTIFIER || id_token->type == TK_KEYW_MAIN);
-	assert(id_token->param.s);
+	assert(id_token->lexeme);
 
-	hmap_key_t key = id_token->param.s;
+	hmap_key_t key = id_token->lexeme;
 	symbol_ref_t symbol_ref;
 	symbol_ref.symbol = NULL;
 	symbol_ref.symtable = symtable;
@@ -130,9 +132,9 @@ symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_
 	assert(symtable && id_token);
 	assert(!flist_empty(symtable->tables));
 	assert(id_token->type == TK_IDENTIFIER || id_token->type == TK_KEYW_MAIN);
-	assert(id_token->param.s);
+	assert(id_token->lexeme);
 
-	const char *name = id_token->param.s;
+	const char *name = id_token->lexeme;
 	hmap_t hmap;
 	if (symbol_type == ST_FUNC) {
 		hmap = symtable->global_table;
