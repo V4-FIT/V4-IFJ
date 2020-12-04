@@ -40,7 +40,7 @@
 #define CHECK_RES()                \
 	do {                           \
 		if (res != EXIT_SUCCESS) { \
-			delete_stack(head);    \
+			stack_delete(head);    \
 			return res;            \
 		}                          \
 	} while (0)
@@ -48,13 +48,13 @@
 #define CHECK_TYPE()              \
 	do {                          \
 		if (type == PREC_ERROR) { \
-			delete_stack(head);   \
+			stack_delete(head);   \
 			return ERROR_MISC;    \
 		}                         \
 	} while (0)
 
 #define LOAD_NEXT()                               \
-	res = push_stack(&head, parser->token, type); \
+	res = stack_push(&head, parser->token, type); \
 	TK_PREC_NEXT();                               \
 	type = convert_type(head, parser->token);     \
 	CHECK_TYPE();                                 \
@@ -66,8 +66,8 @@
 
 typedef enum
 {
-	PREC_L_BR,       // (
-	PREC_R_BR,       // )
+	PREC_L_PARENTHESIS,       // (
+	PREC_R_PARENTHESIS,       // )
 	PREC_UNARY,      // +,-,!
 	PREC_MUL_DIV,    // *,/
 	PREC_PLUS_MINUS, // +,-

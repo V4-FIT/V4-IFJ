@@ -10,9 +10,9 @@
 static prec_token_type convert_type(prec_stack_t head, token_t t1);
 static int reduce(parser_t parser, prec_stack_t *head);
 // stack operations
-static int push_stack(prec_stack_t *head, token_t token, prec_token_type prec);
-static void pop_stack(prec_stack_t *head);
-static void delete_stack(prec_stack_t head);
+static int stack_push(prec_stack_t *head, token_t token, prec_token_type prec);
+static void stack_pop(prec_stack_t *head);
+static void stack_delete(prec_stack_t head);
 // reduction type checks
 static bool stack_term(prec_stack_t *head);
 static bool stack_un_term(prec_stack_t *head);
@@ -53,14 +53,14 @@ prec_token_type convert_type(prec_stack_t head, token_t t) {
 
 	switch (t->type) {
 		case TK_L_PARENTHESIS:
-			return PREC_L_BR;
+			return PREC_L_PARENTHESIS;
 		case TK_R_PARENTHESIS:
-			return PREC_R_BR;
+			return PREC_R_PARENTHESIS;
 		case TK_NOT:
 			return PREC_UNARY;
 		case TK_PLUS:
 		case TK_MINUS:
-			if (head->type == PREC_I || head->type == PREC_R_BR) {
+			if (head->type == PREC_I || head->type == PREC_R_PARENTHESIS) {
 				return PREC_PLUS_MINUS;
 			} else {
 				return PREC_UNARY;
@@ -92,13 +92,13 @@ prec_token_type convert_type(prec_stack_t head, token_t t) {
 	}
 }
 
-void pop_stack(prec_stack_t *head) {
+void stack_pop(prec_stack_t *head) {
 	prec_stack_t tmp = *head;
 	(*head) = (*head)->next;
 	free(tmp);
 }
 
-int push_stack(prec_stack_t *head, token_t token, prec_token_type type) {
+int stack_push(prec_stack_t *head, token_t token, prec_token_type type) {
 	prec_stack_t new = malloc(sizeof(struct Stack));
 	if (new == NULL) {
 		ALLOCATION_ERROR_MSG();
@@ -115,9 +115,9 @@ int push_stack(prec_stack_t *head, token_t token, prec_token_type type) {
 	return EXIT_SUCCESS;
 }
 
-void delete_stack(prec_stack_t head) {
+void stack_delete(prec_stack_t head) {
 	while (head != NULL) {
-		pop_stack(&head);
+		stack_pop(&head);
 	}
 }
 
@@ -136,11 +136,11 @@ bool stack_un_term(prec_stack_t *head) {
 }
 
 bool stack_lparenthesis_term_rparenthesis(prec_stack_t *head) {
-	return (*head)->type == PREC_R_BR &&
+	return (*head)->type == PREC_R_PARENTHESIS &&
 		   (*head)->next != NULL &&
 		   (*head)->next->type == PREC_I &&
 		   (*head)->next->next != NULL &&
-		   (*head)->next->next->type == PREC_L_BR;
+		   (*head)->next->next->type == PREC_L_PARENTHESIS;
 }
 
 bool stack_term_op_term(prec_stack_t *head) {
@@ -162,76 +162,76 @@ int rule_i(parser_t parser, prec_stack_t *head) {
 int rule_brackets(parser_t parser, prec_stack_t *head) {
 	// printf("E -> (E)\n");
 
-	pop_stack(head);
+	stack_pop(head);
 	token_t tk = (*head)->token;
-	pop_stack(head);
-	pop_stack(head);
+	stack_pop(head);
+	stack_pop(head);
 
-	push_stack(head, tk, PREC_I);
+	stack_push(head, tk, PREC_I);
 	(*head)->todo = false;
 	return EXIT_SUCCESS;
 }
 
 int rule_exit(parser_t parser, prec_stack_t *head) {
 	// printf("E -> $\n");
-	pop_stack(head); // remove E
+	stack_pop(head); // remove E
 	return EXIT_SUCCESS;
 }
 
 int rule_un(parser_t parser, prec_stack_t *head) {
 	// printf("E -> +-!E\n");
 	token_t tk = (*head)->token;
-	pop_stack(head);
-	pop_stack(head);
-	push_stack(head, tk, PREC_I);
+	stack_pop(head);
+	stack_pop(head);
+	stack_push(head, tk, PREC_I);
 	(*head)->todo = false;
 	return EXIT_SUCCESS;
 }
 
 int rule_mul_div(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E*/E\n");
-	pop_stack(head);
-	pop_stack(head);
+	stack_pop(head);
+	stack_pop(head);
 	(*head)->todo = false;
 	return EXIT_SUCCESS;
 }
 
 int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E+-E\n");
-	pop_stack(head);
-	pop_stack(head);
+	stack_pop(head);
+	stack_pop(head);
 	(*head)->todo = false;
 	return EXIT_SUCCESS;
 }
 
 int rule_rel(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E<>E\n");
-	pop_stack(head);
-	pop_stack(head);
+	stack_pop(head);
+	stack_pop(head);
 	(*head)->todo = false;
 	return EXIT_SUCCESS;
 }
 
 int rule_equal(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E==E\n");
-	pop_stack(head);
-	pop_stack(head);
+	stack_pop(head);
+	stack_pop(head);
 	(*head)->todo = false;
 	return EXIT_SUCCESS;
 }
 
 int rule_and(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E && E\n");
-	pop_stack(head);
-	pop_stack(head);
+	stack_pop(head);
+	stack_pop(head);
 	(*head)->todo = false;
 	return EXIT_SUCCESS;
 }
 
 int rule_or(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E || E\n");
-	pop_stack(head);
-	pop_stack(head);
+	stack_pop(head);
+	stack_pop(head);
 	(*head)->todo = false;
 	return EXIT_SUCCESS;
 }
@@ -292,14 +292,14 @@ int parse_expr(parser_t parser) {
 				LOAD_NEXT();
 				break;
 			case EMPT: // empty means error
-				delete_stack(head);
+				stack_delete(head);
 				return ERROR_SYN;
 		}
 	} while (!(type == PREC_DOLLAR && head->type == PREC_I && !head->todo && head->next->type == PREC_DOLLAR));
 
 	// clear stack and exit
 	rule_exit(parser, &head);
-	delete_stack(head);
+	stack_delete(head);
 
 	return EXIT_SUCCESS;
 }
