@@ -3,6 +3,8 @@
 
 #include "parser.h"
 
+typedef struct prec_stack *prec_stack_t;
+
 // pass1 - defines a functions and checks for redefinition
 int sem_func_define(parser_t parser);
 
@@ -29,5 +31,8 @@ int sem_var_define(parser_t parser);
 
 // check if variable has been defined
 int sem_var_check(parser_t parser);
+
+// check type compatibility around a binary operation
+int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head);
 
 #endif // !IFJ_SEMANTICS_H

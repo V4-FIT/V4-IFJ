@@ -38,16 +38,27 @@
 		}                                     \
 	} while (0);
 
+// check semantics in parse_expr
+#define SEM_PREC_CHECK(_SEM_FUNC)    \
+	do {                             \
+		int ret = _SEM_FUNC(parser); \
+		if (ret != EXIT_SUCCESS) {   \
+			stack_delete(head);      \
+			return ret;              \
+		}                            \
+	} while (0)
+
+// check semantics in reduction rules
+#define SEM_PREC_RULE_CHECK(_SEM_FUNC)     \
+	do {                                   \
+		int ret = _SEM_FUNC(parser, head); \
+		if (ret != EXIT_SUCCESS) {         \
+			return ret;                    \
+		}                                  \
+	} while (0)
+
 // don't acount for E in stack head
 #define HEAD() (head->type == PREC_I && head->todo == false && head->next->type != PREC_UNARY ? head->next : head)
-
-#define CHECK_RES()                \
-	do {                           \
-		if (res != EXIT_SUCCESS) { \
-			stack_delete(head);    \
-			return res;            \
-		}                          \
-	} while (0)
 
 #define CHECK_TYPE()              \
 	do {                          \
@@ -57,16 +68,26 @@
 		}                         \
 	} while (0)
 
-#define LOAD_NEXT()                                                      \
-	res = stack_push(&head, parser->token, type, get_data_type(parser)); \
-	TK_PREC_NEXT();                                                      \
-	type = convert_type(head, parser->token);                            \
-	CHECK_TYPE();                                                        \
-	CHECK_RES()
+#define LOAD_NEXT()                                                              \
+	do {                                                                         \
+		int ret = stack_push(&head, parser->token, type, get_data_type(parser)); \
+		if (ret != EXIT_SUCCESS) {                                               \
+			stack_delete(head);                                                  \
+			return ret;                                                          \
+		}                                                                        \
+		TK_PREC_NEXT();                                                          \
+		type = convert_type(head, parser->token);                                \
+		CHECK_TYPE();                                                            \
+	} while (0)
 
-#define REDUCE()                 \
-	res = reduce(parser, &head); \
-	CHECK_RES()
+#define REDUCE()                         \
+	do {                                 \
+		int ret = reduce(parser, &head); \
+		if (ret != EXIT_SUCCESS) {       \
+			stack_delete(head);          \
+			return ret;                  \
+		}                                \
+	} while (0)
 
 typedef enum
 {

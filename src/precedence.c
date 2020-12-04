@@ -230,6 +230,7 @@ int rule_un(parser_t parser, prec_stack_t *head) {
 
 int rule_mul_div(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E*/E\n");
+	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->todo = false;
@@ -238,15 +239,7 @@ int rule_mul_div(parser_t parser, prec_stack_t *head) {
 
 int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E+-E\n");
-	if (STACK_FIRST->data_type != STACK_THIRD->data_type) {
-		PARSER_ERROR_MSG("Invalid operation: %s %s %s (mismatched types %s and %s)",
-						 STACK_THIRD->token->lexeme,
-						 STACK_SECOND->token->lexeme,
-						 STACK_FIRST->token->lexeme,
-						 dt2str_map[STACK_THIRD->data_type],
-						 dt2str_map[STACK_FIRST->data_type]);
-		return ERROR_TYPE_COMPAT;
-	}
+	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->todo = false;
@@ -255,6 +248,7 @@ int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 
 int rule_rel(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E<>E\n");
+	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->todo = false;
@@ -263,6 +257,7 @@ int rule_rel(parser_t parser, prec_stack_t *head) {
 
 int rule_equal(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E==E\n");
+	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->todo = false;
@@ -319,10 +314,8 @@ int parse_expr(parser_t parser) {
 		ALLOCATION_ERROR_MSG();
 		return ERROR_MISC;
 	}
-	// parse
-	int res;
-	res = sem_var_check(parser);
-	CHECK_RES();
+
+	SEM_PREC_CHECK(sem_var_check);
 	prec_token_type type = convert_type(head, parser->token);
 	CHECK_TYPE();
 	do {
@@ -330,16 +323,14 @@ int parse_expr(parser_t parser) {
 			case OPEN:
 				head->todo = true;
 				LOAD_NEXT();
-				res = sem_var_check(parser);
-				CHECK_RES();
+				SEM_PREC_CHECK(sem_var_check);
 				break;
 			case CLOS:
 				REDUCE(); // expect to be able to reduce one
 				break;
 			case EQUA:
 				LOAD_NEXT();
-				res = sem_var_check(parser);
-				CHECK_RES();
+				SEM_PREC_CHECK(sem_var_check);
 				break;
 			case EMPT: // empty means error
 				stack_delete(head);
