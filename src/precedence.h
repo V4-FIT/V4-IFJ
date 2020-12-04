@@ -97,7 +97,7 @@ typedef enum
 	PREC_MUL_DIV,       // *,/
 	PREC_PLUS_MINUS,    // +,-
 	PREC_RELATION,      // <, <=, >, >=
-	PREC_EQUAL,         // ==, !=
+	PREC_EQUALITY,         // ==, !=
 	PREC_AND,           // &&
 	PREC_OR,            // ||
 	PREC_I,             // id, string/int/float/bool literal

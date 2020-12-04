@@ -32,10 +32,10 @@ bool dpda_finished(prec_token_type type, prec_stack_t head);
 static int rule_i(parser_t parser, prec_stack_t *head);
 static int rule_brackets(parser_t parser, prec_stack_t *head);
 static int rule_exit(parser_t parser, prec_stack_t *head);
-static int rule_un(parser_t parser, prec_stack_t *head);
+static int rule_unary(parser_t parser, prec_stack_t *head);
 static int rule_mul_div(parser_t parser, prec_stack_t *head);
-static int rule_rel(parser_t parser, prec_stack_t *head);
-static int rule_equal(parser_t parser, prec_stack_t *head);
+static int rule_relation(parser_t parser, prec_stack_t *head);
+static int rule_equality(parser_t parser, prec_stack_t *head);
 static int rule_and(parser_t parser, prec_stack_t *head);
 static int rule_or(parser_t parser, prec_stack_t *head);
 
@@ -85,7 +85,7 @@ prec_token_type convert_type(prec_stack_t head, token_t t) {
 			return PREC_RELATION;
 		case TK_EQUAL:
 		case TK_NOT_EQUAL:
-			return PREC_EQUAL;
+			return PREC_EQUALITY;
 		case TK_AND:
 			return PREC_AND;
 		case TK_OR:
@@ -228,7 +228,7 @@ int rule_exit(parser_t parser, prec_stack_t *head) {
 	return EXIT_SUCCESS;
 }
 
-int rule_un(parser_t parser, prec_stack_t *head) {
+int rule_unary(parser_t parser, prec_stack_t *head) {
 	// printf("E -> +-!E\n");
 	token_t tk = (*head)->token;
 	data_type_t dt = (*head)->data_type;
@@ -257,7 +257,7 @@ int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 	return EXIT_SUCCESS;
 }
 
-int rule_rel(parser_t parser, prec_stack_t *head) {
+int rule_relation(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E<>E\n");
 	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
 	stack_pop(head);
@@ -266,7 +266,7 @@ int rule_rel(parser_t parser, prec_stack_t *head) {
 	return EXIT_SUCCESS;
 }
 
-int rule_equal(parser_t parser, prec_stack_t *head) {
+int rule_equality(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E==E\n");
 	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
 	stack_pop(head);
@@ -295,7 +295,7 @@ int reduce(parser_t parser, prec_stack_t *head) {
 	if (stack_term(head)) {
 		return rule_i(parser, head);
 	} else if (stack_un_term(head)) {
-		return rule_un(parser, head);
+		return rule_unary(parser, head);
 	} else if (stack_lparenthesis_term_rparenthesis(head)) {
 		return rule_brackets(parser, head);
 	} else if (stack_term_op_term(head)) {
@@ -305,9 +305,9 @@ int reduce(parser_t parser, prec_stack_t *head) {
 			case PREC_MUL_DIV:
 				return rule_mul_div(parser, head);
 			case PREC_RELATION:
-				return rule_rel(parser, head);
-			case PREC_EQUAL:
-				return rule_equal(parser, head);
+				return rule_relation(parser, head);
+			case PREC_EQUALITY:
+				return rule_equality(parser, head);
 			case PREC_AND:
 				return rule_and(parser, head);
 			case PREC_OR:
