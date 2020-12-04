@@ -6,6 +6,10 @@
 
 //// Macros
 
+#define STACK_FIRST (*head)
+#define STACK_SECOND (*head)->next
+#define STACK_THIRD (*head)->next->next
+
 // Get next token and skip TK_EOLs when possible
 #define TK_PREC_NEXT()                        \
 	do {                                      \

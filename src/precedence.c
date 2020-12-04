@@ -161,31 +161,31 @@ void stack_delete(prec_stack_t head) {
 // reduction type checks
 
 bool stack_term(prec_stack_t *head) {
-	return (*head)->todo &&
-		   (*head)->type == PREC_I;
+	return STACK_FIRST->todo &&
+		   STACK_FIRST->type == PREC_I;
 }
 
 bool stack_un_term(prec_stack_t *head) {
-	return (*head)->type == PREC_I &&
-		   (*head)->todo == false &&
-		   (*head)->next != NULL &&
-		   (*head)->next->type == PREC_UNARY;
+	return STACK_FIRST->type == PREC_I &&
+		   STACK_FIRST->todo == false &&
+		   STACK_SECOND != NULL &&
+		   STACK_SECOND->type == PREC_UNARY;
 }
 
 bool stack_lparenthesis_term_rparenthesis(prec_stack_t *head) {
-	return (*head)->type == PREC_R_PARENTHESIS &&
-		   (*head)->next != NULL &&
-		   (*head)->next->type == PREC_I &&
-		   (*head)->next->next != NULL &&
-		   (*head)->next->next->type == PREC_L_PARENTHESIS;
+	return STACK_FIRST->type == PREC_R_PARENTHESIS &&
+		   STACK_SECOND != NULL &&
+		   STACK_SECOND->type == PREC_I &&
+		   STACK_THIRD != NULL &&
+		   STACK_THIRD->type == PREC_L_PARENTHESIS;
 }
 
 bool stack_term_op_term(prec_stack_t *head) {
-	return (*head)->type == PREC_I &&
-		   (*head)->next != NULL &&
-		   (*head)->next->next != NULL &&
-		   (*head)->next->next->type == PREC_I &&
-		   (*head)->next->next->todo == true;
+	return STACK_FIRST->type == PREC_I &&
+		   STACK_SECOND != NULL &&
+		   STACK_SECOND->next != NULL &&
+		   STACK_THIRD->type == PREC_I &&
+		   STACK_THIRD->todo == true;
 }
 
 // grammar rules
@@ -283,7 +283,7 @@ int reduce(parser_t parser, prec_stack_t *head) {
 	} else if (stack_lparenthesis_term_rparenthesis(head)) {
 		return rule_brackets(parser, head);
 	} else if (stack_term_op_term(head)) {
-		switch ((*head)->next->type) {
+		switch (STACK_SECOND->type) {
 			case PREC_PLUS_MINUS:
 				return rule_plus_minus(parser, head);
 			case PREC_MUL_DIV:
