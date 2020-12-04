@@ -9,8 +9,10 @@
 ////// Forward declarations
 static prec_token_type convert_type(prec_stack_t head, token_t t1);
 static int reduce(parser_t parser, prec_stack_t *head);
+static data_type_t get_data_type(parser_t parser);
 // stack operations
-static int stack_push(prec_stack_t *head, token_t token, prec_token_type prec);
+static prec_stack_t stack_init();
+static int stack_push(prec_stack_t *head, token_t token, prec_token_type prec, data_type_t data_type);
 static void stack_pop(prec_stack_t *head);
 static void stack_delete(prec_stack_t head);
 // reduction type checks
@@ -92,14 +94,48 @@ prec_token_type convert_type(prec_stack_t head, token_t t) {
 	}
 }
 
+data_type_t get_data_type(parser_t parser) {
+	symbol_ref_t symbol_ref;
+	switch (TOKEN_TYPE) {
+		case TK_IDENTIFIER:
+			symbol_ref = symtable_find(parser->symtable, parser->token);
+			assert(symbol_valid(symbol_ref));
+			return symbol_ref.symbol->var.data_type;
+			break;
+		case TK_INT_LIT:
+			return DT_INTEGER;
+		case TK_FLOAT_LIT:
+			return DT_FLOAT64;
+		case TK_STR_LIT:
+			return DT_STRING;
+		case TK_KEYW_TRUE:
+		case TK_KEYW_FALSE:
+			return DT_BOOL;
+		default:
+			return DT_UNDEFINED;
+	}
+}
+
 void stack_pop(prec_stack_t *head) {
 	prec_stack_t tmp = *head;
 	(*head) = (*head)->next;
 	free(tmp);
 }
 
-int stack_push(prec_stack_t *head, token_t token, prec_token_type type) {
-	prec_stack_t new = malloc(sizeof(struct Stack));
+prec_stack_t stack_init() {
+	// init stack to $
+	prec_stack_t head = malloc(sizeof(struct prec_stack));
+	if (head == NULL) {
+		return NULL;
+	}
+	head->token = NULL;
+	head->type = PREC_DOLLAR;
+	head->next = NULL;
+	return head;
+}
+
+int stack_push(prec_stack_t *head, token_t token, prec_token_type type, data_type_t data_type) {
+	prec_stack_t new = malloc(sizeof(struct prec_stack));
 	if (new == NULL) {
 		ALLOCATION_ERROR_MSG();
 		return ERROR_MISC;
@@ -107,6 +143,7 @@ int stack_push(prec_stack_t *head, token_t token, prec_token_type type) {
 
 	new->token = token;
 	new->type = type;
+	new->data_type = data_type;
 	new->next = *head;
 	new->todo = true;
 
@@ -164,10 +201,11 @@ int rule_brackets(parser_t parser, prec_stack_t *head) {
 
 	stack_pop(head);
 	token_t tk = (*head)->token;
+	data_type_t dt = (*head)->data_type;
 	stack_pop(head);
 	stack_pop(head);
 
-	stack_push(head, tk, PREC_I);
+	stack_push(head, tk, PREC_I, dt);
 	(*head)->todo = false;
 	return EXIT_SUCCESS;
 }
@@ -181,9 +219,10 @@ int rule_exit(parser_t parser, prec_stack_t *head) {
 int rule_un(parser_t parser, prec_stack_t *head) {
 	// printf("E -> +-!E\n");
 	token_t tk = (*head)->token;
+	data_type_t dt = (*head)->data_type;
 	stack_pop(head);
 	stack_pop(head);
-	stack_push(head, tk, PREC_I);
+	stack_push(head, tk, PREC_I, dt);
 	(*head)->todo = false;
 	return EXIT_SUCCESS;
 }
@@ -265,15 +304,11 @@ int reduce(parser_t parser, prec_stack_t *head) {
 ///// Public
 
 int parse_expr(parser_t parser) {
-	// init stack to $
-	prec_stack_t head = malloc(sizeof(struct Stack));
+	prec_stack_t head = stack_init();
 	if (head == NULL) {
 		ALLOCATION_ERROR_MSG();
 		return ERROR_MISC;
 	}
-	head->token = NULL;
-	head->type = PREC_DOLLAR;
-	head->next = NULL;
 
 	// parse
 	int res;

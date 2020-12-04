@@ -53,11 +53,11 @@
 		}                         \
 	} while (0)
 
-#define LOAD_NEXT()                               \
-	res = stack_push(&head, parser->token, type); \
-	TK_PREC_NEXT();                               \
-	type = convert_type(head, parser->token);     \
-	CHECK_TYPE();                                 \
+#define LOAD_NEXT()                                                      \
+	res = stack_push(&head, parser->token, type, get_data_type(parser)); \
+	TK_PREC_NEXT();                                                      \
+	type = convert_type(head, parser->token);                            \
+	CHECK_TYPE();                                                        \
 	CHECK_RES()
 
 #define REDUCE()                 \
@@ -66,17 +66,17 @@
 
 typedef enum
 {
-	PREC_L_PARENTHESIS,       // (
-	PREC_R_PARENTHESIS,       // )
-	PREC_UNARY,      // +,-,!
-	PREC_MUL_DIV,    // *,/
-	PREC_PLUS_MINUS, // +,-
-	PREC_RELATION,   // <, <=, >, >=
-	PREC_EQUAL,      // ==, !=
-	PREC_AND,        // &&
-	PREC_OR,         // ||
-	PREC_I,          // id, string/int/float/bool literal
-	PREC_DOLLAR,     // eol?, eof, =
+	PREC_L_PARENTHESIS, // (
+	PREC_R_PARENTHESIS, // )
+	PREC_UNARY,         // +,-,!
+	PREC_MUL_DIV,       // *,/
+	PREC_PLUS_MINUS,    // +,-
+	PREC_RELATION,      // <, <=, >, >=
+	PREC_EQUAL,         // ==, !=
+	PREC_AND,           // &&
+	PREC_OR,            // ||
+	PREC_I,             // id, string/int/float/bool literal
+	PREC_DOLLAR,        // eol?, eof, =
 	PREC_ERROR
 } prec_token_type;
 
@@ -99,12 +99,13 @@ typedef enum
 
 // stack
 
-typedef struct Stack
+typedef struct prec_stack
 {
 	token_t token;
 	prec_token_type type;
 	bool todo;
-	struct Stack *next;
+	data_type_t data_type;
+	struct prec_stack *next;
 } * prec_stack_t;
 
 int parse_expr(parser_t parser);
