@@ -178,6 +178,8 @@ bool symbol_valid(symbol_ref_t symbol_ref);
 */
 bool symbol_current_scope(symbol_ref_t symbol_ref);
 
+
+
 /**
  * @brief	Delete all symbols and free the allocated memory
  * @param	symtable 

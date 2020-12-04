@@ -4,7 +4,7 @@
 #include "parser.h"
 
 // pass1 - defines a functions and checks for redefinition
-int sem_define_func(parser_t parser);
+int sem_func_define(parser_t parser);
 
 // pass2 - inserts function parameters into the symbol table
 int sem_func_declare_param(parser_t parser);
@@ -23,5 +23,8 @@ int sem_func_callable(parser_t parser);
 
 // check if the function main was defined and if done so with no parameters or returns
 int sem_main_defined(parser_t parser);
+
+// define variable in current scope and check for redefinition
+int sem_var_define(parser_t parser);
 
 #endif // !IFJ_SEMANTICS_H

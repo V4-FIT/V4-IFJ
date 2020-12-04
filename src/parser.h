@@ -26,6 +26,7 @@ typedef struct semantics
 {
 	symbol_ref_t func_cur;
 	symbol_ref_t func_call;
+	symbol_ref_t var;
 	stmt_types_t stmt;
 } semantics_t;
 

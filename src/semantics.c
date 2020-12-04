@@ -4,11 +4,11 @@
 
 #include "error.h"
 
-int sem_define_func(parser_t parser) {
+int sem_func_define(parser_t parser) {
 	if (parser->first_pass) {
 		if (symtable_has_func(parser->symtable, parser->token)) {
 			PARSER_ERROR_MSG("The function '%s' has already been defined.", parser->token->param.s);
-			return ERROR_DEFINITION; /*redefinition*/
+			return ERROR_DEFINITION;
 		} else {
 			symbol_ref_t symbol_ref = symtable_insert(parser->symtable, parser->token, ST_FUNC);
 			if (!symbol_valid(symbol_ref)) {
@@ -104,9 +104,9 @@ int sem_func_add_return_type(parser_t parser) {
 }
 
 int sem_func_has_return_stmt(parser_t parser) {
-	sym_func_t func = parser->sem.func_cur.symbol->func;
-	if (func.return_count > 0 && parser->sem.stmt != STMT_RETURN) {
-		ERROR_MSG("Missing return at the end of function '%s'", hmap_get_key(parser->sem.func_cur.it));
+	symbol_t *symbol = parser->sem.func_cur.symbol;
+	if (symbol->func.return_count > 0 && parser->sem.stmt != STMT_RETURN) {
+		ERROR_MSG("Missing return at the end of function '%s'", symbol->name);
 		return ERROR_PARAM;
 	}
 	return EXIT_SUCCESS;
@@ -142,5 +142,20 @@ int sem_main_defined(parser_t parser) {
 			return ERROR_DEFINITION;
 		}
 	}
+	return EXIT_SUCCESS;
+}
+
+int sem_var_define(parser_t parser) {
+	symbol_ref_t symbol_ref = symtable_find(parser->symtable, parser->token);
+	if (symbol_valid(symbol_ref) && symbol_current_scope(symbol_ref)) {
+		PARSER_ERROR_MSG("Symbol '%s' redefinition", symbol_ref.symbol->name);
+		return ERROR_DEFINITION;
+	}
+	symbol_ref = symtable_insert(parser->symtable, parser->token, ST_VAR);
+	if (!symbol_valid(symbol_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	parser->sem.var = symbol_ref;
 	return EXIT_SUCCESS;
 }

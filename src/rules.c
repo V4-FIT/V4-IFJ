@@ -103,20 +103,17 @@ int rule_function(parser_t parser) {
 	// Function -> 		  func id l_parenthesis Param_list r_parenthesis
 	//					  Return_list l_curly eol Eol_opt_n Statements r_curly eol .
 	TK_MATCH(TK_KEYW_FUNC);
-
 	TK_TEST(TK_IDENTIFIER, TK_KEYW_MAIN);
-	SEM_CHECK(sem_define_func);
+	SEM_CHECK(sem_func_define);
 	TK_NEXT();
-
 	TK_MATCH(TK_L_PARENTHESIS);
 	SEM_ENTER_SCOPE();
 	EXECUTE_RULE(rule_param_list);
 	TK_MATCH(TK_R_PARENTHESIS);
-
 	EXECUTE_RULE(rule_return_list);
-
-	FIRST_PASS_END();
-
+	/*************************/
+	/**/ FIRST_PASS_END(); /**/
+	/*************************/
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
 	SEM_STMT_SET(STMT_DEFAULT);
@@ -124,7 +121,6 @@ int rule_function(parser_t parser) {
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 	SEM_EXIT_SCOPE();
-
 	SEM_CHECK(sem_func_has_return_stmt);
 
 	return EXIT_SUCCESS;
@@ -300,9 +296,7 @@ int rule_def_ass_call(parser_t parser) {
 	// Def_Ass_Call ->	  	  Ids AssignOp Exprs_FunCall eol
 	//						| Id defineOp Expression eol .
 	if (TOKEN_SECOND_TYPE == TK_VAR_INIT) {
-		TK_MATCH(TK_IDENTIFIER); // TK_IDENTIFIER
-		TK_NEXT();               // TK_VAR_INIT;
-		EXECUTE_RULE(rule_expression);
+		EXECUTE_RULE(rule_var_define);
 	} else if (TOKEN_SECOND_TYPE == TK_L_PARENTHESIS) {
 		EXECUTE_RULE(rule_functionCall);
 	} else {
@@ -332,18 +326,11 @@ int rule_var_define_opt(parser_t parser) {
 
 int rule_var_define(parser_t parser) {
 	// Var_define -> 	  	  id defineOp Expression
-	//						| eps .
 	SEM_STMT_SET(STMT_DEFINE);
-	switch (TOKEN_TYPE) {
-		case TK_IDENTIFIER:
-			TK_NEXT();
-			TK_MATCH(TK_VAR_INIT);
-			EXECUTE_RULE(rule_expression);
-			break;
-		default:
-			// eps
-			break;
-	}
+	SEM_CHECK(sem_var_define);
+	TK_MATCH(TK_IDENTIFIER);
+	TK_MATCH(TK_VAR_INIT);
+	EXECUTE_RULE(rule_expression);
 	return EXIT_SUCCESS;
 }
 
