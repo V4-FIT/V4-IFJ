@@ -263,6 +263,7 @@ int rule_relation(parser_t parser, prec_stack_t *head) {
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
+	(*head)->data_type = DT_BOOL;
 	return EXIT_SUCCESS;
 }
 
@@ -272,6 +273,7 @@ int rule_equality(parser_t parser, prec_stack_t *head) {
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
+	(*head)->data_type = DT_BOOL;
 	return EXIT_SUCCESS;
 }
 
