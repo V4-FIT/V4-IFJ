@@ -5,10 +5,12 @@
 
 #include "parser.h"
 #include "rulemacros.h"
-#include "precedence.h"
 #include "semantics.h"
 
 ////// Forward declarations
+
+// defined in precedence.c
+int parse_expr(parser_t parser);
 
 static int rule_program(parser_t parser);
 static int rule_prolog(parser_t parser);
@@ -327,8 +329,9 @@ int rule_var_define_opt(parser_t parser) {
 int rule_var_define(parser_t parser) {
 	// Var_define -> 	  	  id defineOp Expression
 	SEM_STMT_SET(STMT_DEFINE);
+	TK_TEST(TK_IDENTIFIER);
 	SEM_CHECK(sem_var_define);
-	TK_MATCH(TK_IDENTIFIER);
+	TK_NEXT();
 	TK_MATCH(TK_VAR_INIT);
 	EXECUTE_RULE(rule_expression);
 	return EXIT_SUCCESS;
@@ -623,7 +626,8 @@ int rule_expression_n(parser_t parser) {
 /// 37
 int rule_expression(parser_t parser) {
 	// Expression -> 	  	 expression .
-	return parse_expr(parser);
+	EXECUTE_RULE(parse_expr);
+	return EXIT_SUCCESS;
 }
 
 /// 38

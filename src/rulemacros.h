@@ -59,34 +59,6 @@
 		TK_NEXT();            \
 	} while (0)
 
-// Get next token and skip TK_EOLs when possible
-#define TK_PREC_NEXT()                        \
-	do {                                      \
-		switch (TOKEN_TYPE) {                 \
-			case TK_L_PARENTHESIS:            \
-			case TK_PLUS:                     \
-			case TK_MINUS:                    \
-			case TK_MULTIPLY:                 \
-			case TK_DIVIDE:                   \
-			case TK_EQUAL:                    \
-			case TK_NOT_EQUAL:                \
-			case TK_LESS:                     \
-			case TK_GREATER:                  \
-			case TK_LESS_EQUAL:               \
-			case TK_GREATER_EQUAL:            \
-			case TK_OR:                       \
-			case TK_AND:                      \
-				TK_NEXT();                    \
-				EXECUTE_RULE(rule_eol_opt_n); \
-				break;                        \
-			case TK_EOL:                      \
-				break;                        \
-			default:                          \
-				TK_NEXT();                    \
-				break;                        \
-		}                                     \
-	} while (0);
-
 //// Non-terminals
 
 // Execute a grammar rule and check for errors

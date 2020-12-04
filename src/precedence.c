@@ -1,9 +1,33 @@
-#include <stdlib.h>
-
 #include "precedence.h"
+
+#include <stdlib.h>
+#include <assert.h>
+
 #include "error.h"
-#include "rulemacros.h"
 #include "rules.h"
+
+////// Forward declarations
+static prec_token_type convert_type(prec_stack_t head, token_t t1);
+static int reduce(parser_t parser, prec_stack_t *head);
+// stack operations
+static int push_stack(prec_stack_t *head, token_t token, prec_token_type prec);
+static void pop_stack(prec_stack_t *head);
+static void delete_stack(prec_stack_t head);
+// reduction type checks
+static bool stack_term(prec_stack_t *head);
+static bool stack_un_term(prec_stack_t *head);
+static bool stack_lparenthesis_term_rparenthesis(prec_stack_t *head);
+static bool stack_term_op_term(prec_stack_t *head);
+// rule definitions
+static int rule_i(parser_t parser, prec_stack_t *head);
+static int rule_brackets(parser_t parser, prec_stack_t *head);
+static int rule_exit(parser_t parser, prec_stack_t *head);
+static int rule_un(parser_t parser, prec_stack_t *head);
+static int rule_mul_div(parser_t parser, prec_stack_t *head);
+static int rule_rel(parser_t parser, prec_stack_t *head);
+static int rule_equal(parser_t parser, prec_stack_t *head);
+static int rule_and(parser_t parser, prec_stack_t *head);
+static int rule_or(parser_t parser, prec_stack_t *head);
 
 // stack operations
 
@@ -71,21 +95,17 @@ prec_token_type convert_type(prec_stack_t head, token_t t) {
 void pop_stack(prec_stack_t *head) {
 	prec_stack_t tmp = *head;
 	(*head) = (*head)->next;
-	if (tmp->token) {
-		token_free(tmp->token);
-	}
 	free(tmp);
-	tmp = NULL;
 }
 
 int push_stack(prec_stack_t *head, token_t token, prec_token_type type) {
 	prec_stack_t new = malloc(sizeof(struct Stack));
 	if (new == NULL) {
-		fprintf(stderr, "ERROR: malloc failed\n");
+		ALLOCATION_ERROR_MSG();
 		return ERROR_MISC;
 	}
 
-	new->token = token ? token_copy(token) : NULL;
+	new->token = token;
 	new->type = type;
 	new->next = *head;
 	new->todo = true;
@@ -101,126 +121,154 @@ void delete_stack(prec_stack_t head) {
 	}
 }
 
-// grammar rules
+// reduction type checks
 
-void rule_i(prec_stack_t *head) {
-	// printf("E -> i\n");
-	(*head)->todo = false;
+bool stack_term(prec_stack_t *head) {
+	return (*head)->todo &&
+		   (*head)->type == PREC_I;
 }
 
-void rule_brackets(prec_stack_t *head) {
+bool stack_un_term(prec_stack_t *head) {
+	return (*head)->type == PREC_I &&
+		   (*head)->todo == false &&
+		   (*head)->next != NULL &&
+		   (*head)->next->type == PREC_UNARY;
+}
+
+bool stack_lparenthesis_term_rparenthesis(prec_stack_t *head) {
+	return (*head)->type == PREC_R_BR &&
+		   (*head)->next != NULL &&
+		   (*head)->next->type == PREC_I &&
+		   (*head)->next->next != NULL &&
+		   (*head)->next->next->type == PREC_L_BR;
+}
+
+bool stack_term_op_term(prec_stack_t *head) {
+	return (*head)->type == PREC_I &&
+		   (*head)->next != NULL &&
+		   (*head)->next->next != NULL &&
+		   (*head)->next->next->type == PREC_I &&
+		   (*head)->next->next->todo == true;
+}
+
+// grammar rules
+
+int rule_i(parser_t parser, prec_stack_t *head) {
+	// printf("E -> i\n");
+	(*head)->todo = false;
+	return EXIT_SUCCESS;
+}
+
+int rule_brackets(parser_t parser, prec_stack_t *head) {
 	// printf("E -> (E)\n");
 
 	pop_stack(head);
+	token_t tk = (*head)->token;
 	pop_stack(head);
 	pop_stack(head);
 
-	push_stack(head, NULL, PREC_I);
+	push_stack(head, tk, PREC_I);
 	(*head)->todo = false;
+	return EXIT_SUCCESS;
 }
 
-void rule_exit(prec_stack_t *head) {
+int rule_exit(parser_t parser, prec_stack_t *head) {
 	// printf("E -> $\n");
 	pop_stack(head); // remove E
+	return EXIT_SUCCESS;
 }
 
-void rule_un(prec_stack_t *head) {
+int rule_un(parser_t parser, prec_stack_t *head) {
 	// printf("E -> +-!E\n");
+	token_t tk = (*head)->token;
 	pop_stack(head);
 	pop_stack(head);
-	push_stack(head, NULL, PREC_I);
+	push_stack(head, tk, PREC_I);
 	(*head)->todo = false;
+	return EXIT_SUCCESS;
 }
 
-void rule_mul_div(prec_stack_t *head) {
+int rule_mul_div(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E*/E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
+	return EXIT_SUCCESS;
 }
 
-void rule_plus_minus(prec_stack_t *head) {
+int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E+-E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
+	return EXIT_SUCCESS;
 }
 
-void rule_rel(prec_stack_t *head) {
+int rule_rel(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E<>E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
+	return EXIT_SUCCESS;
 }
 
-void rule_equal(prec_stack_t *head) {
+int rule_equal(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E==E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
+	return EXIT_SUCCESS;
 }
 
-void rule_and(prec_stack_t *head) {
+int rule_and(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E && E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
+	return EXIT_SUCCESS;
 }
 
-void rule_or(prec_stack_t *head) {
+int rule_or(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E || E\n");
 	pop_stack(head);
 	pop_stack(head);
 	(*head)->todo = false;
+	return EXIT_SUCCESS;
 }
 
-int reduce(prec_stack_t *head) {
-	if ((*head)->todo && (*head)->type == PREC_I) {
-		rule_i(head);
-		return EXIT_SUCCESS;
-	} else if ((*head)->type == PREC_I && (*head)->todo == false &&
-			   (*head)->next != NULL && (*head)->next->type == PREC_UNARY) {
-		rule_un(head);
-		return EXIT_SUCCESS;
-	} else if ((*head)->type == PREC_R_BR && (*head)->next != NULL &&
-			   (*head)->next->type == PREC_I && (*head)->next->next != NULL &&
-			   (*head)->next->next->type == PREC_L_BR) {
-		rule_brackets(head);
-		return EXIT_SUCCESS;
-	} else if ((*head)->type == PREC_I && (*head)->next != NULL &&
-			   (*head)->next->next != NULL && (*head)->next->next->type == PREC_I && (*head)->next->next->todo == true) {
-
+int reduce(parser_t parser, prec_stack_t *head) {
+	if (stack_term(head)) {
+		return rule_i(parser, head);
+	} else if (stack_un_term(head)) {
+		return rule_un(parser, head);
+	} else if (stack_lparenthesis_term_rparenthesis(head)) {
+		return rule_brackets(parser, head);
+	} else if (stack_term_op_term(head)) {
 		switch ((*head)->next->type) {
 			case PREC_PLUS_MINUS:
-				rule_plus_minus(head);
-				return EXIT_SUCCESS;
+				return rule_plus_minus(parser, head);
 			case PREC_MUL_DIV:
-				rule_mul_div(head);
-				return EXIT_SUCCESS;
+				return rule_mul_div(parser, head);
 			case PREC_RELATION:
-				rule_rel(head);
-				return EXIT_SUCCESS;
+				return rule_rel(parser, head);
 			case PREC_EQUAL:
-				rule_equal(head);
-				return EXIT_SUCCESS;
+				return rule_equal(parser, head);
 			case PREC_AND:
-				rule_and(head);
-				return EXIT_SUCCESS;
+				return rule_and(parser, head);
 			case PREC_OR:
-				rule_or(head);
-				return EXIT_SUCCESS;
-			default:
-				break;
+				return rule_or(parser, head);
 		}
 	}
 	return ERROR_SYN;
 }
 
+///// Public
+
 int parse_expr(parser_t parser) {
 	// init stack to $
 	prec_stack_t head = malloc(sizeof(struct Stack));
 	if (head == NULL) {
-		fprintf(stderr, "ERROR: malloc failed\n");
+		ALLOCATION_ERROR_MSG();
 		return ERROR_MISC;
 	}
 	head->token = NULL;
@@ -238,8 +286,7 @@ int parse_expr(parser_t parser) {
 				LOAD_NEXT();
 				break;
 			case CLOS:
-				res = reduce(&head); // expect to be able to reduce one
-				CHECK_RES();
+				REDUCE(); // expect to be able to reduce one
 				break;
 			case EQUA:
 				LOAD_NEXT();
@@ -251,7 +298,7 @@ int parse_expr(parser_t parser) {
 	} while (!(type == PREC_DOLLAR && head->type == PREC_I && !head->todo && head->next->type == PREC_DOLLAR));
 
 	// clear stack and exit
-	rule_exit(&head);
+	rule_exit(parser, &head);
 	delete_stack(head);
 
 	return EXIT_SUCCESS;

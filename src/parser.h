@@ -28,6 +28,7 @@ typedef struct semantics
 	symbol_ref_t func_call;
 	symbol_ref_t var;
 	stmt_types_t stmt;
+	data_type_t expression_type;
 } semantics_t;
 
 typedef struct parser

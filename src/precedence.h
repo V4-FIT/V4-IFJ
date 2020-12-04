@@ -2,6 +2,37 @@
 #define IFJ_PRECEDENCE_H
 
 #include "parser.h"
+#include "rulemacros.h"
+
+//// Macros
+
+// Get next token and skip TK_EOLs when possible
+#define TK_PREC_NEXT()                        \
+	do {                                      \
+		switch (TOKEN_TYPE) {                 \
+			case TK_L_PARENTHESIS:            \
+			case TK_PLUS:                     \
+			case TK_MINUS:                    \
+			case TK_MULTIPLY:                 \
+			case TK_DIVIDE:                   \
+			case TK_EQUAL:                    \
+			case TK_NOT_EQUAL:                \
+			case TK_LESS:                     \
+			case TK_GREATER:                  \
+			case TK_LESS_EQUAL:               \
+			case TK_GREATER_EQUAL:            \
+			case TK_OR:                       \
+			case TK_AND:                      \
+				TK_NEXT();                    \
+				EXECUTE_RULE(rule_eol_opt_n); \
+				break;                        \
+			case TK_EOL:                      \
+				break;                        \
+			default:                          \
+				TK_NEXT();                    \
+				break;                        \
+		}                                     \
+	} while (0);
 
 // don't acount for E in stack head
 #define HEAD() (head->type == PREC_I && head->todo == false && head->next->type != PREC_UNARY ? head->next : head)
@@ -29,6 +60,9 @@
 	CHECK_TYPE();                                 \
 	CHECK_RES()
 
+#define REDUCE()                 \
+	res = reduce(parser, &head); \
+	CHECK_RES()
 
 typedef enum
 {
@@ -72,28 +106,6 @@ typedef struct Stack
 	bool todo;
 	struct Stack *next;
 } * prec_stack_t;
-
-
-prec_token_type convert_type(prec_stack_t head, token_t t1);
-
-int push_stack(prec_stack_t *head, token_t token, prec_token_type prec);
-void pop_stack(prec_stack_t *head);
-void delete_stack(prec_stack_t head);
-
-
-// rule definitions
-void rule_i(prec_stack_t *head);
-void rule_brackets(prec_stack_t *head);
-void rule_exit(prec_stack_t *head);
-void rule_un(prec_stack_t *head);
-void rule_mul_div(prec_stack_t *head);
-void rule_rel(prec_stack_t *head);
-void rule_equal(prec_stack_t *head);
-void rule_and(prec_stack_t *head);
-void rule_or(prec_stack_t *head);
-
-
-int reduce(prec_stack_t *head);
 
 int parse_expr(parser_t parser);
 
