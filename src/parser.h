@@ -11,9 +11,22 @@
 #include "tokens.h"
 #include "symtable.h"
 
+typedef enum stmt_types
+{
+	STMT_DEFAULT,
+	STMT_DEFINE,
+	STMT_ASSIGN,
+	STMT_CALL,
+	STMT_CONDITIONAL,
+	STMT_ITERATIVE,
+	STMT_RETURN
+} stmt_types_t;
+
 typedef struct semantics
 {
-	symbol_ref_t func;
+	symbol_ref_t func_cur;
+	symbol_ref_t func_call;
+	stmt_types_t stmt;
 } semantics_t;
 
 typedef struct parser

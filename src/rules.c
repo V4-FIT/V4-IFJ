@@ -119,10 +119,13 @@ int rule_function(parser_t parser) {
 
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
+	SEM_STMT_SET(STMT_DEFAULT);
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 	SEM_EXIT_SCOPE();
+
+	SEM_CHECK(sem_func_has_return_stmt);
 
 	return EXIT_SUCCESS;
 }
@@ -242,6 +245,7 @@ int rule_returntype(parser_t parser) {
 		case TK_KEYW_INT:
 		case TK_KEYW_STRING:
 		case TK_KEYW_BOOL:
+			SEM_CHECK(sem_func_add_return_type);
 			TK_NEXT();
 			break;
 		default:
@@ -329,6 +333,7 @@ int rule_var_define_opt(parser_t parser) {
 int rule_var_define(parser_t parser) {
 	// Var_define -> 	  	  id defineOp Expression
 	//						| eps .
+	SEM_STMT_SET(STMT_DEFINE);
 	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 			TK_NEXT();
@@ -392,6 +397,7 @@ int rule_else(parser_t parser) {
 /// 22
 int rule_conditional(parser_t parser) {
 	// Conditional -> 	  	  if Expression l_curly eol Eol_opt_n Statements r_curly .
+	SEM_STMT_SET(STMT_CONDITIONAL);
 	TK_NEXT();
 	EXECUTE_RULE(rule_expression);
 	TK_MATCH(TK_L_CURLY);
@@ -409,6 +415,7 @@ int rule_conditional(parser_t parser) {
 int rule_iterative(parser_t parser) {
 	// Iterative -> 		  for Var_define_opt semicolon Expression semicolon
 	//						  Assignment_opt l_curly eol Eol_opt_n Statements r_curly eol.
+	SEM_STMT_SET(STMT_ITERATIVE);
 	TK_NEXT();
 	SEM_ENTER_SCOPE();
 	EXECUTE_RULE(rule_var_define_opt);
@@ -447,6 +454,7 @@ int rule_assignment_opt(parser_t parser) {
 /// 24
 int rule_assignment(parser_t parser) {
 	// Assignment -> 	  	  Ids AssignOp Exprs_FunCall .
+	SEM_STMT_SET(STMT_ASSIGN);
 	EXECUTE_RULE(rule_ids);
 	EXECUTE_RULE(rule_assignOp);
 	EXECUTE_RULE(rule_exprs_funCall);
@@ -512,6 +520,7 @@ int rule_exprs_funCall(parser_t parser) {
 /// 30
 int rule_functionCall(parser_t parser) {
 	// FunctionCall -> 		  id l_parenthesis Eol_opt Arguments r_parenthesis .
+	SEM_STMT_SET(STMT_CALL);
 	TK_TEST(TK_IDENTIFIER);
 	SEM_CHECK(sem_func_callable);
 	TK_NEXT();
@@ -577,6 +586,7 @@ int rule_Argument(parser_t parser) {
 /// 34
 int rule_return(parser_t parser) {
 	// Return -> 			  return Expressions_opt eol.
+	SEM_STMT_SET(STMT_RETURN);
 	TK_MATCH(TK_KEYW_RETURN);
 	EXECUTE_RULE(rule_expressions_opt);
 	TK_MATCH(TK_EOL);

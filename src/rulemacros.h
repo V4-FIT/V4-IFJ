@@ -120,4 +120,7 @@
 // Exits the current scope
 #define SEM_EXIT_SCOPE() symtable_exit_scope(parser->symtable)
 
+// Set the most recent statement type
+#define SEM_STMT_SET(_STMT_TYPE_T) parser->sem.stmt = _STMT_TYPE_T
+
 #endif // !IFJ_RULEMACROS_H

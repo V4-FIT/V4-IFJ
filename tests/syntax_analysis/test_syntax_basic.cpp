@@ -224,7 +224,9 @@ TEST_F(SyntaxTest, return_val_empty2) {
 // func main () (int) {\n}
 TEST_F(SyntaxTest, return_val) {
 	PROLOG;
-	fprintf(stream, "func main () (int) {\n");
+	OPENFUN("main");
+	CLOSEFUN;
+	fprintf(stream, "func foo () (int) {\n return 1\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -242,7 +244,7 @@ TEST_F(SyntaxTest, return_vals_incomplete) {
 // func main () (int, string, float64, bool) {\n}
 TEST_F(SyntaxTest, return_vals) {
 	PROLOG;
-	fprintf(stream, "func foo () (int, string, float64, bool) {\n");
+	fprintf(stream, "func foo () (int, string, float64, bool) {\n return 1, \"2\", 3.0, true\n");
 	CLOSEFUN;
 
 	OPENFUN("main");
@@ -264,7 +266,7 @@ TEST_F(SyntaxTest, return_val_eol) {
 // func main () (int, \n float64) {\n}
 TEST_F(SyntaxTest, return_val_eol2) {
 	PROLOG;
-	fprintf(stream, "func foo () (int, \n float64) {\n");
+	fprintf(stream, "func foo () (int, \n float64) {\n return 1, 0.5\n");
 	CLOSEFUN;
 
 	OPENFUN("main");
@@ -619,7 +621,7 @@ TEST_F(SyntaxTest, ass_fun_call2) {
 	fprintf(stream, "i, j, k, l, m = foo(2, \"Hello world\", 1.234, true, bar)");
 	CLOSEFUN;
 
-	fprintf(stream, "func foo (v1 int, v2 string, v3 float64, v4 bool, v5 int) (int,int,int,int,int) {\n");
+	fprintf(stream, "func foo (v1 int, v2 string, v3 float64, v4 bool, v5 int) (int,int,int,int,int) {\n return 1,2,3,4,5\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -632,7 +634,7 @@ TEST_F(SyntaxTest, ass_fun_call3) {
 	fprintf(stream, "i, j, k = foo(\n 2, true, bar)");
 	CLOSEFUN;
 
-	fprintf(stream, "func foo (v1 int, v2 bool, v3 int) (int,int,int) {\n");
+	fprintf(stream, "func foo (v1 int, v2 bool, v3 int) (int,int,int) {\n return 1,2,3\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
@@ -645,7 +647,7 @@ TEST_F(SyntaxTest, ass_fun_call4) {
 	fprintf(stream, "i, j, k = foo(2,\n true,\n bar)");
 	CLOSEFUN;
 
-	fprintf(stream, "func foo (v1 int, v2 bool, v3 int) (int,int,int) {\n");
+	fprintf(stream, "func foo (v1 int, v2 bool, v3 int) (int,int,int) {\n return 1,2,3\n");
 	CLOSEFUN;
 
 	TESTVAL(EXIT_SUCCESS);
