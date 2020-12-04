@@ -9,14 +9,14 @@
 
 
 // PROLOG -> package main eol
-TEST_F(SyntaxTest, prolog_incomplete) {
+TEST_F(DISABLED_SyntaxTest, prolog_incomplete) {
 	// missing keyword main, EXPECT SYNTAX ERROR
 	fprintf(stream, "package ");
 	TESTVAL(ERROR_SYN);
 }
 
 // PROLOG -> package main eol
-TEST_F(SyntaxTest, prolog_complete) {
+TEST_F(DISABLED_SyntaxTest, prolog_complete) {
 	PROLOG;
 	OPENFUN("main");
 	CLOSEFUN;
@@ -30,14 +30,14 @@ TEST_F(SyntaxTest, prolog_complete) {
 *************************************************************/
 
 // func main ()() {
-TEST_F(SyntaxTest, function_incomplete) {
+TEST_F(DISABLED_SyntaxTest, function_incomplete) {
 	PROLOG;
 	fprintf(stream, "func main() ()\n");
 	TESTVAL(ERROR_SYN);
 }
 
 // func main ()()
-TEST_F(SyntaxTest, function_incomplete2) {
+TEST_F(DISABLED_SyntaxTest, function_incomplete2) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -45,7 +45,7 @@ TEST_F(SyntaxTest, function_incomplete2) {
 }
 
 // func ()() {\n}\n
-TEST_F(SyntaxTest, function_incomplete3) {
+TEST_F(DISABLED_SyntaxTest, function_incomplete3) {
 	PROLOG;
 	OPENFUN(" ");
 	CLOSEFUN;
@@ -54,7 +54,7 @@ TEST_F(SyntaxTest, function_incomplete3) {
 }
 
 // func main ()() {\n}\n
-TEST_F(SyntaxTest, function_complete) {
+TEST_F(DISABLED_SyntaxTest, function_complete) {
 	PROLOG;
 	fprintf(stream, "func main ()() {\n}\n");
 
@@ -63,7 +63,7 @@ TEST_F(SyntaxTest, function_complete) {
 
 // func main()(){\n}\n
 // func foo()(){\n}\n
-TEST_F(SyntaxTest, functions) {
+TEST_F(DISABLED_SyntaxTest, functions) {
 	PROLOG;
 	OPENFUN("main");
 	CLOSEFUN;
@@ -74,7 +74,7 @@ TEST_F(SyntaxTest, functions) {
 }
 
 // func \n main () () {\n}
-TEST_F(SyntaxTest, function_eol) {
+TEST_F(DISABLED_SyntaxTest, function_eol) {
 	PROLOG;
 	fprintf(stream, "func \n main () () {");
 	CLOSEFUN;
@@ -83,7 +83,7 @@ TEST_F(SyntaxTest, function_eol) {
 }
 
 // func main\n () () {\n}
-TEST_F(SyntaxTest, function_eol2) {
+TEST_F(DISABLED_SyntaxTest, function_eol2) {
 	PROLOG;
 	fprintf(stream, "func main\n () () {");
 	CLOSEFUN;
@@ -92,7 +92,7 @@ TEST_F(SyntaxTest, function_eol2) {
 }
 
 // func main ()\n () {\n}
-TEST_F(SyntaxTest, function_eol3) {
+TEST_F(DISABLED_SyntaxTest, function_eol3) {
 	PROLOG;
 	fprintf(stream, "func main ()\n () {");
 	CLOSEFUN;
@@ -101,7 +101,7 @@ TEST_F(SyntaxTest, function_eol3) {
 }
 
 // func main () ()\n {\n}
-TEST_F(SyntaxTest, function_eol4) {
+TEST_F(DISABLED_SyntaxTest, function_eol4) {
 	PROLOG;
 	fprintf(stream, "func main () ()\n {");
 	CLOSEFUN;
@@ -110,7 +110,7 @@ TEST_F(SyntaxTest, function_eol4) {
 }
 
 // func main () () {}
-TEST_F(SyntaxTest, function_eol5) {
+TEST_F(DISABLED_SyntaxTest, function_eol5) {
 	PROLOG;
 	fprintf(stream, "func main () () {}");
 
@@ -124,7 +124,7 @@ TEST_F(SyntaxTest, function_eol5) {
 *************************************************************/
 
 // func main ()() {\n}
-TEST_F(SyntaxTest, params_empty) {
+TEST_F(DISABLED_SyntaxTest, params_empty) {
 	PROLOG;
 	OPENFUN("main");
 	CLOSEFUN;
@@ -133,7 +133,7 @@ TEST_F(SyntaxTest, params_empty) {
 }
 
 // func main (foo int)() {\n}
-TEST_F(SyntaxTest, params) {
+TEST_F(DISABLED_SyntaxTest, params) {
 	PROLOG;
 	fprintf(stream, "func fun (foo int) (){\n");
 	CLOSEFUN;
@@ -145,7 +145,7 @@ TEST_F(SyntaxTest, params) {
 }
 
 // func main (foo int)() {\n}
-TEST_F(SyntaxTest, params_inclomplete) {
+TEST_F(DISABLED_SyntaxTest, params_inclomplete) {
 	PROLOG;
 	fprintf(stream, "func main (foo int,) (){\n");
 	CLOSEFUN;
@@ -154,7 +154,7 @@ TEST_F(SyntaxTest, params_inclomplete) {
 }
 
 // func main (foo float64, bar string) () {\n}
-TEST_F(SyntaxTest, params2) {
+TEST_F(DISABLED_SyntaxTest, params2) {
 	PROLOG;
 	fprintf(stream, "func fun (foo float64, bar string) () {\n");
 	CLOSEFUN;
@@ -166,7 +166,7 @@ TEST_F(SyntaxTest, params2) {
 }
 
 // func main (foo float64,\n bar string) () {\n}
-TEST_F(SyntaxTest, params_eol) {
+TEST_F(DISABLED_SyntaxTest, params_eol) {
 	PROLOG;
 	fprintf(stream, "func fun (foo float64,\n bar bool) () {\n");
 	CLOSEFUN;
@@ -179,7 +179,7 @@ TEST_F(SyntaxTest, params_eol) {
 
 
 // func main (\nfoo float64,\n bar string) () {\n}
-TEST_F(SyntaxTest, params_eol2) {
+TEST_F(DISABLED_SyntaxTest, params_eol2) {
 	PROLOG;
 	fprintf(stream, "func main (\nfoo float64,\n bar bool) () {\n");
 	CLOSEFUN;
@@ -188,7 +188,7 @@ TEST_F(SyntaxTest, params_eol2) {
 }
 
 // func main (\nfoo float64,\n bar string\n) () {\n}
-TEST_F(SyntaxTest, params_eol3) {
+TEST_F(DISABLED_SyntaxTest, params_eol3) {
 	PROLOG;
 	fprintf(stream, "func main (\nfoo float64,\n bar bool\n) () {\n");
 	CLOSEFUN;
@@ -204,7 +204,7 @@ TEST_F(SyntaxTest, params_eol3) {
 *************************************************************/
 
 // func main () {\n}
-TEST_F(SyntaxTest, return_val_empty) {
+TEST_F(DISABLED_SyntaxTest, return_val_empty) {
 	PROLOG;
 	fprintf(stream, "func main () {\n");
 	CLOSEFUN;
@@ -213,7 +213,7 @@ TEST_F(SyntaxTest, return_val_empty) {
 }
 
 // func main () () {\n}
-TEST_F(SyntaxTest, return_val_empty2) {
+TEST_F(DISABLED_SyntaxTest, return_val_empty2) {
 	PROLOG;
 	OPENFUN("main");
 	CLOSEFUN;
@@ -222,7 +222,7 @@ TEST_F(SyntaxTest, return_val_empty2) {
 }
 
 // func main () (int) {\n}
-TEST_F(SyntaxTest, return_val) {
+TEST_F(DISABLED_SyntaxTest, return_val) {
 	PROLOG;
 	OPENFUN("main");
 	CLOSEFUN;
@@ -233,7 +233,7 @@ TEST_F(SyntaxTest, return_val) {
 }
 
 // func main () (int, ) {\n}
-TEST_F(SyntaxTest, return_vals_incomplete) {
+TEST_F(DISABLED_SyntaxTest, return_vals_incomplete) {
 	PROLOG;
 	fprintf(stream, "func main (int, ) {\n");
 	CLOSEFUN;
@@ -242,7 +242,7 @@ TEST_F(SyntaxTest, return_vals_incomplete) {
 }
 
 // func main () (int, string, float64, bool) {\n}
-TEST_F(SyntaxTest, return_vals) {
+TEST_F(DISABLED_SyntaxTest, return_vals) {
 	PROLOG;
 	fprintf(stream, "func foo () (int, string, float64, bool) {\n return 1, \"2\", 3.0, true\n");
 	CLOSEFUN;
@@ -255,7 +255,7 @@ TEST_F(SyntaxTest, return_vals) {
 
 
 // func main () (\n int) {\n}
-TEST_F(SyntaxTest, return_val_eol) {
+TEST_F(DISABLED_SyntaxTest, return_val_eol) {
 	PROLOG;
 	fprintf(stream, "func main() (\n int) {\n");
 	CLOSEFUN;
@@ -264,7 +264,7 @@ TEST_F(SyntaxTest, return_val_eol) {
 }
 
 // func main () (int, \n float64) {\n}
-TEST_F(SyntaxTest, return_val_eol2) {
+TEST_F(DISABLED_SyntaxTest, return_val_eol2) {
 	PROLOG;
 	fprintf(stream, "func foo () (int, \n float64) {\n return 1, 0.5\n");
 	CLOSEFUN;
@@ -276,7 +276,7 @@ TEST_F(SyntaxTest, return_val_eol2) {
 }
 
 // func main () (int, \n float64) {\n}
-TEST_F(SyntaxTest, return_val_eol3) {
+TEST_F(DISABLED_SyntaxTest, return_val_eol3) {
 	PROLOG;
 	fprintf(stream, "func main () (int\n, float) {\n");
 	CLOSEFUN;
@@ -285,7 +285,7 @@ TEST_F(SyntaxTest, return_val_eol3) {
 }
 
 // func main () (int, \n float64 \n) {\n}
-TEST_F(SyntaxTest, return_val_eol4) {
+TEST_F(DISABLED_SyntaxTest, return_val_eol4) {
 	PROLOG;
 	fprintf(stream, "func main () (int, \n float \n) {\n");
 	CLOSEFUN;
@@ -300,7 +300,7 @@ TEST_F(SyntaxTest, return_val_eol4) {
 *************************************************************/
 
 // _ := 2
-TEST_F(SyntaxTest, vardef_) {
+TEST_F(DISABLED_SyntaxTest, vardef_) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -310,7 +310,7 @@ TEST_F(SyntaxTest, vardef_) {
 }
 
 // i := 2
-TEST_F(SyntaxTest, vardef_int) {
+TEST_F(DISABLED_SyntaxTest, vardef_int) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -320,7 +320,7 @@ TEST_F(SyntaxTest, vardef_int) {
 }
 
 // i := "Hello"
-TEST_F(SyntaxTest, vardef_string) {
+TEST_F(DISABLED_SyntaxTest, vardef_string) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -330,7 +330,7 @@ TEST_F(SyntaxTest, vardef_string) {
 }
 
 // i := 1.234
-TEST_F(SyntaxTest, vardef_float) {
+TEST_F(DISABLED_SyntaxTest, vardef_float) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -340,7 +340,7 @@ TEST_F(SyntaxTest, vardef_float) {
 }
 
 // i := true
-TEST_F(SyntaxTest, vardef_true) {
+TEST_F(DISABLED_SyntaxTest, vardef_true) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -351,7 +351,7 @@ TEST_F(SyntaxTest, vardef_true) {
 
 // i := false
 
-TEST_F(SyntaxTest, vardef_false) {
+TEST_F(DISABLED_SyntaxTest, vardef_false) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -362,7 +362,7 @@ TEST_F(SyntaxTest, vardef_false) {
 
 // i := j
 
-TEST_F(SyntaxTest, vardef_od) {
+TEST_F(DISABLED_SyntaxTest, vardef_od) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -373,7 +373,7 @@ TEST_F(SyntaxTest, vardef_od) {
 
 
 // := 2
-TEST_F(SyntaxTest, vardef_no_id) {
+TEST_F(DISABLED_SyntaxTest, vardef_no_id) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -383,7 +383,7 @@ TEST_F(SyntaxTest, vardef_no_id) {
 }
 
 // i 2
-TEST_F(SyntaxTest, vardef_no_op) {
+TEST_F(DISABLED_SyntaxTest, vardef_no_op) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -393,7 +393,7 @@ TEST_F(SyntaxTest, vardef_no_op) {
 }
 
 // i :=
-TEST_F(SyntaxTest, vardef_no_expr) {
+TEST_F(DISABLED_SyntaxTest, vardef_no_expr) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -410,7 +410,7 @@ TEST_F(SyntaxTest, vardef_no_expr) {
 *************************************************************/
 
 // i /= 1
-TEST_F(SyntaxTest, ass_div_int) {
+TEST_F(DISABLED_SyntaxTest, ass_div_int) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -420,7 +420,7 @@ TEST_F(SyntaxTest, ass_div_int) {
 }
 
 // i *= 1.234
-TEST_F(SyntaxTest, ass_mul_float) {
+TEST_F(DISABLED_SyntaxTest, ass_mul_float) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -429,7 +429,7 @@ TEST_F(SyntaxTest, ass_mul_float) {
 	TESTVAL(EXIT_SUCCESS);
 }
 // i -= j
-TEST_F(SyntaxTest, ass_sub_id) {
+TEST_F(DISABLED_SyntaxTest, ass_sub_id) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -439,7 +439,7 @@ TEST_F(SyntaxTest, ass_sub_id) {
 }
 
 // i += "world"
-TEST_F(SyntaxTest, ass_add_string) {
+TEST_F(DISABLED_SyntaxTest, ass_add_string) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -449,7 +449,7 @@ TEST_F(SyntaxTest, ass_add_string) {
 }
 
 // i = true
-TEST_F(SyntaxTest, ass_true) {
+TEST_F(DISABLED_SyntaxTest, ass_true) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -459,7 +459,7 @@ TEST_F(SyntaxTest, ass_true) {
 }
 
 // i = false
-TEST_F(SyntaxTest, ass_false) {
+TEST_F(DISABLED_SyntaxTest, ass_false) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -470,7 +470,7 @@ TEST_F(SyntaxTest, ass_false) {
 
 
 // = true
-TEST_F(SyntaxTest, ass_no_id) {
+TEST_F(DISABLED_SyntaxTest, ass_no_id) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -480,7 +480,7 @@ TEST_F(SyntaxTest, ass_no_id) {
 }
 
 // i false
-TEST_F(SyntaxTest, ass_no_op) {
+TEST_F(DISABLED_SyntaxTest, ass_no_op) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -490,7 +490,7 @@ TEST_F(SyntaxTest, ass_no_op) {
 }
 
 // i +=
-TEST_F(SyntaxTest, ass_no_exp) {
+TEST_F(DISABLED_SyntaxTest, ass_no_exp) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -507,7 +507,7 @@ TEST_F(SyntaxTest, ass_no_exp) {
 *************************************************************/
 
 // foo()
-TEST_F(SyntaxTest, fun_call_no_args) {
+TEST_F(DISABLED_SyntaxTest, fun_call_no_args) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "foo()\n");
@@ -520,7 +520,7 @@ TEST_F(SyntaxTest, fun_call_no_args) {
 }
 
 // foo("Hello")
-TEST_F(SyntaxTest, fun_call_arg) {
+TEST_F(DISABLED_SyntaxTest, fun_call_arg) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "foo(\"Hello world\")\n");
@@ -533,7 +533,7 @@ TEST_F(SyntaxTest, fun_call_arg) {
 }
 
 // foo(2, "Hello", 1.123, true, bar)
-TEST_F(SyntaxTest, fun_call_args) {
+TEST_F(DISABLED_SyntaxTest, fun_call_args) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "foo(2, \"Hello world\", 1.234, true, bar )\n");
@@ -546,7 +546,7 @@ TEST_F(SyntaxTest, fun_call_args) {
 }
 
 // foo(\n 2, true, bar)
-TEST_F(SyntaxTest, fun_call_eol) {
+TEST_F(DISABLED_SyntaxTest, fun_call_eol) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "foo(\n 2, true, bar )\n");
@@ -559,7 +559,7 @@ TEST_F(SyntaxTest, fun_call_eol) {
 }
 
 // foo(2, \n true, \n bar)
-TEST_F(SyntaxTest, fun_call_eol2) {
+TEST_F(DISABLED_SyntaxTest, fun_call_eol2) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "foo(2,\n true,\n bar)\n");
@@ -572,7 +572,7 @@ TEST_F(SyntaxTest, fun_call_eol2) {
 }
 
 // foo(2, \n true, \n bar \n)
-TEST_F(SyntaxTest, fun_call_eol3) {
+TEST_F(DISABLED_SyntaxTest, fun_call_eol3) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "foo(\n 2,\n true,\n bar\n)\n");
@@ -585,7 +585,7 @@ TEST_F(SyntaxTest, fun_call_eol3) {
 }
 
 // foo
-TEST_F(SyntaxTest, fun_call_incomplete) {
+TEST_F(DISABLED_SyntaxTest, fun_call_incomplete) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "foo");
@@ -602,7 +602,7 @@ TEST_F(SyntaxTest, fun_call_incomplete) {
 *************************************************************/
 
 // i = foo("Hello")
-TEST_F(SyntaxTest, ass_fun_call) {
+TEST_F(DISABLED_SyntaxTest, ass_fun_call) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "i = foo(\"Hello world\")");
@@ -615,7 +615,7 @@ TEST_F(SyntaxTest, ass_fun_call) {
 }
 
 // i, j, k, l, m = foo(2, \"Hello world\", 1.234, true, bar)
-TEST_F(SyntaxTest, ass_fun_call2) {
+TEST_F(DISABLED_SyntaxTest, ass_fun_call2) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "i, j, k, l, m = foo(2, \"Hello world\", 1.234, true, bar)");
@@ -628,7 +628,7 @@ TEST_F(SyntaxTest, ass_fun_call2) {
 }
 
 // i, j, k += foo(\n 2, true, bar)
-TEST_F(SyntaxTest, ass_fun_call3) {
+TEST_F(DISABLED_SyntaxTest, ass_fun_call3) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "i, j, k = foo(\n 2, true, bar)");
@@ -641,7 +641,7 @@ TEST_F(SyntaxTest, ass_fun_call3) {
 }
 
 // i, j, k += foo(2,\n true,\n bar)
-TEST_F(SyntaxTest, ass_fun_call4) {
+TEST_F(DISABLED_SyntaxTest, ass_fun_call4) {
 	PROLOG;
 	OPENFUN("main");
 	fprintf(stream, "i, j, k = foo(2,\n true,\n bar)");
@@ -661,7 +661,7 @@ TEST_F(SyntaxTest, ass_fun_call4) {
 *************************************************************/
 
 // if foo == true {\n}
-TEST_F(SyntaxTest, cond_if) {
+TEST_F(DISABLED_SyntaxTest, cond_if) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -674,7 +674,7 @@ TEST_F(SyntaxTest, cond_if) {
 // if foo == true {\n}\
 // else {\n}
 
-TEST_F(SyntaxTest, cond_else) {
+TEST_F(DISABLED_SyntaxTest, cond_else) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -687,7 +687,7 @@ TEST_F(SyntaxTest, cond_else) {
 
 // if foo <= 1 {\n}\n
 // else if foo >= 10 {\n}\n
-TEST_F(SyntaxTest, cond_elseif) {
+TEST_F(DISABLED_SyntaxTest, cond_elseif) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -701,7 +701,7 @@ TEST_F(SyntaxTest, cond_elseif) {
 // if foo <= 1 {\n}\n
 // else if foo <= 10 {\n}\n
 // else {\n}\n
-TEST_F(SyntaxTest, cond_elseif_else) {
+TEST_F(DISABLED_SyntaxTest, cond_elseif_else) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -718,7 +718,7 @@ TEST_F(SyntaxTest, cond_elseif_else) {
 // else if  foo >= 20 {\n}\n
 // else {\n}\n
 
-TEST_F(SyntaxTest, cond_complex) {
+TEST_F(DISABLED_SyntaxTest, cond_complex) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -741,7 +741,7 @@ TEST_F(SyntaxTest, cond_complex) {
 *************************************************************/
 
 // for foo = 1; foo <= 10; foo += 1 {\n}\n
-TEST_F(SyntaxTest, iterative) {
+TEST_F(DISABLED_SyntaxTest, iterative) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -752,7 +752,7 @@ TEST_F(SyntaxTest, iterative) {
 }
 
 // for foo = 1; foo <= 10; {\n}\n
-TEST_F(SyntaxTest, iterative2) {
+TEST_F(DISABLED_SyntaxTest, iterative2) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -763,7 +763,7 @@ TEST_F(SyntaxTest, iterative2) {
 }
 
 // ; foo <= 10; foo += 1 {\n}\n
-TEST_F(SyntaxTest, iterative3) {
+TEST_F(DISABLED_SyntaxTest, iterative3) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -774,7 +774,7 @@ TEST_F(SyntaxTest, iterative3) {
 }
 
 // for ; foo <= 10; {\n}\n
-TEST_F(SyntaxTest, iterative4) {
+TEST_F(DISABLED_SyntaxTest, iterative4) {
 	PROLOG;
 	OPENFUN("main");
 
@@ -785,7 +785,7 @@ TEST_F(SyntaxTest, iterative4) {
 }
 
 // for foo = 1; ; foo += 1 {\n}\n
-TEST_F(SyntaxTest, iterative5) {
+TEST_F(DISABLED_SyntaxTest, iterative5) {
 	PROLOG;
 	OPENFUN("main");
 
