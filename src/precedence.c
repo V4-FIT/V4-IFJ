@@ -8,19 +8,26 @@
 #include "semantics.h"
 
 ////// Forward declarations
+
 static prec_token_type convert_type(prec_stack_t head, token_t t1);
 static int reduce(parser_t parser, prec_stack_t *head);
 static data_type_t get_data_type(parser_t parser);
+
 // stack operations
 static prec_stack_t stack_init();
 static int stack_push(prec_stack_t *head, token_t token, prec_token_type prec, data_type_t data_type);
 static void stack_pop(prec_stack_t *head);
 static void stack_delete(prec_stack_t head);
+
 // reduction type checks
 static bool stack_term(prec_stack_t *head);
 static bool stack_un_term(prec_stack_t *head);
 static bool stack_lparenthesis_term_rparenthesis(prec_stack_t *head);
 static bool stack_term_op_term(prec_stack_t *head);
+
+// if the deterministic pushdown automaton has accepted a language
+bool dpda_finished(prec_token_type type, prec_stack_t head);
+
 // rule definitions
 static int rule_i(parser_t parser, prec_stack_t *head);
 static int rule_brackets(parser_t parser, prec_stack_t *head);
@@ -146,7 +153,7 @@ int stack_push(prec_stack_t *head, token_t token, prec_token_type type, data_typ
 	new->type = type;
 	new->data_type = data_type;
 	new->next = *head;
-	new->todo = true;
+	new->processed = false;
 
 	*head = new;
 
@@ -162,13 +169,13 @@ void stack_delete(prec_stack_t head) {
 // reduction type checks
 
 bool stack_term(prec_stack_t *head) {
-	return STACK_FIRST->todo &&
+	return STACK_FIRST->processed == false &&
 		   STACK_FIRST->type == PREC_I;
 }
 
 bool stack_un_term(prec_stack_t *head) {
 	return STACK_FIRST->type == PREC_I &&
-		   STACK_FIRST->todo == false &&
+		   STACK_FIRST->processed == true &&
 		   STACK_SECOND != NULL &&
 		   STACK_SECOND->type == PREC_UNARY;
 }
@@ -186,14 +193,18 @@ bool stack_term_op_term(prec_stack_t *head) {
 		   STACK_SECOND != NULL &&
 		   STACK_SECOND->next != NULL &&
 		   STACK_THIRD->type == PREC_I &&
-		   STACK_THIRD->todo == true;
+		   STACK_THIRD->processed == false;
+}
+
+bool dpda_finished(prec_token_type type, prec_stack_t head) {
+	return (type == PREC_DOLLAR && head->type == PREC_I && head->processed && head->next->type == PREC_DOLLAR);
 }
 
 // grammar rules
 
 int rule_i(parser_t parser, prec_stack_t *head) {
 	// printf("E -> i\n");
-	(*head)->todo = false;
+	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
 
@@ -207,7 +218,7 @@ int rule_brackets(parser_t parser, prec_stack_t *head) {
 	stack_pop(head);
 
 	stack_push(head, tk, PREC_I, dt);
-	(*head)->todo = false;
+	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
 
@@ -224,7 +235,7 @@ int rule_un(parser_t parser, prec_stack_t *head) {
 	stack_pop(head);
 	stack_pop(head);
 	stack_push(head, tk, PREC_I, dt);
-	(*head)->todo = false;
+	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
 
@@ -233,7 +244,7 @@ int rule_mul_div(parser_t parser, prec_stack_t *head) {
 	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
-	(*head)->todo = false;
+	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
 
@@ -242,7 +253,7 @@ int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
-	(*head)->todo = false;
+	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
 
@@ -251,7 +262,7 @@ int rule_rel(parser_t parser, prec_stack_t *head) {
 	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
-	(*head)->todo = false;
+	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
 
@@ -260,7 +271,7 @@ int rule_equal(parser_t parser, prec_stack_t *head) {
 	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
-	(*head)->todo = false;
+	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
 
@@ -268,7 +279,7 @@ int rule_and(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E && E\n");
 	stack_pop(head);
 	stack_pop(head);
-	(*head)->todo = false;
+	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
 
@@ -276,7 +287,7 @@ int rule_or(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E || E\n");
 	stack_pop(head);
 	stack_pop(head);
-	(*head)->todo = false;
+	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
 
@@ -321,7 +332,7 @@ int parse_expr(parser_t parser) {
 	do {
 		switch (prec_table[HEAD()->type][type]) {
 			case OPEN:
-				head->todo = true;
+				head->processed = false;
 				LOAD_NEXT();
 				SEM_PREC_CHECK(sem_var_check);
 				break;
@@ -336,7 +347,7 @@ int parse_expr(parser_t parser) {
 				stack_delete(head);
 				return ERROR_SYN;
 		}
-	} while (!(type == PREC_DOLLAR && head->type == PREC_I && !head->todo && head->next->type == PREC_DOLLAR));
+	} while (!dpda_finished(type, head));
 
 	// clear stack and exit
 	rule_exit(parser, &head);

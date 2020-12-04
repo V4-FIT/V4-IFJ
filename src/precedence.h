@@ -58,7 +58,7 @@
 	} while (0)
 
 // don't acount for E in stack head
-#define HEAD() (head->type == PREC_I && head->todo == false && head->next->type != PREC_UNARY ? head->next : head)
+#define HEAD() (head->type == PREC_I && head->processed && head->next->type != PREC_UNARY ? head->next : head)
 
 #define CHECK_TYPE()              \
 	do {                          \
@@ -128,7 +128,7 @@ typedef struct prec_stack
 {
 	token_t token;
 	prec_token_type type;
-	bool todo;
+	bool processed;
 	data_type_t data_type;
 	struct prec_stack *next;
 } * prec_stack_t;
