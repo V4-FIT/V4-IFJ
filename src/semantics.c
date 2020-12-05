@@ -213,3 +213,24 @@ int sem_prec_rule_exit(parser_t parser, prec_stack_t *head) {
 	parser->sem.expr_value = sem.value;
 	return EXIT_SUCCESS;
 }
+
+int sem_evaulate_binary_const_expr(parser_t parser, prec_stack_t *head) {
+	// TODO
+	return 0;
+}
+
+int sem_evaulate_unary_const_expr(parser_t parser, prec_stack_t *head) {
+	if (STACK_SECOND->token->type == TK_MINUS && STACK_FIRST->sem.constant) {
+		if (STACK_FIRST->sem.data_type == DT_INTEGER) {
+			STACK_FIRST->sem.value.i = -STACK_FIRST->sem.value.i;
+		} else if (STACK_FIRST->sem.data_type == DT_FLOAT64) {
+			STACK_FIRST->sem.value.f = -STACK_FIRST->sem.value.f;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_zero_division(parser_t parser, prec_stack_t *head) {
+	// TODO
+	return 0;
+}

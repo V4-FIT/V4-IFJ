@@ -44,4 +44,13 @@ int sem_unary_op_type_compat(parser_t parser, prec_stack_t *head);
 // set expression return values for semantic purposes
 int sem_prec_rule_exit(parser_t parser, prec_stack_t *head);
 
+// evauluate binary constant expression value
+int sem_evaulate_binary_const_expr(parser_t parser, prec_stack_t *head);
+
+// evauluate unary constant expression value
+int sem_evaulate_unary_const_expr(parser_t parser, prec_stack_t *head);
+
+// check against zero dvision
+int sem_zero_division(parser_t parser, prec_stack_t *head);
+
 #endif // !IFJ_SEMANTICS_H
