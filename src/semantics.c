@@ -234,8 +234,41 @@ int sem_prec_rule_exit(parser_t parser, prec_stack_t *head) {
 }
 
 int sem_evaulate_binary_const_expr(parser_t parser, prec_stack_t *head) {
-	// TODO
-	return 0;
+	if (STACK_FIRST->sem.constant && STACK_THIRD->sem.constant) {
+		switch (STACK_SECOND->token->type) {
+			case TK_PLUS:
+				if (STACK_THIRD->sem.data_type == DT_INTEGER) {
+					STACK_THIRD->sem.value.i += STACK_FIRST->sem.value.i;
+				} else if (STACK_THIRD->sem.data_type == DT_FLOAT64) {
+					STACK_THIRD->sem.value.f += STACK_FIRST->sem.value.f;
+				}
+				break;
+			case TK_MINUS:
+				if (STACK_THIRD->sem.data_type == DT_INTEGER) {
+					STACK_THIRD->sem.value.i -= STACK_FIRST->sem.value.i;
+				} else if (STACK_THIRD->sem.data_type == DT_FLOAT64) {
+					STACK_THIRD->sem.value.f -= STACK_FIRST->sem.value.f;
+				}
+				break;
+			case TK_MULTIPLY:
+				if (STACK_THIRD->sem.data_type == DT_INTEGER) {
+					STACK_THIRD->sem.value.i *= STACK_FIRST->sem.value.i;
+				} else if (STACK_THIRD->sem.data_type == DT_FLOAT64) {
+					STACK_THIRD->sem.value.f *= STACK_FIRST->sem.value.f;
+				}
+				break;
+			case TK_DIVIDE:
+				if (STACK_THIRD->sem.data_type == DT_INTEGER) {
+					STACK_THIRD->sem.value.i /= STACK_FIRST->sem.value.i;
+				} else if (STACK_THIRD->sem.data_type == DT_FLOAT64) {
+					STACK_THIRD->sem.value.f /= STACK_FIRST->sem.value.f;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+	return EXIT_SUCCESS;
 }
 
 int sem_evaulate_unary_const_expr(parser_t parser, prec_stack_t *head) {
