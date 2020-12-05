@@ -20,14 +20,27 @@ enum CompilerErrors
 };
 
 #define ERROR_MSG(...)            \
-	fprintf(stderr, "ERROR - ");              \
+	fprintf(stderr, "ERROR - ");  \
 	fprintf(stderr, __VA_ARGS__); \
 	fprintf(stderr, "\n")
 
-#define PARSER_ERROR_MSG(...)                              \
+#define PARSER_ERROR_MSG(...)                                          \
 	fprintf(stderr, "ERROR (line %d) - ", parser->token->line_number); \
-	fprintf(stderr, __VA_ARGS__);                          \
+	fprintf(stderr, __VA_ARGS__);                                      \
 	fprintf(stderr, "\n")
+
+#define PARSER_EXPR_ERROR_MSG()                                                           \
+	fprintf(stderr, "ERROR (line %d) - Invalid operation: ", parser->token->line_number); \
+	while (parser->sem.expr_begin_it.ptr != parser->tkit.ptr) {                           \
+		if (fprintf(stderr, "%s", tklist_get(parser->sem.expr_begin_it)->lexeme) > 0) {   \
+			fprintf(stderr, " ");                                                         \
+		}                                                                                 \
+		parser->sem.expr_begin_it = tklist_it_next(parser->sem.expr_begin_it);            \
+	}                                                                                     \
+	fprintf(stderr, "(mismatched types %s and %s)\n",                                     \
+			dt2str_map[STACK_THIRD->data_type],                                           \
+			dt2str_map[STACK_FIRST->data_type])
+
 
 #define ALLOCATION_ERROR_MSG() fprintf(stderr, "ERROR - Allocation failed\n")
 

@@ -29,6 +29,7 @@ typedef struct semantics
 	symbol_ref_t var;
 	stmt_types_t stmt;
 	data_type_t expression_type;
+	tklist_iterator_t expr_begin_it;
 } semantics_t;
 
 typedef struct parser
@@ -36,6 +37,7 @@ typedef struct parser
 	symtable_t symtable;
 	tklist_t tklist;
 	tklist_iterator_t tkit;
+	tklist_iterator_t tkit2;
 	token_t token;
 	token_t token_second;
 	bool first_pass;

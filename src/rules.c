@@ -626,6 +626,7 @@ int rule_expression_n(parser_t parser) {
 /// 37
 int rule_expression(parser_t parser) {
 	// Expression -> 	  	 expression .
+	SEM_EXPR_BEGIN();
 	EXECUTE_RULE(parse_expr);
 	return EXIT_SUCCESS;
 }

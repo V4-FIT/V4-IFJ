@@ -33,11 +33,11 @@ int parser_setup(parser_t parser) {
 		return ERROR_SYN;
 	}
 	parser->token = tklist_get(parser->tkit);
-	parser->tkit = tklist_it_next(parser->tkit);
-	if (!tklist_it_valid(parser->tkit)) {
+	parser->tkit2 = tklist_it_next(parser->tkit);
+	if (!tklist_it_valid(parser->tkit2)) {
 		return ERROR_SYN;
 	}
-	parser->token_second = tklist_get(parser->tkit);
+	parser->token_second = tklist_get(parser->tkit2);
 	return EXIT_SUCCESS;
 }
 

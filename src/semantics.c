@@ -174,12 +174,7 @@ int sem_var_check(parser_t parser) {
 
 int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head) {
 	if (STACK_FIRST->data_type != STACK_THIRD->data_type) {
-		PARSER_ERROR_MSG("Invalid operation: %s %s %s (mismatched types %s and %s)",
-						 STACK_THIRD->token->lexeme,
-						 STACK_SECOND->token->lexeme,
-						 STACK_FIRST->token->lexeme,
-						 dt2str_map[STACK_THIRD->data_type],
-						 dt2str_map[STACK_FIRST->data_type]);
+		PARSER_EXPR_ERROR_MSG();
 		return ERROR_TYPE_COMPAT;
 	}
 	return EXIT_SUCCESS;
@@ -187,12 +182,7 @@ int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head) {
 
 int sem_logical_op_type_compat(parser_t parser, prec_stack_t *head) {
 	if (STACK_FIRST->data_type != DT_BOOL || STACK_THIRD->data_type != DT_BOOL) {
-		PARSER_ERROR_MSG("Invalid operation: %s %s %s (mismatched types %s and %s)",
-						 STACK_THIRD->token->lexeme,
-						 STACK_SECOND->token->lexeme,
-						 STACK_FIRST->token->lexeme,
-						 dt2str_map[STACK_THIRD->data_type],
-						 dt2str_map[STACK_FIRST->data_type]);
+		PARSER_EXPR_ERROR_MSG();
 		return ERROR_TYPE_COMPAT;
 	}
 	return EXIT_SUCCESS;

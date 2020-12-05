@@ -24,14 +24,15 @@
 //// Terminals
 
 // Get the next token and token_second
-#define TK_NEXT()                                            \
-	do {                                                     \
-		parser->token = parser->token_second;                \
-		tklist_iterator_t it = tklist_it_next(parser->tkit); \
-		if (tklist_it_valid(it)) {                           \
-			parser->tkit = it;                               \
-			parser->token_second = tklist_get(it);           \
-		}                                                    \
+#define TK_NEXT()                                             \
+	do {                                                      \
+		parser->token = parser->token_second;                 \
+		parser->tkit = parser->tkit2;                         \
+		tklist_iterator_t it = tklist_it_next(parser->tkit2); \
+		if (tklist_it_valid(it)) {                            \
+			parser->tkit2 = it;                               \
+			parser->token_second = tklist_get(it);            \
+		}                                                     \
 	} while (0)
 
 
@@ -94,5 +95,7 @@
 
 // Set the most recent statement type
 #define SEM_STMT_SET(_STMT_TYPE_T) parser->sem.stmt = _STMT_TYPE_T
+
+#define SEM_EXPR_BEGIN() parser->sem.expr_begin_it = parser->tkit
 
 #endif // !IFJ_RULEMACROS_H
