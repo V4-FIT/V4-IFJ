@@ -279,6 +279,7 @@ int rule_equality(parser_t parser, prec_stack_t *head) {
 
 int rule_and(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E && E\n");
+	SEM_PREC_RULE_CHECK(sem_logical_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -287,6 +288,7 @@ int rule_and(parser_t parser, prec_stack_t *head) {
 
 int rule_or(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E || E\n");
+	SEM_PREC_RULE_CHECK(sem_logical_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
