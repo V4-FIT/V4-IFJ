@@ -1042,3 +1042,31 @@ TEST_F(TestSuiteSem, unary_7) {
 	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
 	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
 }
+
+TEST_F(TestSuiteSem, or_1) {
+	SetUp("go_files/sem/extensions", "or_1.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+}
+
+TEST_F(TestSuiteSem, or_2) {
+	SetUp("go_files/sem/extensions", "or_2.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), ERROR_TYPE_COMPAT);
+}
+
+TEST_F(TestSuiteSem, and_1) {
+	SetUp("go_files/sem/extensions", "and_1.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+}
+
+TEST_F(TestSuiteSem, and_2) {
+	SetUp("go_files/sem/extensions", "and_2.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), ERROR_TYPE_COMPAT);
+}
