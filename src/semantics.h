@@ -38,4 +38,6 @@ int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head);
 // check type compatibility around a logical operation
 int sem_logical_op_type_compat(parser_t parser, prec_stack_t *head);
 
+int sem_unary_op_type_compat(parser_t parser, prec_stack_t *head);
+
 #endif // !IFJ_SEMANTICS_H

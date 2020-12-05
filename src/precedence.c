@@ -230,6 +230,7 @@ int rule_exit(parser_t parser, prec_stack_t *head) {
 
 int rule_unary(parser_t parser, prec_stack_t *head) {
 	// printf("E -> +-!E\n");
+	SEM_PREC_RULE_CHECK(sem_unary_op_type_compat);
 	token_t tk = (*head)->token;
 	data_type_t dt = (*head)->data_type;
 	stack_pop(head);

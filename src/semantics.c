@@ -174,7 +174,7 @@ int sem_var_check(parser_t parser) {
 
 int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head) {
 	if (STACK_FIRST->data_type != STACK_THIRD->data_type) {
-		PARSER_EXPR_ERROR_MSG();
+		PARSER_EXPR_ERROR_MSG(MISMATCHED_TYPES_MSG);
 		return ERROR_TYPE_COMPAT;
 	}
 	return EXIT_SUCCESS;
@@ -182,8 +182,26 @@ int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head) {
 
 int sem_logical_op_type_compat(parser_t parser, prec_stack_t *head) {
 	if (STACK_FIRST->data_type != DT_BOOL || STACK_THIRD->data_type != DT_BOOL) {
-		PARSER_EXPR_ERROR_MSG();
+		PARSER_EXPR_ERROR_MSG(MISMATCHED_TYPES_MSG);
 		return ERROR_TYPE_COMPAT;
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_unary_op_type_compat(parser_t parser, prec_stack_t *head) {
+	switch (STACK_SECOND->token->type) {
+		case TK_NOT:
+			if (STACK_FIRST->data_type != DT_BOOL) {
+				PARSER_EXPR_ERROR_MSG(INVALID_TYPE_MSG);
+				return ERROR_TYPE_COMPAT;
+			}
+			break;
+		default:
+			if (STACK_FIRST->data_type != DT_INTEGER && STACK_FIRST->data_type != DT_FLOAT64) {
+				PARSER_EXPR_ERROR_MSG(INVALID_TYPE_MSG);
+				return ERROR_TYPE_COMPAT;
+			}
+			break;
 	}
 	return EXIT_SUCCESS;
 }

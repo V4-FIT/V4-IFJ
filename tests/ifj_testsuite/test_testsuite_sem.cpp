@@ -991,3 +991,54 @@ TEST_F(TestSuiteSem, underscore_usage_4) {
 	int res = parser_parse(tklist);
 	EXPECT_TRUE(res == ERROR_SYN || res == ERROR_DEFINITION);
 }
+
+//// extensions
+
+TEST_F(TestSuiteSem, unary_1) {
+	SetUp("go_files/sem/extensions", "unary_1.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), ERROR_TYPE_COMPAT);
+}
+
+TEST_F(TestSuiteSem, unary_2) {
+	SetUp("go_files/sem/extensions", "unary_2.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), ERROR_TYPE_COMPAT);
+}
+
+TEST_F(TestSuiteSem, unary_3) {
+	SetUp("go_files/sem/extensions", "unary_3.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+}
+
+TEST_F(TestSuiteSem, unary_4) {
+	SetUp("go_files/sem/extensions", "unary_4.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+}
+
+TEST_F(TestSuiteSem, unary_5) {
+	SetUp("go_files/sem/extensions", "unary_5.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), ERROR_TYPE_COMPAT);
+}
+
+TEST_F(TestSuiteSem, unary_6) {
+	SetUp("go_files/sem/extensions", "unary_6.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+}
+
+TEST_F(TestSuiteSem, unary_7) {
+	SetUp("go_files/sem/extensions", "unary_7.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+}
