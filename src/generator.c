@@ -225,7 +225,8 @@ static inline void builtin_substr() {
 	INSTRUCTION("LT GF@rega TF@i int@0");
 	INSTRUCTION("JUMPIFEQ !substr_err GF@rega bool@true");
 
-	// test i > len(s) => err
+	// test i >= len(s) => err
+	INSTRUCTION("JUMPIFEQ !substr_err TF@i TF@len"); // if i == len(s)
 	INSTRUCTION("GT GF@rega TF@i TF@len");
 	INSTRUCTION("JUMPIFEQ !substr_err GF@rega bool@true");
 
