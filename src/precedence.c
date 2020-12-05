@@ -15,7 +15,7 @@ static prec_stack_sem_t get_stack_sem(parser_t parser);
 
 // stack operations
 static prec_stack_t stack_init();
-static int stack_push(prec_stack_t *head, token_t token, prec_token_type prec, data_type_t data_type);
+static int stack_push(prec_stack_t *head, token_t token, prec_token_type prec, prec_stack_sem_t sem);
 static void stack_pop(prec_stack_t *head);
 static void stack_delete(prec_stack_t head);
 
