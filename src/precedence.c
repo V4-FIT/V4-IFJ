@@ -262,7 +262,7 @@ int rule_unary(parser_t parser, prec_stack_t *head) {
 int rule_mul_div(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E*/E\n");
 	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
-	// TODO: zero div check
+	SEM_PREC_RULE_CHECK(sem_zero_division);
 	SEM_PREC_RULE_CHECK(sem_evaulate_binary_const_expr);
 	stack_pop(head);
 	stack_pop(head);

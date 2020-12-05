@@ -238,6 +238,21 @@ int sem_evaulate_unary_const_expr(parser_t parser, prec_stack_t *head) {
 }
 
 int sem_zero_division(parser_t parser, prec_stack_t *head) {
-	// TODO
-	return 0;
+	if (STACK_FIRST->sem.constant) {
+		switch (STACK_FIRST->sem.data_type) {
+			case DT_INTEGER:
+				if (STACK_FIRST->sem.value.i == 0) {
+					PARSER_ERROR_MSG("division by zero");
+					return ERROR_ZERO_DIV;
+				}
+				break;
+			case DT_FLOAT64:
+				if (STACK_FIRST->sem.value.f == 0.0) {
+					PARSER_ERROR_MSG("division by zero");
+					return ERROR_ZERO_DIV;
+				}
+				break;
+		}
+	}
+	return EXIT_SUCCESS;
 }
