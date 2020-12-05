@@ -131,6 +131,7 @@ static inline void builtin_input(const char *fname, const char *type) {
 	INSTRUCTION("LABEL ", fname);
 
 	// initialize return stack
+	// TODO: Check if this is needed
 	INSTRUCTION("PUSHS nil@nil");
 
 	// read stdin and push on return stack
@@ -195,7 +196,71 @@ static inline void builtin_len() {
 	INSTRUCTION("RETURN");
 }
 
-static inline void builtin_substr();
+static inline void builtin_substr() {
+	COMMENT("Builtin - substr");
+
+	// function label
+	INSTRUCTION("LABEL substr");
+	INSTRUCTION("PUSHFRAME");
+	INSTRUCTION("CREATEFRAME");
+
+	// define arg vars
+	INSTRUCTION("DEFVAR TF@s");
+	INSTRUCTION("DEFVAR TF@i");
+	INSTRUCTION("DEFVAR TF@n");
+
+	// pop arguments
+	// s - string
+	INSTRUCTION("POPS TF@s");
+	// i - begin pos
+	INSTRUCTION("POPS TF@i");
+	// n - length
+	INSTRUCTION("POPS TF@n");
+
+	// helper vars
+	INSTRUCTION("DEFVAR TF@len");
+	INSTRUCTION("STRLEN TF@len TF@s");
+
+	// test i < 0 => err
+	INSTRUCTION("LT GF@rega TF@i int@0");
+	INSTRUCTION("JUMPIFEQ !substr_err GF@rega bool@true");
+
+	// test i > len(s) => err
+	INSTRUCTION("GT GF@rega TF@i TF@len");
+	INSTRUCTION("JUMPIFEQ !substr_err GF@rega bool@true");
+
+	// test n < 0 => err
+	INSTRUCTION("LT GF@rega TF@n int@0");
+	INSTRUCTION("JUMPIFEQ !substr_err GF@rega bool@true");
+
+	// actual substr
+	INSTRUCTION("MOVE GF@regb string@"); // resulting string
+	INSTRUCTION("LABEL ?substr_loop");
+	INSTRUCTION("JUMPIFEQ !substr_succ TF@n int@0");
+	INSTRUCTION("JUMPIFEQ !substr_succ TF@i TF@len");
+	INSTRUCTION("GETCHAR GF@rega TF@s TF@i");
+	INSTRUCTION("CONCAT GF@regb GF@regb GF@rega");
+	INSTRUCTION("SUB TF@n TF@n int@1");
+	INSTRUCTION("ADD TF@i TF@i int@1");
+	INSTRUCTION("JUMP ?substr_loop");
+
+	// success
+	INSTRUCTION("LABEL !substr_succ");
+	INSTRUCTION("PUSHS GF@regb");
+	INSTRUCTION("PUSHS int@0");
+	INSTRUCTION("JUMP !substr");
+
+	// error
+	INSTRUCTION("LABEL !substr_err");
+	INSTRUCTION("PUSHS string@");
+	INSTRUCTION("PUSHS int@1");
+
+	// end
+	INSTRUCTION("LABEL !substr");
+	INSTRUCTION("POPFRAME");
+	INSTRUCTION("RETURN");
+}
+
 static inline void builtin_ord();
 static inline void builtin_chr();
 
@@ -229,6 +294,7 @@ static void builtin_define() {
 	builtin_int2float();
 	builtin_float2int();
 	builtin_len();
+	builtin_substr();
 }
 
 static void push_token(token_t token) {
