@@ -205,7 +205,7 @@ int sem_define_begin(parser_t parser) {
 int sem_assign_begin(parser_t parser) {
 	parser->sem.stmt = STMT_ASSIGN;
 	parser->sem.ids_begin_it = parser->tkit;
-	parser->sem.ids_num = 0;
+	parser->sem.ids_count = 0;
 	return EXIT_SUCCESS;
 }
 
@@ -226,11 +226,14 @@ int sem_iterative_begin(parser_t parser) {
 
 int sem_return_begin(parser_t parser) {
 	parser->sem.stmt = STMT_RETURN;
+	parser->sem.func_return_it = flist_begin(parser->sem.func_cur.symbol->func.return_list);
+	parser->sem.expr_count = 0;
 	return EXIT_SUCCESS;
 }
 
 int sem_expression_begin(parser_t parser) {
 	parser->sem.expr_begin_it = parser->tkit;
+	parser->sem.expr_count++;
 	return EXIT_SUCCESS;
 }
 
@@ -365,8 +368,8 @@ int sem_bool_condiiton(parser_t parser) {
 	return EXIT_SUCCESS;
 }
 
-int sem_id(parser_t parser) {
-	parser->sem.ids_num++;
+int sem_id_begin(parser_t parser) {
+	parser->sem.ids_count++;
 	return EXIT_SUCCESS;
 }
 
@@ -375,6 +378,26 @@ int sem_call_no_return(parser_t parser) {
 		PARSER_ERROR_MSG("The function '%s' has return parameters (cannot be called on its own)",
 						 parser->sem.func_call.symbol->name);
 		return ERROR_SEM; // TODO: shouldn't this be ERROR_PARAM? find out!
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_return_expr_type_compat(parser_t parser) {
+	if (parser->sem.stmt == STMT_RETURN && flist_it_valid(parser->sem.func_return_it)) {
+		data_type_t func_ret_dt = *(data_type_t*)flist_get(parser->sem.func_return_it);
+		if (parser->sem.expr_data_type != func_ret_dt) {
+			// TODO: error message
+			return ERROR_PARAM;
+		}
+		parser->sem.func_return_it = flist_it_next(parser->sem.func_return_it);
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_return_expr_count(parser_t parser) {
+	if (parser->sem.expr_count != parser->sem.func_cur.symbol->func.return_count) {
+		// TODO: error message
+		return ERROR_PARAM;
 	}
 	return EXIT_SUCCESS;
 }

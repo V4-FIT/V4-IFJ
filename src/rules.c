@@ -479,8 +479,8 @@ int rule_id_n(parser_t parser) {
 int rule_id(parser_t parser) {
 	// Id -> 				  id
 	//						| underscore .
+	SEM_ACTION(sem_id_begin);
 	TK_TEST(TK_IDENTIFIER, TK_UNDERSCORE);
-	SEM_ACTION(sem_id);
 	if (TK_IDENTIFIER) {
 		SEM_ACTION(sem_var_check);
 	}
@@ -585,6 +585,7 @@ int rule_return(parser_t parser) {
 	SEM_ACTION(sem_return_begin);
 	TK_MATCH(TK_KEYW_RETURN);
 	EXECUTE_RULE(rule_expressions_opt);
+	SEM_ACTION(sem_return_expr_count);
 	TK_MATCH(TK_EOL);
 	return EXIT_SUCCESS;
 }
@@ -634,6 +635,7 @@ int rule_expression(parser_t parser) {
 	// Expression -> 	  	 expression .
 	SEM_ACTION(sem_expression_begin);
 	EXECUTE_RULE(parse_expr);
+	SEM_ACTION(sem_return_expr_type_compat);
 	return EXIT_SUCCESS;
 }
 

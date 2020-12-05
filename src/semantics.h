@@ -91,9 +91,15 @@ int sem_zero_division(parser_t parser, prec_stack_t *head);
 int sem_bool_condiiton(parser_t parser);
 
 // semantic action for ids
-int sem_id(parser_t parser);
+int sem_id_begin(parser_t parser);
 
 // a function with return params need to be a part of an assignment
 int sem_call_no_return(parser_t parser);
+
+// check return expression type compatibility with function return params
+int sem_return_expr_type_compat(parser_t parser);
+
+// check if return statement expression count matches the function return count
+int sem_return_expr_count(parser_t parser);
 
 #endif // !IFJ_SEMANTICS_H
