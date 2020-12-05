@@ -3,7 +3,14 @@
 
 #include "parser.h"
 
+// defined in precedence.h
 typedef struct prec_stack *prec_stack_t;
+
+// Creates a new scope for storing symbols
+int sem_enter_scope(parser_t parser);
+
+// Exits the current scope
+int sem_exit_scope(parser_t parser);
 
 // pass1 - defines a functions and checks for redefinition
 int sem_func_define(parser_t parser);
@@ -34,6 +41,30 @@ int sem_var_define_type(parser_t parser);
 
 // check if variable has been defined
 int sem_var_check(parser_t parser);
+
+// call in function definition before stamtements
+int sem_func_stmts_begin(parser_t parser);
+
+// init define statmenet
+int sem_define_begin(parser_t parser);
+
+// init assign statmenet
+int sem_assign_begin(parser_t parser);
+
+// init call statmenet
+int sem_call_begin(parser_t parser);
+
+// init conditional statmenet
+int sem_conditional_begin(parser_t parser);
+
+// init iterative statmenet
+int sem_iterative_begin(parser_t parser);
+
+// init return statmenet
+int sem_return_begin(parser_t parser);
+
+// init semantics for expressions
+int sem_expression_begin(parser_t parser);
 
 // check type compatibility around a binary operation
 int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head);

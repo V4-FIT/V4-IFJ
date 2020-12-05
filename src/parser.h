@@ -34,6 +34,8 @@ typedef struct semantics
 	bool expr_constant;
 	tk_param_t expr_value;
 	tklist_iterator_t expr_begin_it;
+	tklist_iterator_t ids_begin_it;
+	int ids_num;
 } semantics_t;
 
 typedef struct parser

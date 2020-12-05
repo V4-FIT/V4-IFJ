@@ -16,7 +16,7 @@
 			while (TOKEN_TYPE != TK_KEYW_FUNC && TOKEN_TYPE != TK_EOF) { \
 				TK_NEXT();                                               \
 			}                                                            \
-			SEM_EXIT_SCOPE();                                            \
+			SEM_ACTION(sem_exit_scope);                                  \
 			return EXIT_SUCCESS;                                         \
 		}                                                                \
 	} while (0)
@@ -74,28 +74,12 @@
 //// Semantics
 
 // Execute a semantic action and check for semantic errors
-#define SEM_ACTION(_SEM_FUNC)         \
+#define SEM_ACTION(_SEM_FUNC)        \
 	do {                             \
 		int ret = _SEM_FUNC(parser); \
 		if (ret != EXIT_SUCCESS) {   \
 			return ret;              \
 		}                            \
 	} while (0)
-
-// Creates a new scope for storing symbols
-#define SEM_ENTER_SCOPE()                              \
-	do {                                               \
-		if (!symtable_enter_scope(parser->symtable)) { \
-			return ERROR_MISC;                         \
-		}                                              \
-	} while (0)
-
-// Exits the current scope
-#define SEM_EXIT_SCOPE() symtable_exit_scope(parser->symtable)
-
-// Set the most recent statement type
-#define SEM_STMT_SET(_STMT_TYPE_T) parser->sem.stmt = _STMT_TYPE_T
-
-#define SEM_EXPR_BEGIN() parser->sem.expr_begin_it = parser->tkit
 
 #endif // !IFJ_RULEMACROS_H

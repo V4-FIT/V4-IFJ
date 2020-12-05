@@ -109,7 +109,7 @@ int rule_function(parser_t parser) {
 	SEM_ACTION(sem_func_define);
 	TK_NEXT();
 	TK_MATCH(TK_L_PARENTHESIS);
-	SEM_ENTER_SCOPE();
+	SEM_ACTION(sem_enter_scope);
 	EXECUTE_RULE(rule_param_list);
 	TK_MATCH(TK_R_PARENTHESIS);
 	EXECUTE_RULE(rule_return_list);
@@ -118,13 +118,12 @@ int rule_function(parser_t parser) {
 	/*************************/
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
-	SEM_STMT_SET(STMT_DEFAULT);
 	EXECUTE_RULE(rule_eol_opt_n);
+	SEM_ACTION(sem_func_stmts_begin);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
-	SEM_EXIT_SCOPE();
+	SEM_ACTION(sem_exit_scope);
 	SEM_ACTION(sem_func_has_return_stmt);
-
 	return EXIT_SUCCESS;
 }
 
@@ -301,7 +300,9 @@ int rule_def_ass_call(parser_t parser) {
 		EXECUTE_RULE(rule_var_define);
 	} else if (TOKEN_SECOND_TYPE == TK_L_PARENTHESIS) {
 		EXECUTE_RULE(rule_functionCall);
+		// TODO: SEM - this function call shall not have return types
 	} else {
+		// TODO: init 
 		EXECUTE_RULE(rule_ids);
 		EXECUTE_RULE(rule_assignOp);
 		EXECUTE_RULE(rule_exprs_funCall);
@@ -328,7 +329,7 @@ int rule_var_define_opt(parser_t parser) {
 
 int rule_var_define(parser_t parser) {
 	// Var_define -> 	  	  id defineOp Expression
-	SEM_STMT_SET(STMT_DEFINE);
+	SEM_ACTION(sem_define_begin);
 	TK_TEST(TK_IDENTIFIER);
 	SEM_ACTION(sem_var_define);
 	TK_NEXT();
@@ -374,11 +375,11 @@ int rule_else(parser_t parser) {
 		case TK_L_CURLY:
 			TK_NEXT();
 			TK_MATCH(TK_EOL);
-			SEM_ENTER_SCOPE();
+			SEM_ACTION(sem_enter_scope);
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
 			TK_MATCH(TK_R_CURLY);
-			SEM_EXIT_SCOPE();
+			SEM_ACTION(sem_exit_scope);
 		default:
 			break;
 	}
@@ -388,18 +389,17 @@ int rule_else(parser_t parser) {
 /// 22
 int rule_conditional(parser_t parser) {
 	// Conditional -> 	  	  if Expression l_curly eol Eol_opt_n Statements r_curly .
-	SEM_STMT_SET(STMT_CONDITIONAL);
+	SEM_ACTION(sem_conditional_begin);
 	TK_NEXT();
 	EXECUTE_RULE(rule_expression);
 	SEM_ACTION(sem_bool_condiiton);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
-	SEM_ENTER_SCOPE();
+	SEM_ACTION(sem_enter_scope);
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
-
-	SEM_EXIT_SCOPE();
+	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
 }
 
@@ -407,9 +407,9 @@ int rule_conditional(parser_t parser) {
 int rule_iterative(parser_t parser) {
 	// Iterative -> 		  for Var_define_opt semicolon Expression semicolon
 	//						  Assignment_opt l_curly eol Eol_opt_n Statements r_curly eol.
-	SEM_STMT_SET(STMT_ITERATIVE);
+	SEM_ACTION(sem_iterative_begin);
 	TK_NEXT();
-	SEM_ENTER_SCOPE();
+	SEM_ACTION(sem_enter_scope);
 	EXECUTE_RULE(rule_var_define_opt);
 	TK_MATCH(TK_SEMICOLON);
 	EXECUTE_RULE(rule_expression);
@@ -418,13 +418,13 @@ int rule_iterative(parser_t parser) {
 	EXECUTE_RULE(rule_assignment_opt);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
-	SEM_ENTER_SCOPE();
+	SEM_ACTION(sem_enter_scope);
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 	TK_MATCH(TK_EOL);
-	SEM_EXIT_SCOPE();
-	SEM_EXIT_SCOPE();
+	SEM_ACTION(sem_exit_scope);
+	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
 }
 
@@ -447,7 +447,7 @@ int rule_assignment_opt(parser_t parser) {
 /// 24
 int rule_assignment(parser_t parser) {
 	// Assignment -> 	  	  Ids AssignOp Exprs_FunCall .
-	SEM_STMT_SET(STMT_ASSIGN);
+	SEM_ACTION(sem_assign_begin);
 	EXECUTE_RULE(rule_ids);
 	EXECUTE_RULE(rule_assignOp);
 	EXECUTE_RULE(rule_exprs_funCall);
@@ -517,7 +517,7 @@ int rule_exprs_funCall(parser_t parser) {
 /// 30
 int rule_functionCall(parser_t parser) {
 	// FunctionCall -> 		  id l_parenthesis Eol_opt Arguments r_parenthesis .
-	SEM_STMT_SET(STMT_CALL);
+	SEM_ACTION(sem_call_begin);
 	TK_TEST(TK_IDENTIFIER);
 	SEM_ACTION(sem_func_callable);
 	TK_NEXT();
@@ -583,7 +583,7 @@ int rule_Argument(parser_t parser) {
 /// 34
 int rule_return(parser_t parser) {
 	// Return -> 			  return Expressions_opt eol.
-	SEM_STMT_SET(STMT_RETURN);
+	SEM_ACTION(sem_return_begin);
 	TK_MATCH(TK_KEYW_RETURN);
 	EXECUTE_RULE(rule_expressions_opt);
 	TK_MATCH(TK_EOL);
@@ -633,7 +633,7 @@ int rule_expression_n(parser_t parser) {
 /// 37
 int rule_expression(parser_t parser) {
 	// Expression -> 	  	 expression .
-	SEM_EXPR_BEGIN();
+	SEM_ACTION(sem_expression_begin);
 	EXECUTE_RULE(parse_expr);
 	return EXIT_SUCCESS;
 }

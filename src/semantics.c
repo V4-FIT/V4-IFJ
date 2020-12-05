@@ -5,6 +5,19 @@
 #include "error.h"
 #include "precedence.h"
 
+int sem_enter_scope(parser_t parser) {
+	if (!symtable_enter_scope(parser->symtable)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	} 
+	return EXIT_SUCCESS;
+}
+
+int sem_exit_scope(parser_t parser) {
+	symtable_exit_scope(parser->symtable);
+	return EXIT_SUCCESS;
+}
+
 int sem_func_define(parser_t parser) {
 	if (parser->first_pass) {
 		if (symtable_has_func(parser->symtable, parser->token)) {
@@ -177,6 +190,46 @@ int sem_var_check(parser_t parser) {
 		}
 	}
 	return 0;
+}
+
+int sem_func_stmts_begin(parser_t parser) {
+	parser->sem.stmt = STMT_DEFAULT;
+	return EXIT_SUCCESS;
+}
+
+int sem_define_begin(parser_t parser) {
+	parser->sem.stmt = STMT_DEFINE;
+	return EXIT_SUCCESS;
+}
+
+int sem_assign_begin(parser_t parser) {
+	parser->sem.stmt = STMT_ASSIGN;
+	return EXIT_SUCCESS;
+}
+
+int sem_call_begin(parser_t parser) {
+	parser->sem.stmt = STMT_CALL;
+	return EXIT_SUCCESS;
+}
+
+int sem_conditional_begin(parser_t parser) {
+	parser->sem.stmt = STMT_CONDITIONAL;
+	return EXIT_SUCCESS;
+}
+
+int sem_iterative_begin(parser_t parser) {
+	parser->sem.stmt = STMT_ITERATIVE;
+	return EXIT_SUCCESS;
+}
+
+int sem_return_begin(parser_t parser) {
+	parser->sem.stmt = STMT_RETURN;
+	return EXIT_SUCCESS;
+}
+
+int sem_expression_begin(parser_t parser) {
+	parser->sem.expr_begin_it = parser->tkit;
+	return EXIT_SUCCESS;
 }
 
 int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head) {
