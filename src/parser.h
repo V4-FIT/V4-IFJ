@@ -19,6 +19,7 @@ typedef struct parser
 	token_t token;
 	token_t token_second;
 	bool first_pass;
+	flist_t return_id_list;
 } * parser_t;
 
 /**

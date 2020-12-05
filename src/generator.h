@@ -10,6 +10,7 @@ void gen_finish();
 /// Function definition
 void gen_func_begin(const char *identifier);
 void gen_func_init_stack();
+void gen_func_restore_stack();
 void gen_func_param(const char *identifier);
 void gen_func_end();
 

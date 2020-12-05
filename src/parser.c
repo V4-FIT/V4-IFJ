@@ -20,6 +20,13 @@ parser_t parser_init(tklist_t tklist) {
 		return NULL;
 	}
 
+	parser->return_id_list = flist_init(sizeof(char *));
+	if (parser->return_id_list == NULL) {
+		symtable_free(parser->symtable);
+		free(parser);
+		return NULL;
+	}
+
 	parser->tklist = tklist;
 	parser->token = tklist_front(tklist);
 	parser->first_pass = true;
@@ -56,5 +63,6 @@ int parser_parse(tklist_t tklist) {
 
 void parser_free(parser_t parser) {
 	symtable_free(parser->symtable);
+	flist_free(parser->return_id_list);
 	free(parser);
 }

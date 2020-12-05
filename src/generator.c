@@ -28,6 +28,9 @@
  * ^! -> function end (cleanup or error)
  * ^? -> loop label
  * !_main -> program end
+ *
+ * TODO
+ * - scoped variables
  */
 
 ////// Macros
@@ -288,6 +291,10 @@ void gen_func_begin(const char *identifier) {
 
 void gen_func_init_stack() {
 	INSTRUCTION("PUSHS nil@nil");
+}
+
+void gen_func_restore_stack() {
+	INSTRUCTION("POPS GF@rega");
 }
 
 void gen_func_param(const char *identifier) {
