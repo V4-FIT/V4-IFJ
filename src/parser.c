@@ -8,6 +8,8 @@
 #include "precedence.h"
 #include "tokens.h"
 
+const char *stmt2str_map[] = {"default", "define", "assign", "call", "if", "for", "return"};
+
 parser_t parser_init(tklist_t tklist) {
 	parser_t parser = malloc(sizeof(struct parser));
 	if (parser == NULL) {

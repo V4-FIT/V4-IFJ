@@ -22,6 +22,8 @@ typedef enum stmt_types
 	STMT_RETURN
 } stmt_types_t;
 
+extern const char *stmt2str_map[];
+
 typedef struct semantics
 {
 	symbol_ref_t func_cur;

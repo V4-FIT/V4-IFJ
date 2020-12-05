@@ -391,6 +391,7 @@ int rule_conditional(parser_t parser) {
 	SEM_STMT_SET(STMT_CONDITIONAL);
 	TK_NEXT();
 	EXECUTE_RULE(rule_expression);
+	SEM_CHECK(sem_bool_condiiton);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
 	SEM_ENTER_SCOPE();
@@ -412,6 +413,7 @@ int rule_iterative(parser_t parser) {
 	EXECUTE_RULE(rule_var_define_opt);
 	TK_MATCH(TK_SEMICOLON);
 	EXECUTE_RULE(rule_expression);
+	SEM_CHECK(sem_bool_condiiton);
 	TK_MATCH(TK_SEMICOLON);
 	EXECUTE_RULE(rule_assignment_opt);
 	TK_MATCH(TK_L_CURLY);

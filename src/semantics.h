@@ -56,4 +56,7 @@ int sem_evaulate_unary_const_expr(parser_t parser, prec_stack_t *head);
 // check against zero dvision
 int sem_zero_division(parser_t parser, prec_stack_t *head);
 
+// check if condition expression is of type bool
+int sem_bool_condiiton(parser_t parser);
+
 #endif // !IFJ_SEMANTICS_H
