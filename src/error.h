@@ -41,10 +41,10 @@ enum CompilerErrors
 	fprintf(stderr, "\n")
 
 #define MISMATCHED_TYPES_MSG fprintf(stderr, "(mismatched types %s and %s)", \
-									 dt2str_map[STACK_THIRD->data_type],     \
-									 dt2str_map[STACK_FIRST->data_type])
+									 dt2str_map[STACK_THIRD->sem.data_type], \
+									 dt2str_map[STACK_FIRST->sem.data_type])
 
-#define INVALID_TYPE_MSG fprintf(stderr, "(invalid type %s)", dt2str_map[STACK_FIRST->data_type])
+#define INVALID_TYPE_MSG fprintf(stderr, "(invalid type %s)", dt2str_map[STACK_FIRST->sem.data_type])
 
 
 #define ALLOCATION_ERROR_MSG() fprintf(stderr, "ERROR - Allocation failed\n")

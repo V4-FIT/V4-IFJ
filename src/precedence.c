@@ -11,7 +11,7 @@
 
 static prec_token_type convert_type(prec_stack_t head, token_t t1);
 static int reduce(parser_t parser, prec_stack_t *head);
-static data_type_t get_data_type(parser_t parser);
+static prec_stack_sem_t get_stack_sem(parser_t parser);
 
 // stack operations
 static prec_stack_t stack_init();
@@ -24,6 +24,7 @@ static bool stack_term(prec_stack_t *head);
 static bool stack_un_term(prec_stack_t *head);
 static bool stack_lparenthesis_term_rparenthesis(prec_stack_t *head);
 static bool stack_term_op_term(prec_stack_t *head);
+static bool stack_exit(prec_stack_t *head);
 
 // if the deterministic pushdown automaton has accepted a language
 bool dpda_finished(prec_token_type type, prec_stack_t head);
@@ -102,26 +103,36 @@ prec_token_type convert_type(prec_stack_t head, token_t t) {
 	}
 }
 
-data_type_t get_data_type(parser_t parser) {
+prec_stack_sem_t get_stack_sem(parser_t parser) {
 	symbol_ref_t symbol_ref;
+	prec_stack_sem_t sem = {.data_type = DT_UNDEFINED, .constant = false, .value.i = 0};
 	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 			symbol_ref = symtable_find(parser->symtable, parser->token);
 			assert(symbol_valid(symbol_ref));
-			return symbol_ref.symbol->var.data_type;
+			sem.data_type = symbol_ref.symbol->var.data_type;
+			sem.constant = symbol_ref.symbol->var.constant;
+			sem.value = symbol_ref.symbol->var.value;
 			break;
 		case TK_INT_LIT:
-			return DT_INTEGER;
+			sem.data_type = DT_INTEGER;
+			sem.constant = true;
+			sem.value.i = parser->token->param.i;
+			break;
 		case TK_FLOAT_LIT:
-			return DT_FLOAT64;
+			sem.data_type = DT_FLOAT64;
+			sem.constant = true;
+			sem.value.f = parser->token->param.f;
+			break;
 		case TK_STR_LIT:
-			return DT_STRING;
+			sem.data_type = DT_STRING;
+			break;
 		case TK_KEYW_TRUE:
 		case TK_KEYW_FALSE:
-			return DT_BOOL;
-		default:
-			return DT_UNDEFINED;
+			sem.data_type = DT_BOOL;
+			break;
 	}
+	return sem;
 }
 
 void stack_pop(prec_stack_t *head) {
@@ -142,7 +153,7 @@ prec_stack_t stack_init() {
 	return head;
 }
 
-int stack_push(prec_stack_t *head, token_t token, prec_token_type type, data_type_t data_type) {
+int stack_push(prec_stack_t *head, token_t token, prec_token_type type, prec_stack_sem_t sem) {
 	prec_stack_t new = malloc(sizeof(struct prec_stack));
 	if (new == NULL) {
 		ALLOCATION_ERROR_MSG();
@@ -151,7 +162,7 @@ int stack_push(prec_stack_t *head, token_t token, prec_token_type type, data_typ
 
 	new->token = token;
 	new->type = type;
-	new->data_type = data_type;
+	new->sem = sem;
 	new->next = *head;
 	new->processed = false;
 
@@ -196,6 +207,12 @@ bool stack_term_op_term(prec_stack_t *head) {
 		   STACK_THIRD->processed == false;
 }
 
+bool stack_exit(prec_stack_t *head) {
+	return STACK_FIRST->processed &&
+		   STACK_FIRST->type == PREC_I;
+}
+
+
 bool dpda_finished(prec_token_type type, prec_stack_t head) {
 	return (type == PREC_DOLLAR && head->type == PREC_I && head->processed && head->next->type == PREC_DOLLAR);
 }
@@ -213,17 +230,18 @@ int rule_brackets(parser_t parser, prec_stack_t *head) {
 
 	stack_pop(head);
 	token_t tk = (*head)->token;
-	data_type_t dt = (*head)->data_type;
+	prec_stack_sem_t sem = (*head)->sem;
 	stack_pop(head);
 	stack_pop(head);
 
-	stack_push(head, tk, PREC_I, dt);
+	stack_push(head, tk, PREC_I, sem);
 	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
 
 int rule_exit(parser_t parser, prec_stack_t *head) {
 	// printf("E -> $\n");
+	SEM_PREC_RULE_CHECK(sem_prec_rule_exit);
 	stack_pop(head); // remove E
 	return EXIT_SUCCESS;
 }
@@ -232,10 +250,10 @@ int rule_unary(parser_t parser, prec_stack_t *head) {
 	// printf("E -> +-!E\n");
 	SEM_PREC_RULE_CHECK(sem_unary_op_type_compat);
 	token_t tk = (*head)->token;
-	data_type_t dt = (*head)->data_type;
+	prec_stack_sem_t sem = (*head)->sem;
 	stack_pop(head);
 	stack_pop(head);
-	stack_push(head, tk, PREC_I, dt);
+	stack_push(head, tk, PREC_I, sem);
 	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
@@ -264,7 +282,7 @@ int rule_relation(parser_t parser, prec_stack_t *head) {
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
-	(*head)->data_type = DT_BOOL;
+	(*head)->sem.data_type = DT_BOOL;
 	return EXIT_SUCCESS;
 }
 
@@ -274,7 +292,7 @@ int rule_equality(parser_t parser, prec_stack_t *head) {
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
-	(*head)->data_type = DT_BOOL;
+	(*head)->sem.data_type = DT_BOOL;
 	return EXIT_SUCCESS;
 }
 
@@ -318,6 +336,8 @@ int reduce(parser_t parser, prec_stack_t *head) {
 			case PREC_OR:
 				return rule_or(parser, head);
 		}
+	} else if (stack_exit(head)) {
+		return rule_exit(parser, head);
 	}
 	return ERROR_SYN;
 }
@@ -325,38 +345,31 @@ int reduce(parser_t parser, prec_stack_t *head) {
 ///// Public
 
 int parse_expr(parser_t parser) {
-	prec_stack_t head = stack_init();
-	if (head == NULL) {
-		ALLOCATION_ERROR_MSG();
-		return ERROR_MISC;
-	}
+	PARSE_EXPR_BEGIN();
 
 	SEM_PREC_CHECK(sem_var_check);
-	prec_token_type type = convert_type(head, parser->token);
-	CHECK_TYPE();
+	GET_PREC_TYPE();
 	do {
-		switch (prec_table[HEAD()->type][type]) {
+		switch (PREC_TABLE()) {
 			case OPEN:
 				head->processed = false;
 				LOAD_NEXT();
 				SEM_PREC_CHECK(sem_var_check);
 				break;
 			case CLOS:
-				REDUCE(); // expect to be able to reduce one
+				REDUCE();
 				break;
 			case EQUA:
 				LOAD_NEXT();
 				SEM_PREC_CHECK(sem_var_check);
 				break;
-			case EMPT: // empty means error
-				stack_delete(head);
+			case EMPT:
+				PARSE_EXPR_END();
 				return ERROR_SYN;
 		}
 	} while (!dpda_finished(type, head));
 
-	// clear stack and exit
-	rule_exit(parser, &head);
-	stack_delete(head);
-
+	REDUCE();
+	PARSE_EXPR_END();
 	return EXIT_SUCCESS;
 }

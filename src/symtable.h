@@ -45,7 +45,8 @@ extern const char *dt2str_map[];
 typedef struct
 {
 	data_type_t data_type;
-	//TODO: SYMTABLE - add required attributes for variables
+	bool constant;
+	tk_param_t value;
 } sym_var_t;
 
 /**

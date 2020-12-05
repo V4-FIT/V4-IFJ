@@ -32,7 +32,7 @@ int sem_func_declare_param(parser_t parser) {
 			ALLOCATION_ERROR_MSG();
 			return ERROR_MISC;
 		}
-		sym_var_t var_data = {0};
+		sym_var_t var_data = {.data_type = DT_UNDEFINED, .constant = false, .value = 0};
 		switch (parser->token_second->type) {
 			case TK_KEYW_FLOAT64:
 				var_data.data_type = DT_FLOAT64;
@@ -131,7 +131,7 @@ int sem_func_callable(parser_t parser) {
 
 int sem_main_defined(parser_t parser) {
 	if (parser->first_pass) {
-		struct token tk = { .type = TK_IDENTIFIER, .lexeme = "main"};
+		struct token tk = {.type = TK_IDENTIFIER, .lexeme = "main"};
 		symbol_ref_t symbol_ref = symtable_find(parser->symtable, &tk);
 		if (symbol_valid(symbol_ref)) {
 			if (symbol_ref.symbol->func.param_count || symbol_ref.symbol->func.return_count) {
@@ -173,7 +173,7 @@ int sem_var_check(parser_t parser) {
 }
 
 int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head) {
-	if (STACK_FIRST->data_type != STACK_THIRD->data_type) {
+	if (STACK_FIRST->sem.data_type != STACK_THIRD->sem.data_type) {
 		PARSER_EXPR_ERROR_MSG(MISMATCHED_TYPES_MSG);
 		return ERROR_TYPE_COMPAT;
 	}
@@ -181,7 +181,7 @@ int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head) {
 }
 
 int sem_logical_op_type_compat(parser_t parser, prec_stack_t *head) {
-	if (STACK_FIRST->data_type != DT_BOOL || STACK_THIRD->data_type != DT_BOOL) {
+	if (STACK_FIRST->sem.data_type != DT_BOOL || STACK_THIRD->sem.data_type != DT_BOOL) {
 		PARSER_EXPR_ERROR_MSG(MISMATCHED_TYPES_MSG);
 		return ERROR_TYPE_COMPAT;
 	}
@@ -191,17 +191,25 @@ int sem_logical_op_type_compat(parser_t parser, prec_stack_t *head) {
 int sem_unary_op_type_compat(parser_t parser, prec_stack_t *head) {
 	switch (STACK_SECOND->token->type) {
 		case TK_NOT:
-			if (STACK_FIRST->data_type != DT_BOOL) {
+			if (STACK_FIRST->sem.data_type != DT_BOOL) {
 				PARSER_EXPR_ERROR_MSG(INVALID_TYPE_MSG);
 				return ERROR_TYPE_COMPAT;
 			}
 			break;
 		default:
-			if (STACK_FIRST->data_type != DT_INTEGER && STACK_FIRST->data_type != DT_FLOAT64) {
+			if (STACK_FIRST->sem.data_type != DT_INTEGER && STACK_FIRST->sem.data_type != DT_FLOAT64) {
 				PARSER_EXPR_ERROR_MSG(INVALID_TYPE_MSG);
 				return ERROR_TYPE_COMPAT;
 			}
 			break;
 	}
+	return EXIT_SUCCESS;
+}
+
+int sem_prec_rule_exit(parser_t parser, prec_stack_t *head) {
+	prec_stack_sem_t sem = STACK_FIRST->sem;
+	parser->sem.expr_data_type = sem.data_type;
+	parser->sem.expr_constant = sem.constant;
+	parser->sem.expr_value = sem.value;
 	return EXIT_SUCCESS;
 }

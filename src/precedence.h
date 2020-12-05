@@ -10,6 +10,21 @@
 #define STACK_SECOND (*head)->next
 #define STACK_THIRD (*head)->next->next
 
+// setup stack and type variable
+#define PARSE_EXPR_BEGIN()            \
+	prec_stack_t head = stack_init(); \
+	if (head == NULL) {               \
+		ALLOCATION_ERROR_MSG();       \
+		return ERROR_MISC;            \
+	}                                 \
+	prec_token_type type
+
+// finish parsing expr and clean up
+#define PARSE_EXPR_END() stack_delete(head)
+
+// current precedence
+#define PREC_TABLE() prec_table[HEAD()->type][type]
+
 // Get next token and skip TK_EOLs when possible
 #define TK_PREC_NEXT()                        \
 	do {                                      \
@@ -60,26 +75,29 @@
 // don't acount for E in stack head
 #define HEAD() (head->type == PREC_I && head->processed && head->next->type != PREC_UNARY ? head->next : head)
 
-#define CHECK_TYPE()              \
-	do {                          \
-		if (type == PREC_ERROR) { \
-			stack_delete(head);   \
-			return ERROR_MISC;    \
-		}                         \
+// get precedence type
+#define GET_PREC_TYPE()                           \
+	do {                                          \
+		type = convert_type(head, parser->token); \
+		if (type == PREC_ERROR) {                 \
+			stack_delete(head);                   \
+			return ERROR_MISC;                    \
+		}                                         \
 	} while (0)
 
+// save current and load next token
 #define LOAD_NEXT()                                                              \
 	do {                                                                         \
-		int ret = stack_push(&head, parser->token, type, get_data_type(parser)); \
+		int ret = stack_push(&head, parser->token, type, get_stack_sem(parser)); \
 		if (ret != EXIT_SUCCESS) {                                               \
 			stack_delete(head);                                                  \
 			return ret;                                                          \
 		}                                                                        \
 		TK_PREC_NEXT();                                                          \
-		type = convert_type(head, parser->token);                                \
-		CHECK_TYPE();                                                            \
+		GET_PREC_TYPE();                                                         \
 	} while (0)
 
+// execute reduction rule
 #define REDUCE()                         \
 	do {                                 \
 		int ret = reduce(parser, &head); \
@@ -97,7 +115,7 @@ typedef enum
 	PREC_MUL_DIV,       // *,/
 	PREC_PLUS_MINUS,    // +,-
 	PREC_RELATION,      // <, <=, >, >=
-	PREC_EQUALITY,         // ==, !=
+	PREC_EQUALITY,      // ==, !=
 	PREC_AND,           // &&
 	PREC_OR,            // ||
 	PREC_I,             // id, string/int/float/bool literal
@@ -124,12 +142,19 @@ typedef enum
 
 // stack
 
+typedef struct prec_stack_sem
+{
+	data_type_t data_type;
+	bool constant;
+	tk_param_t value;
+} prec_stack_sem_t;
+
 typedef struct prec_stack
 {
 	token_t token;
 	prec_token_type type;
 	bool processed;
-	data_type_t data_type;
+	prec_stack_sem_t sem;
 	struct prec_stack *next;
 } * prec_stack_t;
 

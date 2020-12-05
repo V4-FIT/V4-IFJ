@@ -28,7 +28,9 @@ typedef struct semantics
 	symbol_ref_t func_call;
 	symbol_ref_t var;
 	stmt_types_t stmt;
-	data_type_t expression_type;
+	data_type_t expr_data_type;
+	bool expr_constant;
+	tk_param_t expr_value;
 	tklist_iterator_t expr_begin_it;
 } semantics_t;
 

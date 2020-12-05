@@ -169,6 +169,8 @@ symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_
 			}
 		} else {
 			symbol.var.data_type = DT_UNDEFINED;
+			symbol.var.constant = false;
+			symbol.var.value.i = 0;
 		}
 		// set symbol data
 		hmap_set_value(symbol_ref.it, &symbol);
