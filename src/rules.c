@@ -480,7 +480,11 @@ int rule_id_n(parser_t parser) {
 int rule_id(parser_t parser) {
 	// Id -> 				  id
 	//						| underscore .
-	TK_MATCH(TK_IDENTIFIER, TK_UNDERSCORE);
+	TK_TEST(TK_IDENTIFIER, TK_UNDERSCORE);
+	if (TK_IDENTIFIER) {
+		SEM_CHECK(sem_var_check);
+	}
+	TK_NEXT();
 	return EXIT_SUCCESS;
 }
 
