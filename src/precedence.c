@@ -241,15 +241,15 @@ int rule_brackets(parser_t parser, prec_stack_t *head) {
 
 int rule_exit(parser_t parser, prec_stack_t *head) {
 	// printf("E -> $\n");
-	SEM_PREC_RULE_CHECK(sem_prec_rule_exit);
+	SEM_PREC_RULE_ACTION(sem_prec_rule_exit);
 	stack_pop(head); // remove E
 	return EXIT_SUCCESS;
 }
 
 int rule_unary(parser_t parser, prec_stack_t *head) {
 	// printf("E -> +-!E\n");
-	SEM_PREC_RULE_CHECK(sem_unary_op_type_compat);
-	SEM_PREC_RULE_CHECK(sem_evaulate_unary_const_expr);
+	SEM_PREC_RULE_ACTION(sem_unary_op_type_compat);
+	SEM_PREC_RULE_ACTION(sem_evaulate_unary_const_expr);
 	token_t tk = (*head)->token;
 	prec_stack_sem_t sem = (*head)->sem;
 	stack_pop(head);
@@ -261,9 +261,9 @@ int rule_unary(parser_t parser, prec_stack_t *head) {
 
 int rule_mul_div(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E*/E\n");
-	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
-	SEM_PREC_RULE_CHECK(sem_zero_division);
-	SEM_PREC_RULE_CHECK(sem_evaulate_binary_const_expr);
+	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
+	SEM_PREC_RULE_ACTION(sem_zero_division);
+	SEM_PREC_RULE_ACTION(sem_evaulate_binary_const_expr);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -272,8 +272,8 @@ int rule_mul_div(parser_t parser, prec_stack_t *head) {
 
 int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E+-E\n");
-	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
-	SEM_PREC_RULE_CHECK(sem_evaulate_binary_const_expr);
+	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
+	SEM_PREC_RULE_ACTION(sem_evaulate_binary_const_expr);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -282,7 +282,7 @@ int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 
 int rule_relation(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E<>E\n");
-	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
+	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -292,7 +292,7 @@ int rule_relation(parser_t parser, prec_stack_t *head) {
 
 int rule_equality(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E==E\n");
-	SEM_PREC_RULE_CHECK(sem_binary_op_type_compat);
+	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -302,7 +302,7 @@ int rule_equality(parser_t parser, prec_stack_t *head) {
 
 int rule_and(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E && E\n");
-	SEM_PREC_RULE_CHECK(sem_logical_op_type_compat);
+	SEM_PREC_RULE_ACTION(sem_logical_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -311,7 +311,7 @@ int rule_and(parser_t parser, prec_stack_t *head) {
 
 int rule_or(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E || E\n");
-	SEM_PREC_RULE_CHECK(sem_logical_op_type_compat);
+	SEM_PREC_RULE_ACTION(sem_logical_op_type_compat);
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -351,21 +351,21 @@ int reduce(parser_t parser, prec_stack_t *head) {
 int parse_expr(parser_t parser) {
 	PARSE_EXPR_BEGIN();
 
-	SEM_PREC_CHECK(sem_var_check);
+	SEM_PREC_ACTION(sem_var_check);
 	GET_PREC_TYPE();
 	do {
 		switch (PREC_TABLE()) {
 			case OPEN:
 				head->processed = false;
 				LOAD_NEXT();
-				SEM_PREC_CHECK(sem_var_check);
+				SEM_PREC_ACTION(sem_var_check);
 				break;
 			case CLOS:
 				REDUCE();
 				break;
 			case EQUA:
 				LOAD_NEXT();
-				SEM_PREC_CHECK(sem_var_check);
+				SEM_PREC_ACTION(sem_var_check);
 				break;
 			case EMPT:
 				PARSE_EXPR_END();

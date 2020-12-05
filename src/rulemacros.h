@@ -74,7 +74,7 @@
 //// Semantics
 
 // Execute a semantic action and check for semantic errors
-#define SEM_CHECK(_SEM_FUNC)         \
+#define SEM_ACTION(_SEM_FUNC)         \
 	do {                             \
 		int ret = _SEM_FUNC(parser); \
 		if (ret != EXIT_SUCCESS) {   \

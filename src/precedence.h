@@ -54,7 +54,7 @@
 	} while (0);
 
 // check semantics in parse_expr
-#define SEM_PREC_CHECK(_SEM_FUNC)    \
+#define SEM_PREC_ACTION(_SEM_FUNC)   \
 	do {                             \
 		int ret = _SEM_FUNC(parser); \
 		if (ret != EXIT_SUCCESS) {   \
@@ -64,7 +64,7 @@
 	} while (0)
 
 // check semantics in reduction rules
-#define SEM_PREC_RULE_CHECK(_SEM_FUNC)     \
+#define SEM_PREC_RULE_ACTION(_SEM_FUNC)    \
 	do {                                   \
 		int ret = _SEM_FUNC(parser, head); \
 		if (ret != EXIT_SUCCESS) {         \
