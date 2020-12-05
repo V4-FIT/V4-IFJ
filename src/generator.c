@@ -262,8 +262,83 @@ static inline void builtin_substr() {
 	INSTRUCTION("RETURN");
 }
 
-static inline void builtin_ord();
-static inline void builtin_chr();
+static inline void builtin_ord() {
+	COMMENT("Builtin - ord");
+
+	// function label
+	INSTRUCTION("LABEL ord");
+	INSTRUCTION("PUSHFRAME");
+	INSTRUCTION("CREATEFRAME");
+
+	// define arg vars
+	INSTRUCTION("DEFVAR TF@s");
+	INSTRUCTION("DEFVAR TF@i");
+
+	// pop argument
+	// s
+	INSTRUCTION("POPS TF@s");
+	// i
+	INSTRUCTION("POPS TF@i");
+
+	// test i < 0
+	INSTRUCTION("LT GF@rega TF@i int@0");
+	INSTRUCTION("JUMPIFEQ !ord_err GF@rega bool@true");
+
+	// test i >= len(s)
+	INSTRUCTION("STRLEN GF@rega TF@s");
+	INSTRUCTION("JUMPIFEQ !ord_err TF@i GF@rega"); // if i == len(s)
+	INSTRUCTION("GT GF@rega TF@i GF@rega");
+	INSTRUCTION("JUMPIFEQ !ord_err GF@rega bool@true");
+
+	// actual ord
+	INSTRUCTION("STRI2INT TF@s TF@s TF@i");
+	INSTRUCTION("PUSHS TF@s");
+	INSTRUCTION("PUSHS int@0");
+	INSTRUCTION("JUMP !ord");
+
+	// error
+	INSTRUCTION("LABEL !ord_err");
+	INSTRUCTION("PUSHS int@0");
+	INSTRUCTION("PUSHS int@1");
+
+	// end
+	INSTRUCTION("LABEL !ord");
+	INSTRUCTION("POPFRAME");
+	INSTRUCTION("RETURN");
+}
+
+static inline void builtin_chr() {
+	COMMENT("Builtin - chr");
+
+	// function label
+	INSTRUCTION("LABEL chr");
+
+	// pop argument
+	INSTRUCTION("POPS GF@regb");
+
+	// test i < 0
+	INSTRUCTION("LT GF@rega GF@regb int@0");
+	INSTRUCTION("JUMPIFEQ !chr_err GF@rega bool@true");
+
+	// test i > 255
+	INSTRUCTION("GT GF@rega GF@regb int@255");
+	INSTRUCTION("JUMPIFEQ !chr_err GF@rega bool@true");
+
+	// actual chr
+	INSTRUCTION("PUSHS GF@regb");
+	INSTRUCTION("INT2CHARS");
+	INSTRUCTION("PUSHS int@0");
+	INSTRUCTION("JUMP !chr");
+
+	// error
+	INSTRUCTION("LABEL !chr_err");
+	INSTRUCTION("PUSHS string@");
+	INSTRUCTION("PUSHS int@1");
+
+	// end
+	INSTRUCTION("LABEL !chr");
+	INSTRUCTION("RETURN");
+}
 
 ////// Code segment generation -> private generators
 
@@ -296,6 +371,8 @@ static void builtin_define() {
 	builtin_float2int();
 	builtin_len();
 	builtin_substr();
+	builtin_ord();
+	builtin_chr();
 }
 
 static void push_token(token_t token) {
