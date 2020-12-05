@@ -31,6 +31,7 @@
  *
  * TODO
  * - scoped variables
+ * - check the usage of gen_func_init_stack for redundant nil-s left in the stack
  */
 
 ////// Macros
@@ -97,7 +98,7 @@ static void encode_string_literal(const char *string) {
 
 ////// Builtin function definitions (private)
 
-static void builtin_print() {
+static inline void builtin_print() {
 	COMMENT("Builtin - print");
 
 	// function label
@@ -123,7 +124,7 @@ static void builtin_print() {
  * @param fname function name -> one of  {inputi, inputf, inputs, inputb}
  * @param type var type -> one of {int, float, string, bool}
  */
-static void builtin_input(const char *fname, const char *type) {
+static inline void builtin_input(const char *fname, const char *type) {
 	COMMENT("Builtin - inputs");
 
 	// function label
@@ -149,7 +150,7 @@ static void builtin_input(const char *fname, const char *type) {
 	INSTRUCTION("RETURN");
 }
 
-static void builtin_int2float() {
+static inline void builtin_int2float() {
 	COMMENT("Builtin - int2float");
 
 	// function label
@@ -162,7 +163,7 @@ static void builtin_int2float() {
 	INSTRUCTION("RETURN");
 }
 
-static void builtin_float2int() {
+static inline void builtin_float2int() {
 	COMMENT("Builtin - float2int");
 
 	// function label
@@ -175,7 +176,7 @@ static void builtin_float2int() {
 	INSTRUCTION("RETURN");
 }
 
-static void builtin_len() {
+static inline void builtin_len() {
 	COMMENT("Builtin - len");
 
 	// function label
@@ -194,9 +195,9 @@ static void builtin_len() {
 	INSTRUCTION("RETURN");
 }
 
-static void builtin_substr();
-static void builtin_ord();
-static void builtin_chr();
+static inline void builtin_substr();
+static inline void builtin_ord();
+static inline void builtin_chr();
 
 ////// Code segment generation -> private generators
 
