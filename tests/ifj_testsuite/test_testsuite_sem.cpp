@@ -304,7 +304,7 @@ TEST_F(TestSuiteSem, add_6) {
 	SetUp("go_files/sem/expresion", "add_6.go");
 	ASSERT_NE(stream, nullptr);
 	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
-	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), ERROR_TYPE_COMPAT); // consider extensions
 }
 
 TEST_F(TestSuiteSem, add_7) {

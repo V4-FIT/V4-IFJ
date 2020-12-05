@@ -184,6 +184,18 @@ int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head) {
 		PARSER_EXPR_ERROR_MSG(MISMATCHED_TYPES_MSG);
 		return ERROR_TYPE_COMPAT;
 	}
+	if (STACK_FIRST->sem.data_type == DT_BOOL) {
+		PARSER_EXPR_ERROR_MSG(OPERATION_NOT_DEFINED_MSG);
+		return ERROR_TYPE_COMPAT;
+	}
+	if (STACK_FIRST->sem.data_type == DT_STRING) {
+		if (STACK_SECOND->token->type == TK_MINUS ||
+			STACK_SECOND->token->type == TK_MULTIPLY ||
+			STACK_SECOND->token->type == TK_DIVIDE) {
+			PARSER_EXPR_ERROR_MSG(OPERATION_NOT_DEFINED_MSG);
+			return ERROR_TYPE_COMPAT;
+		}
+	}
 	return EXIT_SUCCESS;
 }
 
