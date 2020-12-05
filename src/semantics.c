@@ -9,7 +9,7 @@ int sem_enter_scope(parser_t parser) {
 	if (!symtable_enter_scope(parser->symtable)) {
 		ALLOCATION_ERROR_MSG();
 		return ERROR_MISC;
-	} 
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -204,6 +204,8 @@ int sem_define_begin(parser_t parser) {
 
 int sem_assign_begin(parser_t parser) {
 	parser->sem.stmt = STMT_ASSIGN;
+	parser->sem.ids_begin_it = parser->tkit;
+	parser->sem.ids_num = 0;
 	return EXIT_SUCCESS;
 }
 
@@ -359,6 +361,20 @@ int sem_bool_condiiton(parser_t parser) {
 	if (parser->sem.expr_data_type != DT_BOOL) {
 		PARSER_COND_EXPR_ERROR_MSG();
 		return ERROR_TYPE_COMPAT;
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_id(parser_t parser) {
+	parser->sem.ids_num++;
+	return EXIT_SUCCESS;
+}
+
+int sem_call_no_return(parser_t parser) {
+	if (parser->sem.func_call.symbol->func.return_count > 0) {
+		PARSER_ERROR_MSG("The function '%s' has return parameters (cannot be called on its own)",
+						 parser->sem.func_call.symbol->name);
+		return ERROR_SEM; // TODO: shouldn't this be ERROR_PARAM? find out!
 	}
 	return EXIT_SUCCESS;
 }

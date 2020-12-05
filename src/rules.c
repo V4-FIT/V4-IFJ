@@ -263,7 +263,6 @@ int rule_statements(parser_t parser) {
 	switch (TOKEN_TYPE) {
 		case TK_UNDERSCORE:
 		case TK_IDENTIFIER:
-			// EXECUTE_RULE(rule_var_define);
 			EXECUTE_RULE(rule_def_ass_call);
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
@@ -294,18 +293,16 @@ int rule_statements(parser_t parser) {
 
 /// 14
 int rule_def_ass_call(parser_t parser) {
-	// Def_Ass_Call ->	  	  Ids AssignOp Exprs_FunCall eol
-	//						| Id defineOp Expression eol .
+	// Def_Ass_Call ->	  	  Var_define eol
+	//						| FunctionCall eol
+	//						| Assignment eol .
 	if (TOKEN_SECOND_TYPE == TK_VAR_INIT) {
 		EXECUTE_RULE(rule_var_define);
 	} else if (TOKEN_SECOND_TYPE == TK_L_PARENTHESIS) {
 		EXECUTE_RULE(rule_functionCall);
-		// TODO: SEM - this function call shall not have return types
+		SEM_ACTION(sem_call_no_return);
 	} else {
-		// TODO: init 
-		EXECUTE_RULE(rule_ids);
-		EXECUTE_RULE(rule_assignOp);
-		EXECUTE_RULE(rule_exprs_funCall);
+		EXECUTE_RULE(rule_assignment);
 	}
 	TK_MATCH(TK_EOL);
 	return EXIT_SUCCESS;
@@ -483,6 +480,7 @@ int rule_id(parser_t parser) {
 	// Id -> 				  id
 	//						| underscore .
 	TK_TEST(TK_IDENTIFIER, TK_UNDERSCORE);
+	SEM_ACTION(sem_id);
 	if (TK_IDENTIFIER) {
 		SEM_ACTION(sem_var_check);
 	}
@@ -507,6 +505,7 @@ int rule_exprs_funCall(parser_t parser) {
 	// Exprs_FunCall ->		  Expression
 	//						| FunctionCall .
 	if (TOKEN_SECOND_TYPE == TK_L_PARENTHESIS) {
+		// TODO: SEM - assignment operator allowed only 
 		EXECUTE_RULE(rule_functionCall);
 	} else {
 		EXECUTE_RULE(rule_expressions);

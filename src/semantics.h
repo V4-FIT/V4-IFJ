@@ -90,4 +90,10 @@ int sem_zero_division(parser_t parser, prec_stack_t *head);
 // check if condition expression is of type bool
 int sem_bool_condiiton(parser_t parser);
 
+// semantic action for ids
+int sem_id(parser_t parser);
+
+// a function with return params need to be a part of an assignment
+int sem_call_no_return(parser_t parser);
+
 #endif // !IFJ_SEMANTICS_H
