@@ -35,9 +35,11 @@
 /**
  * Single line comment
  */
-#define COMMENT(_txt)                  \
+#define COMMENT(...)                   \
 	do {                               \
-		fputs("# " _txt "\n", stdout); \
+		fputs("# ", stdout);           \
+		INSTRUCTION_PART(__VA_ARGS__); \
+		fputs("\n", stdout);           \
 	} while (0)
 
 /**
@@ -170,6 +172,29 @@ static void builtin_float2int() {
 	INSTRUCTION("RETURN");
 }
 
+static void builtin_len() {
+	COMMENT("Builtin - len");
+
+	// function label
+	INSTRUCTION("LABEL len");
+
+	// pop argument
+	INSTRUCTION("POPS GF@rega");
+
+	// calculate strlen
+	INSTRUCTION("STRLEN GF@regb GF@rega");
+
+	// push back the length
+	INSTRUCTION("PUSHS GF@regb");
+
+	// end
+	INSTRUCTION("RETURN");
+}
+
+static void builtin_substr();
+static void builtin_ord();
+static void builtin_chr();
+
 ////// Code segment generation -> private generators
 
 static void header() {
@@ -199,6 +224,7 @@ static void builtin_define() {
 	builtin_input("inputb", "bool");
 	builtin_int2float();
 	builtin_float2int();
+	builtin_len();
 }
 
 static void push_token(token_t token) {
@@ -253,7 +279,7 @@ void gen_finish() {
 /// Function definition
 
 void gen_func_begin(const char *identifier) {
-	COMMENT("Begin function");
+	COMMENT("Begin function - ", identifier);
 
 	INSTRUCTION("LABEL ", identifier);
 	INSTRUCTION("PUSHFRAME");
