@@ -29,6 +29,9 @@ int sem_main_defined(parser_t parser);
 // define variable in current scope and check for redefinition
 int sem_var_define(parser_t parser);
 
+// deduce variable type from expression
+int sem_var_define_type(parser_t parser);
+
 // check if variable has been defined
 int sem_var_check(parser_t parser);
 

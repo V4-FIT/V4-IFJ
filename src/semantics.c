@@ -161,6 +161,13 @@ int sem_var_define(parser_t parser) {
 	return EXIT_SUCCESS;
 }
 
+int sem_var_define_type(parser_t parser) {
+	parser->sem.var.symbol->var.data_type = parser->sem.expr_data_type;
+	parser->sem.var.symbol->var.constant = parser->sem.expr_constant;
+	parser->sem.var.symbol->var.value = parser->sem.expr_value;
+	return EXIT_SUCCESS;
+}
+
 int sem_var_check(parser_t parser) {
 	if (parser->token->type == TK_IDENTIFIER) {
 		symbol_ref_t symbol_ref = symtable_find(parser->symtable, parser->token);

@@ -334,6 +334,7 @@ int rule_var_define(parser_t parser) {
 	TK_NEXT();
 	TK_MATCH(TK_VAR_INIT);
 	EXECUTE_RULE(rule_expression);
+	SEM_CHECK(sem_var_define_type);
 	return EXIT_SUCCESS;
 }
 
