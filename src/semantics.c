@@ -529,7 +529,9 @@ int sem_assign_begin(parser_t parser) {
 }
 
 int sem_call_begin(parser_t parser) {
-	parser->sem.stmt = STMT_CALL;
+	if (parser->sem.stmt != STMT_ASSIGN) {
+		parser->sem.stmt = STMT_CALL;
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -756,9 +758,9 @@ int sem_argument_begin(parser_t parser) {
 			fprintf(stderr, "ERROR (line %d) - cannot use %s ",
 					parser->token->line_number,
 					parser->token->lexeme);
-			fprintf(stderr, "(type %s) as type %s in return argument\n",
+			fprintf(stderr, "(type %s) as type %s in argument to %s\n",
 					dt2str_map[tk2dt(parser, parser->token)],
-					dt2str_map[func_param_dt]);
+					dt2str_map[func_param_dt], parser->sem.func_call.symbol->name);
 			return ERROR_PARAM;
 		}
 		parser->sem.func_param_it = flist_it_next(parser->sem.func_param_it);
@@ -775,8 +777,10 @@ int sem_call_argument_count(parser_t parser) {
 			fprintf(stderr, "not enough arguments in call to %s\n\t\thave ( ", parser->sem.func_call.symbol->name);
 		}
 		while (parser->sem.argument_begin_it.ptr != parser->tkit.ptr) {
-			if (fprintf(stderr, "%s", dt2str_map[tk2dt(parser, tklist_get(parser->sem.argument_begin_it))]) > 0) {
-				fprintf(stderr, " ");
+			if (tklist_get(parser->sem.argument_begin_it)->type != TK_COMMA) {
+				if (fprintf(stderr, "%s", dt2str_map[tk2dt(parser, tklist_get(parser->sem.argument_begin_it))]) > 0) {
+					fprintf(stderr, " ");
+				}
 			}
 			parser->sem.argument_begin_it = tklist_it_next(parser->sem.argument_begin_it);
 		}
@@ -790,6 +794,52 @@ int sem_call_argument_count(parser_t parser) {
 		}
 		fprintf(stderr, ")\n");
 		return ERROR_PARAM;
+	}
+	return EXIT_SUCCESS;
+}
+
+bool assign_op(token_type_t token_type) {
+	return token_type == TK_PLUS_ASSIGN ||
+		   token_type == TK_MINUS_ASSIGN ||
+		   token_type == TK_MULTIPLY_ASSIGN ||
+		   token_type == TK_DIVIDE_ASSIGN ||
+		   token_type == TK_ASSIGN;
+}
+
+int sem_assignment_call_return(parser_t parser) {
+	if (parser->sem.stmt != STMT_ASSIGN) {
+		return EXIT_SUCCESS;
+	}
+	symbol_t symbol = *parser->sem.func_call.symbol;
+	if (symbol.func.return_count == 0) {
+		PARSER_ERROR_MSG("%s() used as value", symbol.name);
+		return ERROR_PARAM;
+	}
+	if (parser->sem.ids_count != symbol.func.return_count) {
+		PARSER_ERROR_MSG("assignment mismatch: %d variables but %s returns %d values",
+						 parser->sem.ids_count, symbol.name, symbol.func.return_count);
+		return ERROR_PARAM;
+	}
+	flist_iterator_t return_it = flist_begin(symbol.func.return_list);
+	tklist_iterator_t id_it = parser->sem.ids_begin_it;
+	while (!assign_op(tklist_get(id_it)->type)) {
+		data_type_t return_dt = *(data_type_t *)flist_get(return_it);
+		data_type_t id_dt = tk2dt(parser, tklist_get(id_it));
+		if (id_dt != return_dt && tklist_get(id_it)->type != TK_UNDERSCORE) {
+			if (parser->sem.ids_count > 1) {
+				PARSER_ERROR_MSG("cannot assign %s to a (type %s) in a multiple assignment",
+								 dt2str_map[return_dt], dt2str_map[id_dt]);
+			} else {
+				PARSER_ERROR_MSG("cannot use %s (type %s) as type %s in assignment",
+								 symbol.name, dt2str_map[return_dt], dt2str_map[id_dt]);
+			}
+			return ERROR_PARAM;
+		}
+		return_it = flist_it_next(return_it);
+		id_it = tklist_it_next(id_it);
+		if (tklist_get(id_it)->type == TK_COMMA) {
+			id_it = tklist_it_next(id_it);
+		}
 	}
 	return EXIT_SUCCESS;
 }

@@ -13,7 +13,7 @@ TEST_F(TestSuiteSem, cast_2) {
 	SetUp("go_files/sem/builtin", "cast_2.go");
 	ASSERT_NE(stream, nullptr);
 	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
-	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), ERROR_PARAM);
 }
 
 TEST_F(TestSuiteSem, cast_3) {
@@ -35,14 +35,14 @@ TEST_F(TestSuiteSem, chr_1) {
 	SetUp("go_files/sem/builtin", "chr_1.go");
 	ASSERT_NE(stream, nullptr);
 	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
-	EXPECT_EQ(parser_parse(tklist), ERROR_PARAM);
+	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
 }
 
 TEST_F(TestSuiteSem, chr_2) {
 	SetUp("go_files/sem/builtin", "chr_2.go");
 	ASSERT_NE(stream, nullptr);
 	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
-	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), ERROR_PARAM);
 }
 
 TEST_F(TestSuiteSem, inputf_1) {
@@ -184,7 +184,7 @@ TEST_F(TestSuiteSem, substr_2) {
 }
 
 TEST_F(TestSuiteSem, substr_3) {
-	SetUp("go_files/sem/builtin", "cast_1.go");
+	SetUp("go_files/sem/builtin", "substr_3.go");
 	ASSERT_NE(stream, nullptr);
 	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
 	EXPECT_EQ(parser_parse(tklist), ERROR_PARAM);

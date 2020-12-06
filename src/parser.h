@@ -49,12 +49,12 @@ typedef struct semantics
 		tklist_iterator_t argument_begin_it;
 	};
 	tklist_iterator_t ids_begin_it;
-	int ids_count;
 	union
 	{
 		int expr_count;
 		int argument_count;
 	};
+	int ids_count;
 } semantics_t;
 
 typedef struct parser

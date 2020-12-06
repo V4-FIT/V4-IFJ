@@ -519,7 +519,6 @@ int rule_exprs_funcall(parser_t parser) {
 	// Exprs_FunCall ->		  Expression
 	//						| FunctionCall .
 	if (TOKEN_SECOND_TYPE == TK_L_PARENTHESIS) {
-		// TODO: SEM - assignment operator allowed only
 		EXECUTE_RULE(rule_functionCall);
 	} else {
 		EXECUTE_RULE(rule_expressions);
@@ -533,6 +532,7 @@ int rule_functionCall(parser_t parser) {
 	SEM_ACTION(sem_call_begin);
 	TK_TEST(TK_IDENTIFIER);
 	SEM_ACTION(sem_func_callable);
+	SEM_ACTION(sem_assignment_call_return);
 	TK_NEXT();
 	TK_MATCH(TK_L_PARENTHESIS);
 	EXECUTE_RULE(rule_eol_opt_n);

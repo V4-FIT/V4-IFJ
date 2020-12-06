@@ -114,4 +114,7 @@ int sem_argument_begin(parser_t parser);
 // check if function call argument count matches called function param count
 int sem_call_argument_count(parser_t parser);
 
+// check called function return against assignment list
+int sem_assignment_call_return(parser_t parser);
+
 #endif // !IFJ_SEMANTICS_H
