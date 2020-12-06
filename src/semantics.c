@@ -769,12 +769,12 @@ int sem_argument_begin(parser_t parser) {
 	return EXIT_SUCCESS;
 }
 
-bool call_print_func(parser_t parser) {
+bool calling_builtin_print(parser_t parser) {
 	return hmap_it_eq(parser->sem.func_call.it, parser->sem.func_print.it);
 }
 
 int sem_call_argument_count(parser_t parser) {
-	if (call_print_func) {
+	if (calling_builtin_print(parser)) {
 		return EXIT_SUCCESS;
 	}
 	if (parser->sem.argument_count != parser->sem.func_call.symbol->func.param_count) {
