@@ -4,7 +4,6 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include "error.h"
 #include "generator_static.h"
 
 /**
@@ -47,6 +46,10 @@ static const char *datatype2metatype[] = {
 };
 
 static void encode_string_literal(const char *string) {
+	if (string == NULL) {
+		return;
+	}
+
 	for (const char *c = string; *c != '\0'; c++) {
 		if (isalnum(*c)) {
 			putc(*c, stdout);
@@ -59,6 +62,8 @@ static void encode_string_literal(const char *string) {
 ////// Dynamic code segment generation -> private
 
 static void push_token(token_t token) {
+	assert(token != NULL);
+
 	switch (token->type) {
 		case TK_IDENTIFIER:
 			INSTRUCTION("PUSHS TF@", token->lexeme);
@@ -85,7 +90,7 @@ static void push_token(token_t token) {
 			INSTRUCTION("PUSHS bool@false");
 			break;
 		default:
-			break;
+			assert(false);
 	}
 }
 
@@ -110,6 +115,8 @@ void gen_finish() {
 /// Function definition
 
 void gen_func_begin(const char *identifier) {
+	assert(identifier != NULL);
+
 	COMMENT("Begin function - ", identifier);
 
 	INSTRUCTION("LABEL ", identifier);
@@ -126,6 +133,8 @@ void gen_func_restore_stack() {
 }
 
 void gen_func_param(const char *identifier) {
+	assert(identifier != NULL);
+
 	INSTRUCTION("DEFVAR TF@", identifier);
 	INSTRUCTION("POPS TF@", identifier);
 }
@@ -140,6 +149,8 @@ void gen_func_end() {
 /// Function call
 
 void gen_func_call(const char *identifier) {
+	assert(identifier != NULL);
+
 	INSTRUCTION("CALL ", identifier);
 }
 
@@ -152,6 +163,8 @@ void gen_func_call_arg(token_t token) {
 }
 
 void gen_var_define(const char *identifier) {
+	assert(identifier != NULL);
+
 	INSTRUCTION("DEFVAR TF@", identifier);
 }
 
@@ -160,10 +173,6 @@ void gen_var_define(const char *identifier) {
  * @param token literal or identifier token
  */
 void gen_var_load(token_t token) {
-	if (token == NULL) {
-		return;
-	}
-
 	push_token(token);
 }
 
@@ -172,6 +181,8 @@ void gen_var_load(token_t token) {
  * @param identifier
  */
 void gen_var_assign_expr_result(const char *identifier) {
+	assert(identifier != NULL);
+
 	INSTRUCTION("POPS TF@", identifier);
 }
 
@@ -179,10 +190,8 @@ void gen_var_assign_expr_result(const char *identifier) {
  * Generates an operator specific instruction
  * @param operator token type, one of {+ - * /}
  */
-void gen_var_operator(token_t operator) {
-	assert(operator!= NULL);
-
-	switch (operator->type) {
+void gen_var_operator(token_type_t operator, data_type_t data_type) {
+	switch (operator) {
 		case TK_PLUS:
 			INSTRUCTION("ADDS");
 			break;
@@ -193,12 +202,19 @@ void gen_var_operator(token_t operator) {
 			INSTRUCTION("MULS");
 			break;
 		case TK_DIVIDE:
-			INSTRUCTION("DIVS");
-			// TODO: For floats
-			// INSTRUCTION("IDIVS");
+			switch (data_type) {
+				case DT_INTEGER:
+					INSTRUCTION("IDIVS");
+					break;
+				case DT_FLOAT64:
+					INSTRUCTION("DIVS");
+					break;
+				default:
+					assert(false);
+			}
 			break;
 		default:
-			break;
+			assert(false);
 	}
 }
 
@@ -208,6 +224,7 @@ void gen_var_operator(token_t operator) {
  */
 void gen_var_neg(data_type_t type) {
 	assert(type != DT_UNDEFINED);
+
 	INSTRUCTION("POPS GF@rega");
 	INSTRUCTION("PUSHS ", datatype2metatype[type], "@0");
 	INSTRUCTION("PUSHS GF@rega");

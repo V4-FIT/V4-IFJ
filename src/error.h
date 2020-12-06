@@ -21,14 +21,6 @@ enum CompilerErrors
 
 ////// Macros
 
-#ifndef NDEBUG
-#define INFO(...) fprintf(stderr, __VA_ARGS__)
-#else
-#define INFO(...) \
-	do {          \
-	} while (0)
-#endif
-
 #define ERROR_MSG(...)            \
 	fprintf(stderr, "ERROR - ");  \
 	fprintf(stderr, __VA_ARGS__); \
