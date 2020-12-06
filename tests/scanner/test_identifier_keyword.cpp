@@ -6,7 +6,7 @@ TEST_F(ScannerTest, identifier_1) {
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_IDENTIFIER);
-	EXPECT_STREQ(token->param.s, "a");
+	EXPECT_STREQ(token->lexeme, "a");
 
 	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
@@ -18,11 +18,11 @@ TEST_F(ScannerTest, identifier_2) {
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_IDENTIFIER);
-	EXPECT_STREQ(token->param.s, "_x9");
+	EXPECT_STREQ(token->lexeme, "_x9");
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_IDENTIFIER);
-	EXPECT_STREQ(token->param.s, "__");
+	EXPECT_STREQ(token->lexeme, "__");
 
 	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
@@ -34,7 +34,7 @@ TEST_F(ScannerTest, identifier_long) {
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_IDENTIFIER);
-	EXPECT_STREQ(token->param.s, "This_Is_A_Long_Variable_Name_0123456789");
+	EXPECT_STREQ(token->lexeme, "This_Is_A_Long_Variable_Name_0123456789");
 
 	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);

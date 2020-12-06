@@ -28,6 +28,7 @@ struct Scanner
 	charseq_t charseq;
 	hmap_t keyw_tok_map;
 	token_t token; // used for referencing the current token between states
+	int line_number;
 	char buf_escape[ESCAPE_SEQUENCE_BUFFER_SIZE];
 };
 
@@ -97,15 +98,22 @@ scanner_t scanner_init(FILE *stream) {
 	MAP_KEYWORD_TOKEN("bool", TK_KEYW_BOOL);
 
 	scanner->stream = stream;
+	scanner->line_number = 1;
 	return scanner;
 }
 
 token_t scanner_next_token(scanner_t scanner) {
 	charseq_clear(scanner->charseq);
+	scanner->token->lexeme = "";
 
 	scanner_state_t state = S_START;
 	while (state != S_END) {
 		state = state_map[state](scanner, getc(scanner->stream));
+	}
+
+	scanner->token->line_number = scanner->line_number;
+	if (scanner->token->type == TK_EOL) {
+		scanner->line_number++;
 	}
 
 	return scanner->token;

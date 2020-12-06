@@ -11,14 +11,64 @@
 #include "tokens.h"
 #include "symtable.h"
 
+#define PARSER_ERROR_MSG(...)                                          \
+	fprintf(stderr, "ERROR (line %d) - ", parser->token->line_number); \
+	fprintf(stderr, __VA_ARGS__);                                      \
+	fprintf(stderr, "\n")
+
+typedef enum stmt_types
+{
+	STMT_DEFAULT,
+	STMT_DEFINE,
+	STMT_ASSIGN,
+	STMT_CALL,
+	STMT_ASSIGN_CALL,
+	STMT_CONDITIONAL,
+	STMT_ITERATIVE,
+	STMT_RETURN
+} stmt_types_t;
+
+extern const char *stmt2str_map[];
+
+typedef struct semantics
+{
+	symbol_ref_t func_cur;
+	symbol_ref_t func_call;
+	symbol_ref_t func_print;
+	union
+	{
+		flist_iterator_t func_return_it;
+		flist_iterator_t func_param_it;
+	};
+	symbol_ref_t var;
+	stmt_types_t stmt;
+	data_type_t expr_data_type;
+	bool expr_constant;
+	tk_param_t expr_value;
+	union
+	{
+		tklist_iterator_t expr_begin_it;
+		tklist_iterator_t argument_begin_it;
+	};
+	tklist_iterator_t ids_begin_it;
+	union
+	{
+		int expr_count;
+		int argument_count;
+	};
+	int ids_count;
+} semantics_t;
+
 typedef struct parser
 {
 	symtable_t symtable;
 	tklist_t tklist;
 	tklist_iterator_t tkit;
+	tklist_iterator_t tkit2;
 	token_t token;
 	token_t token_second;
 	bool first_pass;
+	semantics_t sem;
 } * parser_t;
 
 /**

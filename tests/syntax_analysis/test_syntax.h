@@ -30,7 +30,7 @@ extern "C" {
 		}                                                 \
 	} while (0)
 
-class SyntaxTest : public testing::Test
+class DISABLED_SyntaxTest : public testing::Test
 {
 public:
 	FILE *stream;

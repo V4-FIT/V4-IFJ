@@ -21,6 +21,30 @@ struct flist
 
 ////// Public
 
+const char *tk2str_map[] = {"TK_ERROR", "EOF",
+							"(", ")",
+							"{", "}",
+							",", ";",
+							"EOL", "string literal",
+							"int literal", "float64 literal",
+							"+", "-",
+							"*", "/",
+							"=", "!=",
+							"<", "<=",
+							">", ">=",
+							"||", "&&",
+							"!", ":=",
+							"=", "+=",
+							"-=", "*=",
+							"/=", "identifier",
+							"_", "package",
+							"func", "main",
+							"return", "if",
+							"else", "for",
+							"true", "false",
+							"int", "float64",
+							"string", "bool"};
+
 tklist_t tklist_init() {
 	tklist_t tklist = flist_init(sizeof(token_t));
 	if (tklist == NULL) {
@@ -85,8 +109,10 @@ void tklist_clear(tklist_t tklist) {
 	while (tklist->head != tklist->tail) {
 		tklist_pop_front(tklist);
 	}
-	token_free(tklist_front(tklist));
-	flist_pop_front(tklist);
+	if (tklist->head) {
+		token_free(tklist_front(tklist));
+		flist_pop_front(tklist);
+	}
 }
 
 token_t tklist_get(tklist_iterator_t iterator) {
@@ -105,30 +131,20 @@ token_t token_copy(token_t token_to_copy) {
 	if (new_token == NULL) {
 		return NULL;
 	}
-
-	if (token_to_copy->type == TK_IDENTIFIER
-		|| token_to_copy->type == TK_KEYW_MAIN
-		|| token_to_copy->type == TK_STR_LIT) {
-		size_t size = strlen(token_to_copy->param.s) + 1;
-		new_token->param.s = malloc(size);
-		if (new_token->param.s == NULL) {
-			free(new_token);
-			return NULL;
-		}
-		memcpy((void *)new_token->param.s, token_to_copy->param.s, size);
-	} else {
-		new_token->param = token_to_copy->param;
+	size_t size = strlen(token_to_copy->lexeme) + 1;
+	new_token->lexeme = malloc(size);
+	if (new_token->lexeme == NULL) {
+		free(new_token);
+		return NULL;
 	}
+	memcpy((void *)new_token->lexeme, token_to_copy->lexeme, size);
+	new_token->param = token_to_copy->param;
 	new_token->type = token_to_copy->type;
-
+	new_token->line_number = token_to_copy->line_number;
 	return new_token;
 }
 
 void token_free(token_t token) {
-	if (token->type == TK_IDENTIFIER
-		|| token->type == TK_KEYW_MAIN
-		|| token->type == TK_STR_LIT) {
-		free((void *)token->param.s);
-	}
+	free((void *)token->lexeme);
 	free(token);
 }
