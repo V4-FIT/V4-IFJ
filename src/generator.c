@@ -34,6 +34,7 @@
  * - scoped variables
  * - fix PUSHS nil inconsistecy
  * - check if every generation is after a semantic test
+ * - test div and idiv
  */
 
 ////// Conversion tables and functions (private)
@@ -188,10 +189,33 @@ void gen_var_assign_expr_result(const char *identifier) {
 }
 
 /**
- * Generates an operator specific instruction
+ * Generates a unary operator specific instruction(s)
+ * @param operator token type, one of {+ - !}
+ */
+void gen_var_operator_unary(token_type_t operator, data_type_t data_type) {
+	switch (operator) {
+		case TK_PLUS:
+			break;
+		case TK_MINUS:
+			assert(data_type == DT_INTEGER || data_type == DT_FLOAT64);
+			INSTRUCTION("POPS GF@rega");
+			INSTRUCTION("PUSHS ", datatype2metatype[data_type], "@0");
+			INSTRUCTION("PUSHS GF@rega");
+			INSTRUCTION("SUBS");
+			break;
+		case TK_NOT:
+			INSTRUCTION("NOTS");
+			break;
+		default:
+			assert(false);
+	}
+}
+
+/**
+ * Generates a binary operator specific instruction
  * @param operator token type, one of {+ - * /}
  */
-void gen_var_operator(token_type_t operator, data_type_t data_type) {
+void gen_var_operator_binary(token_type_t operator, data_type_t data_type) {
 	switch (operator) {
 		case TK_PLUS:
 			INSTRUCTION("ADDS");
@@ -217,21 +241,4 @@ void gen_var_operator(token_type_t operator, data_type_t data_type) {
 		default:
 			assert(false);
 	}
-}
-
-/**
- * Negates the last stack value
- * @param type type of variable to be negated, one of {int, float}
- */
-void gen_var_neg(data_type_t type) {
-	assert(type != DT_UNDEFINED);
-
-	INSTRUCTION("POPS GF@rega");
-	INSTRUCTION("PUSHS ", datatype2metatype[type], "@0");
-	INSTRUCTION("PUSHS GF@rega");
-	INSTRUCTION("SUBS");
-}
-
-void gen_var_not() {
-	INSTRUCTION("NOTS");
 }

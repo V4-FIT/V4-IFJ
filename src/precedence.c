@@ -260,15 +260,7 @@ int rule_unary(parser_t parser, prec_stack_t *head) {
 	token_t tk = (*head)->token;
 	prec_stack_sem_t sem = (*head)->sem;
 
-	// before pops
-	switch (STACK_SECOND->token->type) {
-		case TK_MINUS:
-			gen_var_neg(sem.data_type);
-			break;
-		default:
-			gen_var_not();
-			break;
-	}
+	gen_var_operator_unary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
 
 	stack_pop(head);
 	stack_pop(head);
@@ -283,8 +275,7 @@ int rule_mul_div(parser_t parser, prec_stack_t *head) {
 	SEM_PREC_RULE_ACTION(sem_zero_division);
 	SEM_PREC_RULE_ACTION(sem_evaulate_binary_const_expr);
 
-	// before pop
-	gen_var_operator(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
 
 	stack_pop(head);
 	stack_pop(head);
@@ -297,8 +288,7 @@ int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
 	SEM_PREC_RULE_ACTION(sem_evaulate_binary_const_expr);
 
-	// before pop
-	gen_var_operator(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
 
 	stack_pop(head);
 	stack_pop(head);
