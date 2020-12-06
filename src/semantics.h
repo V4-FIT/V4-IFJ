@@ -6,6 +6,9 @@
 // defined in precedence.h
 typedef struct prec_stack *prec_stack_t;
 
+// converts token to data type
+data_type_t tk2dt(parser_t parser, token_t token);
+
 // Creates a new scope for storing symbols
 int sem_enter_scope(parser_t parser);
 
@@ -101,5 +104,8 @@ int sem_return_expr_type_compat(parser_t parser);
 
 // check if return statement expression count matches the function return count
 int sem_return_expr_count(parser_t parser);
+
+// semantic action for arguments (calls sem_var_check for identifiers)
+int sem_argument_begin(parser_t parser);
 
 #endif // !IFJ_SEMANTICS_H

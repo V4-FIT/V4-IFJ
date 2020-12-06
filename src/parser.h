@@ -28,7 +28,11 @@ typedef struct semantics
 {
 	symbol_ref_t func_cur;
 	symbol_ref_t func_call;
-	flist_iterator_t func_return_it;
+	union
+	{
+		flist_iterator_t func_return_it;
+		flist_iterator_t func_param_it;
+	};
 	symbol_ref_t var;
 	stmt_types_t stmt;
 	data_type_t expr_data_type;
@@ -37,7 +41,11 @@ typedef struct semantics
 	tklist_iterator_t expr_begin_it;
 	tklist_iterator_t ids_begin_it;
 	int ids_count;
-	int expr_count;
+	union
+	{
+		int expr_count;
+		int argument_count;
+	};
 } semantics_t;
 
 typedef struct parser

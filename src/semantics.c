@@ -5,6 +5,79 @@
 #include "error.h"
 #include "precedence.h"
 
+////// Semantic error messages
+
+#define PARSER_EXPR_ERROR_MSG(_EXTRA_MSG)                                                 \
+	fprintf(stderr, "ERROR (line %d) - Invalid operation: ", parser->token->line_number); \
+	while (parser->sem.expr_begin_it.ptr != parser->tkit.ptr) {                           \
+		if (fprintf(stderr, "%s", tklist_get(parser->sem.expr_begin_it)->lexeme) > 0) {   \
+			fprintf(stderr, " ");                                                         \
+		}                                                                                 \
+		parser->sem.expr_begin_it = tklist_it_next(parser->sem.expr_begin_it);            \
+	}                                                                                     \
+	_EXTRA_MSG;                                                                           \
+	fprintf(stderr, "\n")
+
+#define PARSER_COND_EXPR_ERROR_MSG()                                                    \
+	fprintf(stderr, "ERROR (line %d) - non-bool ", parser->token->line_number);         \
+	while (parser->sem.expr_begin_it.ptr != parser->tkit.ptr) {                         \
+		if (fprintf(stderr, "%s", tklist_get(parser->sem.expr_begin_it)->lexeme) > 0) { \
+			fprintf(stderr, " ");                                                       \
+		}                                                                               \
+		parser->sem.expr_begin_it = tklist_it_next(parser->sem.expr_begin_it);          \
+	}                                                                                   \
+	fprintf(stderr, "(type %s) used as %s condition\n",                                 \
+			dt2str_map[parser->sem.expr_data_type],                                     \
+			stmt2str_map[parser->sem.stmt])
+
+#define MISMATCHED_TYPES_MSG                        \
+	fprintf(stderr, "(mismatched types %s and %s)", \
+			dt2str_map[STACK_THIRD->sem.data_type], \
+			dt2str_map[STACK_FIRST->sem.data_type])
+
+#define INVALID_TYPE_MSG                 \
+	fprintf(stderr, "(invalid type %s)", \
+			dt2str_map[STACK_FIRST->sem.data_type])
+
+#define OPERATION_NOT_DEFINED_MSG                      \
+	fprintf(stderr, "(operator %s not defined on %s)", \
+			STACK_SECOND->token->lexeme,               \
+			dt2str_map[STACK_FIRST->sem.data_type])
+
+#define RETURN_TYPE_COMPAT_ERROR_MSG()                                                  \
+	fprintf(stderr, "ERROR (line %d) - cannot use ", parser->token->line_number);       \
+	while (parser->sem.expr_begin_it.ptr != parser->tkit.ptr) {                         \
+		if (fprintf(stderr, "%s", tklist_get(parser->sem.expr_begin_it)->lexeme) > 0) { \
+			fprintf(stderr, " ");                                                       \
+		}                                                                               \
+		parser->sem.expr_begin_it = tklist_it_next(parser->sem.expr_begin_it);          \
+	}                                                                                   \
+	fprintf(stderr, "(type %s) as type %s in return argument\n",                        \
+			dt2str_map[parser->sem.expr_data_type],                                     \
+			dt2str_map[func_ret_dt])
+
+////// Semantic actions
+
+data_type_t tk2dt(parser_t parser, token_t token) {
+	symbol_ref_t symbol_ref;
+	switch (token->type) {
+		case TK_IDENTIFIER:
+			symbol_ref = symtable_find(parser->symtable, token);
+			assert(symbol_valid(symbol_ref));
+			return symbol_ref.symbol->var.data_type;
+		case TK_INT_LIT:
+			return DT_INTEGER;
+		case TK_FLOAT_LIT:
+			return DT_FLOAT64;
+		case TK_STR_LIT:
+			return DT_STRING;
+		case TK_KEYW_TRUE:
+		case TK_KEYW_FALSE:
+			return DT_BOOL;
+	}
+	return DT_UNDEFINED;
+}
+
 int sem_enter_scope(parser_t parser) {
 	if (!symtable_enter_scope(parser->symtable)) {
 		ALLOCATION_ERROR_MSG();
@@ -68,7 +141,7 @@ int sem_func_declare_param(parser_t parser) {
 int sem_func_add_param_type(parser_t parser) {
 	bool success = true;
 	if (parser->first_pass) {
-		switch (parser->token->type) {
+		switch (TOKEN_TYPE) {
 			case TK_KEYW_FLOAT64:
 				success = symbol_func_add_param(parser->sem.func_cur, DT_FLOAT64);
 				break;
@@ -94,7 +167,7 @@ int sem_func_add_param_type(parser_t parser) {
 int sem_func_add_return_type(parser_t parser) {
 	bool success = true;
 	if (parser->first_pass) {
-		switch (parser->token->type) {
+		switch (TOKEN_TYPE) {
 			case TK_KEYW_FLOAT64:
 				success = symbol_func_add_return(parser->sem.func_cur, DT_FLOAT64);
 				break;
@@ -131,6 +204,8 @@ int sem_func_callable(parser_t parser) {
 	if (symbol_valid(symbol_ref)) {
 		if (symbol_ref.symbol->type == ST_FUNC) {
 			parser->sem.func_call = symbol_ref;
+			parser->sem.func_param_it = flist_begin(symbol_ref.symbol->func.param_list);
+			parser->sem.argument_count = 0;
 		} else {
 			PARSER_ERROR_MSG("The function is hidden by the variable '%s'", parser->token->lexeme);
 			return ERROR_SEM;
@@ -228,6 +303,7 @@ int sem_return_begin(parser_t parser) {
 	parser->sem.stmt = STMT_RETURN;
 	parser->sem.func_return_it = flist_begin(parser->sem.func_cur.symbol->func.return_list);
 	parser->sem.expr_count = 0;
+	parser->sem.expr_begin_it = parser->tkit2;
 	return EXIT_SUCCESS;
 }
 
@@ -384,9 +460,9 @@ int sem_call_no_return(parser_t parser) {
 
 int sem_return_expr_type_compat(parser_t parser) {
 	if (parser->sem.stmt == STMT_RETURN && flist_it_valid(parser->sem.func_return_it)) {
-		data_type_t func_ret_dt = *(data_type_t*)flist_get(parser->sem.func_return_it);
+		data_type_t func_ret_dt = *(data_type_t *)flist_get(parser->sem.func_return_it);
 		if (parser->sem.expr_data_type != func_ret_dt) {
-			// TODO: error message
+			RETURN_TYPE_COMPAT_ERROR_MSG();
 			return ERROR_PARAM;
 		}
 		parser->sem.func_return_it = flist_it_next(parser->sem.func_return_it);
@@ -396,8 +472,45 @@ int sem_return_expr_type_compat(parser_t parser) {
 
 int sem_return_expr_count(parser_t parser) {
 	if (parser->sem.expr_count != parser->sem.func_cur.symbol->func.return_count) {
-		// TODO: error message
+		fprintf(stderr, "ERROR (line %d) - ", parser->token->line_number);
+		if (parser->sem.expr_count > parser->sem.func_cur.symbol->func.return_count) {
+			fprintf(stderr, "too many arguments to return\n\t\thave ( ");
+		} else {
+			fprintf(stderr, "not enough arguments to return\n\t\thave ( ");
+		}
+		while (parser->sem.expr_begin_it.ptr != parser->tkit.ptr) {
+			if (fprintf(stderr, "%s", dt2str_map[tk2dt(parser,tklist_get(parser->sem.expr_begin_it))]) > 0) {
+				fprintf(stderr, " ");
+			}
+			parser->sem.expr_begin_it = tklist_it_next(parser->sem.expr_begin_it);
+		}
+		fprintf(stderr, ")\n\t\twant ( ");
+		flist_iterator_t it = flist_begin(parser->sem.func_cur.symbol->func.return_list);
+		while (flist_it_valid(it)) {
+			if (fprintf(stderr, "%s", dt2str_map[*(data_type_t*)flist_get(it)]) > 0) {
+				fprintf(stderr, " ");
+			}
+			it = flist_it_next(it);
+		}
+		fprintf(stderr, ")\n");
 		return ERROR_PARAM;
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_argument_begin(parser_t parser) {
+	parser->sem.argument_count++;
+	if (flist_it_valid(parser->sem.func_param_it)) {
+		data_type_t func_param_dt = *(data_type_t *)flist_get(parser->sem.func_param_it);
+		if (func_param_dt != tk2dt(parser, parser->token)) {
+			fprintf(stderr, "ERROR (line %d) - cannot use %s ",
+					parser->token->line_number,
+					parser->token->lexeme);
+			fprintf(stderr, "(type %s) as type %s in return argument\n",
+					dt2str_map[tk2dt(parser, parser->token)],
+					dt2str_map[func_param_dt]);
+			return ERROR_PARAM;
+		}
 	}
 	return EXIT_SUCCESS;
 }

@@ -29,44 +29,6 @@ enum CompilerErrors
 	fprintf(stderr, __VA_ARGS__);                                      \
 	fprintf(stderr, "\n")
 
-#define PARSER_EXPR_ERROR_MSG(_EXTRA_MSG)                                                 \
-	fprintf(stderr, "ERROR (line %d) - Invalid operation: ", parser->token->line_number); \
-	while (parser->sem.expr_begin_it.ptr != parser->tkit.ptr) {                           \
-		if (fprintf(stderr, "%s", tklist_get(parser->sem.expr_begin_it)->lexeme) > 0) {   \
-			fprintf(stderr, " ");                                                         \
-		}                                                                                 \
-		parser->sem.expr_begin_it = tklist_it_next(parser->sem.expr_begin_it);            \
-	}                                                                                     \
-	_EXTRA_MSG;                                                                           \
-	fprintf(stderr, "\n")
-
-#define PARSER_COND_EXPR_ERROR_MSG()                                                    \
-	fprintf(stderr, "ERROR (line %d) - non-bool ", parser->token->line_number);         \
-	while (parser->sem.expr_begin_it.ptr != parser->tkit.ptr) {                         \
-		if (fprintf(stderr, "%s", tklist_get(parser->sem.expr_begin_it)->lexeme) > 0) { \
-			fprintf(stderr, " ");                                                       \
-		}                                                                               \
-		parser->sem.expr_begin_it = tklist_it_next(parser->sem.expr_begin_it);          \
-	}                                                                                   \
-	fprintf(stderr, "(type %s) used as %s condition\n",                                 \
-			dt2str_map[parser->sem.expr_data_type],                                     \
-			stmt2str_map[parser->sem.stmt])
-
-#define MISMATCHED_TYPES_MSG                        \
-	fprintf(stderr, "(mismatched types %s and %s)", \
-			dt2str_map[STACK_THIRD->sem.data_type], \
-			dt2str_map[STACK_FIRST->sem.data_type])
-
-#define INVALID_TYPE_MSG                 \
-	fprintf(stderr, "(invalid type %s)", \
-			dt2str_map[STACK_FIRST->sem.data_type])
-
-#define OPERATION_NOT_DEFINED_MSG                      \
-	fprintf(stderr, "(operator %s not defined on %s)", \
-			STACK_SECOND->token->lexeme,               \
-			dt2str_map[STACK_FIRST->sem.data_type])
-
-
 #define ALLOCATION_ERROR_MSG() fprintf(stderr, "ERROR - Allocation failed\n")
 
 #endif // !IFJ_ERROR_H
