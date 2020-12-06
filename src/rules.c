@@ -522,6 +522,7 @@ int rule_exprs_funcall(parser_t parser) {
 		EXECUTE_RULE(rule_functionCall);
 	} else {
 		EXECUTE_RULE(rule_expressions);
+		// TODO: assing: ids count == expr count
 	}
 	return EXIT_SUCCESS;
 }
@@ -658,6 +659,7 @@ int rule_expression(parser_t parser) {
 	SEM_ACTION(sem_expression_begin);
 	EXECUTE_RULE(parse_expr);
 	SEM_ACTION(sem_return_expr_type_compat);
+	SEM_ACTION(sem_assign_expr_type_compat);
 	return EXIT_SUCCESS;
 }
 

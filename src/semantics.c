@@ -526,6 +526,7 @@ int sem_assign_begin(parser_t parser) {
 	parser->sem.stmt = STMT_ASSIGN;
 	parser->sem.ids_begin_it = parser->tkit;
 	parser->sem.ids_count = 0;
+	parser->sem.expr_count = 0;
 	return EXIT_SUCCESS;
 }
 
@@ -848,6 +849,23 @@ int sem_assignment_call_return(parser_t parser) {
 		if (tklist_get(id_it)->type == TK_COMMA) {
 			id_it = tklist_it_next(id_it);
 		}
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_assign_expr_type_compat(parser_t parser) {
+	if (parser->sem.stmt != STMT_ASSIGN) {
+		return EXIT_SUCCESS;
+	}
+	if (tklist_it_valid(parser->sem.ids_begin_it)) {
+		token_t var = tklist_get(parser->sem.ids_begin_it);
+		data_type_t var_dt = tk2dt(parser, var);
+		if (var_dt != parser->sem.expr_data_type) {
+			PARSER_ERROR_MSG("cannot use %s (type %s) as type %s in assignment",
+							 var->lexeme,dt2str_map[var_dt], dt2str_map[parser->sem.expr_data_type]);
+			return ERROR_TYPE_COMPAT;
+		}
+		parser->sem.ids_begin_it = tklist_it_next(parser->sem.ids_begin_it);
 	}
 	return EXIT_SUCCESS;
 }
