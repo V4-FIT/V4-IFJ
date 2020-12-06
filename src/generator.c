@@ -32,7 +32,8 @@
  *
  * TODO
  * - scoped variables
- * - check the usage of gen_func_init_stack for redundant nil-s left in the stack
+ * - fix PUSHS nil inconsistecy
+ * - check if every generation is after a semantic test
  */
 
 ////// Conversion tables and functions (private)

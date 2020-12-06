@@ -6,6 +6,7 @@
 #include "error.h"
 #include "rules.h"
 #include "semantics.h"
+#include "generator.h"
 
 ////// Forward declarations
 
@@ -223,6 +224,10 @@ bool dpda_finished(prec_token_type type, prec_stack_t head) {
 
 int rule_i(parser_t parser, prec_stack_t *head) {
 	// printf("E -> i\n");
+
+	// if there's an identifier left unprocessed, load it
+	gen_var_load(STACK_FIRST->token);
+
 	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
@@ -254,6 +259,17 @@ int rule_unary(parser_t parser, prec_stack_t *head) {
 	SEM_PREC_RULE_ACTION(sem_evaulate_unary_const_expr);
 	token_t tk = (*head)->token;
 	prec_stack_sem_t sem = (*head)->sem;
+
+	// before pops
+	switch (STACK_SECOND->token->type) {
+		case TK_MINUS:
+			gen_var_neg(sem.data_type);
+			break;
+		default:
+			gen_var_not();
+			break;
+	}
+
 	stack_pop(head);
 	stack_pop(head);
 	stack_push(head, tk, PREC_I, sem);
@@ -266,6 +282,10 @@ int rule_mul_div(parser_t parser, prec_stack_t *head) {
 	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
 	SEM_PREC_RULE_ACTION(sem_zero_division);
 	SEM_PREC_RULE_ACTION(sem_evaulate_binary_const_expr);
+
+	// before pop
+	gen_var_operator(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -276,6 +296,10 @@ int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E+-E\n");
 	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
 	SEM_PREC_RULE_ACTION(sem_evaulate_binary_const_expr);
+
+	// before pop
+	gen_var_operator(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;

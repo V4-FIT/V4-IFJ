@@ -6,6 +6,7 @@
 #include "parser.h"
 #include "rulemacros.h"
 #include "semantics.h"
+#include "generator.h"
 
 ////// Forward declarations
 
@@ -57,8 +58,14 @@ static int rule_literal(parser_t parser);
 int rule_root(parser_t parser) {
 	EXECUTE_RULE(parser_setup);
 	SEM_ACTION(sem_define_builtin_functions);
+
+	GENERATE_ONCE(gen_init());
+
 	EXECUTE_RULE(rule_program);
 	SEM_ACTION(sem_main_defined);
+
+	GENERATE_ONCE(gen_finish());
+
 	return EXIT_SUCCESS;
 }
 
@@ -109,6 +116,9 @@ int rule_function(parser_t parser) {
 	TK_MATCH(TK_KEYW_FUNC);
 	TK_TEST(TK_IDENTIFIER, TK_KEYW_MAIN);
 	SEM_ACTION(sem_func_define);
+
+	GENERATE_ONCE(gen_func_begin(parser->token->lexeme));
+
 	TK_NEXT();
 	TK_MATCH(TK_L_PARENTHESIS);
 	SEM_ACTION(sem_enter_scope);
@@ -126,6 +136,9 @@ int rule_function(parser_t parser) {
 	TK_MATCH(TK_R_CURLY);
 	SEM_ACTION(sem_exit_scope);
 	SEM_ACTION(sem_func_has_return_stmt);
+
+	gen_func_end();
+
 	return EXIT_SUCCESS;
 }
 
@@ -170,10 +183,14 @@ int rule_param(parser_t parser) {
 	//						| id string
 	//						| id bool .
 	TK_TEST(TK_IDENTIFIER);
+	token_t tk_param = parser->token;
 	SEM_ACTION(sem_func_declare_param);
 	TK_NEXT();
 	TK_TEST(TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
 	SEM_ACTION(sem_func_add_param_type);
+
+	GENERATE_ONCE(gen_func_param(tk_param->lexeme));
+
 	TK_NEXT();
 	return EXIT_SUCCESS;
 }
@@ -186,6 +203,9 @@ int rule_return_list(parser_t parser) {
 	switch (TOKEN_TYPE) {
 		case TK_L_PARENTHESIS:
 			TK_NEXT();
+
+			GENERATE_ONCE(gen_func_init_stack());
+
 			EXECUTE_RULE(rule_return_n);
 			TK_MATCH(TK_R_PARENTHESIS);
 			break;
@@ -330,11 +350,17 @@ int rule_var_define(parser_t parser) {
 	// Var_define -> 	  	  id defineOp Expression
 	SEM_ACTION(sem_define_begin);
 	TK_TEST(TK_IDENTIFIER);
+
+	gen_var_define(parser->token->lexeme);
+	token_t id = parser->token;
+
 	SEM_ACTION(sem_var_define);
 	TK_NEXT();
 	TK_MATCH(TK_VAR_INIT);
 	EXECUTE_RULE(rule_expression);
 	SEM_ACTION(sem_var_define_type);
+
+	gen_var_assign_expr_result(id->lexeme);
 	return EXIT_SUCCESS;
 }
 
@@ -499,6 +525,12 @@ int rule_id(parser_t parser) {
 	if (TK_IDENTIFIER) {
 		SEM_ACTION(sem_var_check);
 	}
+
+	// Process return values after function call because the function call is after the assignment id list
+	if (!flist_push_front(parser->return_id_list, (void *)parser->token->lexeme)) {
+		return ERROR_MISC;
+	}
+
 	TK_NEXT();
 	return EXIT_SUCCESS;
 }
@@ -525,6 +557,14 @@ int rule_exprs_funcall(parser_t parser) {
 		EXECUTE_RULE(rule_expressions);
 		SEM_ACTION(sem_assign_expr_count);
 	}
+
+	// Assign return values
+	for (flist_iterator_t it = flist_begin(parser->return_id_list); flist_it_valid(it); it = flist_it_next(it)) {
+		gen_var_assign_expr_result(flist_get(it));
+	}
+	gen_func_restore_stack();
+	flist_clear(parser->return_id_list);
+
 	return EXIT_SUCCESS;
 }
 
@@ -535,12 +575,15 @@ int rule_functionCall(parser_t parser) {
 	TK_TEST(TK_IDENTIFIER);
 	SEM_ACTION(sem_func_callable);
 	SEM_ACTION(sem_assignment_call_return);
+	token_t func_id = parser->token;
 	TK_NEXT();
 	TK_MATCH(TK_L_PARENTHESIS);
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_arguments);
 	SEM_ACTION(sem_call_argument_count);
 	TK_MATCH(TK_R_PARENTHESIS);
+
+	gen_func_call(func_id->lexeme);
 	return EXIT_SUCCESS;
 }
 
@@ -556,8 +599,11 @@ int rule_arguments(parser_t parser) {
 		case TK_STR_LIT:
 		case TK_KEYW_TRUE:
 		case TK_KEYW_FALSE:
+			gen_func_init_stack();
+			token_t tk_firstarg = parser->token;
 			EXECUTE_RULE(rule_argument);
 			EXECUTE_RULE(rule_argument_n);
+			gen_func_call_arg(tk_firstarg);
 			break;
 		case TK_R_PARENTHESIS:
 			// eps
@@ -578,8 +624,10 @@ int rule_argument_n(parser_t parser) {
 		case TK_COMMA:
 			TK_NEXT();
 			EXECUTE_RULE(rule_eol_opt_n);
+			token_t tk_arg = parser->token;
 			EXECUTE_RULE(rule_argument);
 			EXECUTE_RULE(rule_argument_n);
+			gen_func_call_arg(tk_arg);
 		default:
 			// eps
 			break;
