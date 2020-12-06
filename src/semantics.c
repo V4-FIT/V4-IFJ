@@ -670,7 +670,7 @@ int sem_evaulate_unary_const_expr(parser_t parser, prec_stack_t *head) {
 }
 
 int sem_zero_division(parser_t parser, prec_stack_t *head) {
-	if (STACK_FIRST->sem.constant) {
+	if (STACK_FIRST->sem.constant && STACK_SECOND->token->type == TK_DIVIDE) {
 		switch (STACK_FIRST->sem.data_type) {
 			case DT_INTEGER:
 				if (STACK_FIRST->sem.value.i == 0) {
@@ -699,6 +699,12 @@ int sem_bool_condiiton(parser_t parser) {
 
 int sem_id_begin(parser_t parser) {
 	parser->sem.ids_count++;
+	if (parser->token->type == TK_IDENTIFIER) {
+		symbol_ref_t symbol_ref = symtable_find(parser->symtable, parser->token);
+		if (symbol_valid(symbol_ref) && symbol_ref.symbol->type == ST_VAR) {
+			symbol_ref.symbol->var.constant = false;
+		}
+	}
 	return EXIT_SUCCESS;
 }
 
