@@ -33,6 +33,7 @@ typedef struct semantics
 {
 	symbol_ref_t func_cur;
 	symbol_ref_t func_call;
+	symbol_ref_t func_print;
 	union
 	{
 		flist_iterator_t func_return_it;

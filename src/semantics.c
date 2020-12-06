@@ -142,6 +142,7 @@ int sem_define_builtin_print(parser_t parser) {
 		ALLOCATION_ERROR_MSG();
 		return ERROR_MISC;
 	}
+	parser->sem.func_print = func_ref;
 	return EXIT_SUCCESS;
 }
 
@@ -768,7 +769,14 @@ int sem_argument_begin(parser_t parser) {
 	return EXIT_SUCCESS;
 }
 
+bool call_print_func(parser_t parser) {
+	return hmap_it_eq(parser->sem.func_call.it, parser->sem.func_print.it);
+}
+
 int sem_call_argument_count(parser_t parser) {
+	if (call_print_func) {
+		return EXIT_SUCCESS;
+	}
 	if (parser->sem.argument_count != parser->sem.func_call.symbol->func.param_count) {
 		fprintf(stderr, "ERROR (line %d) - ", parser->token->line_number);
 		if (parser->sem.argument_count > parser->sem.func_call.symbol->func.param_count) {
