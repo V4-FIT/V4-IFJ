@@ -1,8 +1,9 @@
-//compiler 2 0
+//compiler 5
 // TODO consider extensions
 //
 package main
 
 func main () {
-	a := -69
+	a := true > false
 }
+

@@ -1070,3 +1070,24 @@ TEST_F(TestSuiteSem, and_2) {
 	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
 	EXPECT_EQ(parser_parse(tklist), ERROR_TYPE_COMPAT);
 }
+
+TEST_F(TestSuiteSem, bool_eq) {
+	SetUp("go_files/sem/extensions", "bool_eq.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+}
+
+TEST_F(TestSuiteSem, bool_neq) {
+	SetUp("go_files/sem/extensions", "bool_neq.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+}
+
+TEST_F(TestSuiteSem, bool_gt) {
+	SetUp("go_files/sem/extensions", "bool_gt.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), ERROR_TYPE_COMPAT);
+}

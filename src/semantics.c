@@ -569,13 +569,16 @@ int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head) {
 		return ERROR_TYPE_COMPAT;
 	}
 	if (STACK_FIRST->sem.data_type == DT_BOOL) {
-		PARSER_EXPR_ERROR_MSG(OPERATION_NOT_DEFINED_MSG);
-		return ERROR_TYPE_COMPAT;
+		if (STACK_SECOND->token->type != TK_EQUAL
+			&& STACK_SECOND->token->type != TK_NOT_EQUAL) {
+			PARSER_EXPR_ERROR_MSG(OPERATION_NOT_DEFINED_MSG);
+			return ERROR_TYPE_COMPAT;
+		}
 	}
 	if (STACK_FIRST->sem.data_type == DT_STRING) {
-		if (STACK_SECOND->token->type == TK_MINUS ||
-			STACK_SECOND->token->type == TK_MULTIPLY ||
-			STACK_SECOND->token->type == TK_DIVIDE) {
+		if (STACK_SECOND->token->type == TK_MINUS
+			|| STACK_SECOND->token->type == TK_MULTIPLY
+			|| STACK_SECOND->token->type == TK_DIVIDE) {
 			PARSER_EXPR_ERROR_MSG(OPERATION_NOT_DEFINED_MSG);
 			return ERROR_TYPE_COMPAT;
 		}
@@ -810,11 +813,7 @@ int sem_call_argument_count(parser_t parser) {
 }
 
 bool assign_op(token_type_t token_type) {
-	return token_type == TK_PLUS_ASSIGN ||
-		   token_type == TK_MINUS_ASSIGN ||
-		   token_type == TK_MULTIPLY_ASSIGN ||
-		   token_type == TK_DIVIDE_ASSIGN ||
-		   token_type == TK_ASSIGN;
+	return token_type == TK_PLUS_ASSIGN || token_type == TK_MINUS_ASSIGN || token_type == TK_MULTIPLY_ASSIGN || token_type == TK_DIVIDE_ASSIGN || token_type == TK_ASSIGN;
 }
 
 int sem_assignment_call_return(parser_t parser) {
@@ -870,7 +869,7 @@ int sem_assign_expr_type_compat(parser_t parser) {
 		data_type_t var_dt = tk2dt(parser, var);
 		if (var_dt != parser->sem.expr_data_type) {
 			PARSER_ERROR_MSG("cannot use %s (type %s) as type %s in assignment",
-							 var->lexeme,dt2str_map[var_dt], dt2str_map[parser->sem.expr_data_type]);
+							 var->lexeme, dt2str_map[var_dt], dt2str_map[parser->sem.expr_data_type]);
 			return ERROR_TYPE_COMPAT;
 		}
 		parser->sem.ids_begin_it = tklist_it_next(parser->sem.ids_begin_it);
@@ -883,8 +882,8 @@ int sem_assign_expr_count(parser_t parser) {
 		return EXIT_SUCCESS;
 	}
 	if (parser->sem.ids_count != parser->sem.expr_count) {
-			PARSER_ERROR_MSG("assignment mismatch: %d variables but %d values",
-							 parser->sem.ids_count, parser->sem.expr_count);
+		PARSER_ERROR_MSG("assignment mismatch: %d variables but %d values",
+						 parser->sem.ids_count, parser->sem.expr_count);
 		return ERROR_SEM;
 	}
 	return EXIT_SUCCESS;
