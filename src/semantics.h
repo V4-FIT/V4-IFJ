@@ -105,7 +105,13 @@ int sem_return_expr_type_compat(parser_t parser);
 // check if return statement expression count matches the function return count
 int sem_return_expr_count(parser_t parser);
 
+// semantic action at the beginning of rule_arguments
+int sem_arguments_begin(parser_t parser);
+
 // semantic action for arguments (calls sem_var_check for identifiers)
 int sem_argument_begin(parser_t parser);
+
+// check if function call argument count matches called function param count
+int sem_call_argument_count(parser_t parser);
 
 #endif // !IFJ_SEMANTICS_H

@@ -205,7 +205,6 @@ int sem_func_callable(parser_t parser) {
 		if (symbol_ref.symbol->type == ST_FUNC) {
 			parser->sem.func_call = symbol_ref;
 			parser->sem.func_param_it = flist_begin(symbol_ref.symbol->func.param_list);
-			parser->sem.argument_count = 0;
 		} else {
 			PARSER_ERROR_MSG("The function is hidden by the variable '%s'", parser->token->lexeme);
 			return ERROR_SEM;
@@ -498,6 +497,12 @@ int sem_return_expr_count(parser_t parser) {
 	return EXIT_SUCCESS;
 }
 
+int sem_arguments_begin(parser_t parser) {
+	parser->sem.argument_count = 0;
+	parser->sem.argument_begin_it = parser->tkit;
+	return EXIT_SUCCESS;
+}
+
 int sem_argument_begin(parser_t parser) {
 	parser->sem.argument_count++;
 	if (flist_it_valid(parser->sem.func_param_it)) {
@@ -511,6 +516,35 @@ int sem_argument_begin(parser_t parser) {
 					dt2str_map[func_param_dt]);
 			return ERROR_PARAM;
 		}
+		parser->sem.func_param_it = flist_it_next(parser->sem.func_param_it);
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_call_argument_count(parser_t parser) {
+	if (parser->sem.argument_count != parser->sem.func_call.symbol->func.param_count) {
+		fprintf(stderr, "ERROR (line %d) - ", parser->token->line_number);
+		if (parser->sem.argument_count > parser->sem.func_call.symbol->func.param_count) {
+			fprintf(stderr, "too many arguments in call to %s\n\t\thave ( ", parser->sem.func_call.symbol->name);
+		} else {
+			fprintf(stderr, "not enough arguments in call to %s\n\t\thave ( ", parser->sem.func_call.symbol->name);
+		}
+		while (parser->sem.argument_begin_it.ptr != parser->tkit.ptr) {
+			if (fprintf(stderr, "%s", dt2str_map[tk2dt(parser, tklist_get(parser->sem.argument_begin_it))]) > 0) {
+				fprintf(stderr, " ");
+			}
+			parser->sem.argument_begin_it = tklist_it_next(parser->sem.argument_begin_it);
+		}
+		fprintf(stderr, ")\n\t\twant ( ");
+		flist_iterator_t it = flist_begin(parser->sem.func_call.symbol->func.param_list);
+		while (flist_it_valid(it)) {
+			if (fprintf(stderr, "%s", dt2str_map[*(data_type_t *)flist_get(it)]) > 0) {
+				fprintf(stderr, " ");
+			}
+			it = flist_it_next(it);
+		}
+		fprintf(stderr, ")\n");
+		return ERROR_PARAM;
 	}
 	return EXIT_SUCCESS;
 }

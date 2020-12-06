@@ -38,7 +38,11 @@ typedef struct semantics
 	data_type_t expr_data_type;
 	bool expr_constant;
 	tk_param_t expr_value;
-	tklist_iterator_t expr_begin_it;
+	union
+	{
+		tklist_iterator_t expr_begin_it;
+		tklist_iterator_t argument_begin_it;
+	};
 	tklist_iterator_t ids_begin_it;
 	int ids_count;
 	union

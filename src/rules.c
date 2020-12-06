@@ -523,8 +523,8 @@ int rule_functionCall(parser_t parser) {
 	TK_MATCH(TK_L_PARENTHESIS);
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_Arguments);
+	SEM_ACTION(sem_call_argument_count);
 	TK_MATCH(TK_R_PARENTHESIS);
-	// TODO: SEM - check arg count against function param count
 	return EXIT_SUCCESS;
 }
 
@@ -532,6 +532,7 @@ int rule_functionCall(parser_t parser) {
 int rule_Arguments(parser_t parser) {
 	// Arguments ->			  Argument Argument_n
 	//						| eps .
+	SEM_ACTION(sem_arguments_begin);
 	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 		case TK_INT_LIT:
