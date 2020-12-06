@@ -531,7 +531,9 @@ int sem_assign_begin(parser_t parser) {
 }
 
 int sem_call_begin(parser_t parser) {
-	if (parser->sem.stmt != STMT_ASSIGN) {
+	if (parser->sem.stmt == STMT_ASSIGN) {
+		parser->sem.stmt = STMT_ASSIGN_CALL;
+	} else {
 		parser->sem.stmt = STMT_CALL;
 	}
 	return EXIT_SUCCESS;
@@ -816,7 +818,7 @@ bool assign_op(token_type_t token_type) {
 }
 
 int sem_assignment_call_return(parser_t parser) {
-	if (parser->sem.stmt != STMT_ASSIGN) {
+	if (parser->sem.stmt != STMT_ASSIGN_CALL) {
 		return EXIT_SUCCESS;
 	}
 	symbol_t symbol = *parser->sem.func_call.symbol;
@@ -859,7 +861,10 @@ int sem_assign_expr_type_compat(parser_t parser) {
 	}
 	if (tklist_it_valid(parser->sem.ids_begin_it)) {
 		token_t var = tklist_get(parser->sem.ids_begin_it);
-		if (var->type != TK_IDENTIFIER || var->type != TK_UNDERSCORE) {
+		if (var->type != TK_IDENTIFIER) {
+			if (var->type == TK_UNDERSCORE) {
+				parser->sem.ids_begin_it = tklist_it_next(parser->sem.ids_begin_it);
+			}
 			return EXIT_SUCCESS;
 		}
 		data_type_t var_dt = tk2dt(parser, var);
