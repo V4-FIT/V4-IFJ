@@ -24,11 +24,6 @@ enum CompilerErrors
 	fprintf(stderr, __VA_ARGS__); \
 	fprintf(stderr, "\n")
 
-#define PARSER_ERROR_MSG(...)                                          \
-	fprintf(stderr, "ERROR (line %d) - ", parser->token->line_number); \
-	fprintf(stderr, __VA_ARGS__);                                      \
-	fprintf(stderr, "\n")
-
 #define ALLOCATION_ERROR_MSG() fprintf(stderr, "ERROR - Allocation failed\n")
 
 #endif // !IFJ_ERROR_H

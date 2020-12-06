@@ -49,6 +49,7 @@
 			}                                                \
 		}                                                    \
 		if (!found) {                                        \
+			SYNTAX_ERROR_MESSAGE();                          \
 			return ERROR_SYN;                                \
 		}                                                    \
 	} while (0)
@@ -59,6 +60,15 @@
 		TK_TEST(__VA_ARGS__); \
 		TK_NEXT();            \
 	} while (0)
+
+#define SYNTAX_ERROR_MESSAGE()                                                       \
+	fprintf(stderr, "ERROR (line %d) - syntax error: unexpected %s, expecting %s",   \
+			parser->token->line_number, parser->token->lexeme, tk2str_map[_TKS[0]]); \
+	for (int i = 1; i < _TKNUM; ++i) {                                               \
+		fprintf(stderr, " or %s", tk2str_map[_TKS[i]]);                              \
+	}                                                                                \
+	fprintf(stderr, "\n")
+
 
 //// Non-terminals
 

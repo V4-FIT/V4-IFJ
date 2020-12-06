@@ -11,6 +11,11 @@
 #include "tokens.h"
 #include "symtable.h"
 
+#define PARSER_ERROR_MSG(...)                                          \
+	fprintf(stderr, "ERROR (line %d) - ", parser->token->line_number); \
+	fprintf(stderr, __VA_ARGS__);                                      \
+	fprintf(stderr, "\n")
+
 typedef enum stmt_types
 {
 	STMT_DEFAULT,

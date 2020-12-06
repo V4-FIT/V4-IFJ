@@ -503,6 +503,20 @@ TEST_F(TestSuiteSyn, return_value) {
 	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
 }
 
+TEST_F(TestSuiteSyn, assign_unary_1) {
+	SetUp("go_files/syn/statement", "assign_unary_1.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), ERROR_SYN);
+}
+
+TEST_F(TestSuiteSyn, assign_unary_2) {
+	SetUp("go_files/syn/statement", "assign_unary_2.go");
+	ASSERT_NE(stream, nullptr);
+	EXPECT_EQ(scanner_scan(stream, tklist), EXIT_SUCCESS);
+	EXPECT_EQ(parser_parse(tklist), EXIT_SUCCESS);
+}
+
 //// top
 
 TEST_F(TestSuiteSyn, bad_header) {

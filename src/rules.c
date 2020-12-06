@@ -35,15 +35,16 @@ static int rule_conditional(parser_t parser);
 static int rule_iterative(parser_t parser);
 static int rule_assignment(parser_t parser);
 static int rule_assignment_opt(parser_t parser);
+static int rule_assignment_list(parser_t parser);
 static int rule_ids(parser_t parser);
 static int rule_id_n(parser_t parser);
 static int rule_id(parser_t parser);
-static int rule_assignOp(parser_t parser);
-static int rule_exprs_funCall(parser_t parser);
+static int rule_assign_op(parser_t parser);
+static int rule_exprs_funcall(parser_t parser);
 static int rule_functionCall(parser_t parser);
-static int rule_Arguments(parser_t parser);
-static int rule_Argument_n(parser_t parser);
-static int rule_Argument(parser_t parser);
+static int rule_arguments(parser_t parser);
+static int rule_argument_n(parser_t parser);
+static int rule_argument(parser_t parser);
 static int rule_return(parser_t parser);
 static int rule_expressions_opt(parser_t parser);
 static int rule_expressions(parser_t parser);
@@ -443,11 +444,23 @@ int rule_assignment_opt(parser_t parser) {
 
 /// 24
 int rule_assignment(parser_t parser) {
-	// Assignment -> 	  	  Ids AssignOp Exprs_FunCall .
+	// Assignment -> 	  	  Assignment_list
+	//						| Id AssignOp Exprs_FunCall .
 	SEM_ACTION(sem_assign_begin);
+	if (TOKEN_SECOND_TYPE == TK_COMMA) {
+		EXECUTE_RULE(rule_assignment_list);
+	} else {
+		EXECUTE_RULE(rule_id);
+		EXECUTE_RULE(rule_assign_op);
+		EXECUTE_RULE(rule_exprs_funcall);
+	}
+	return EXIT_SUCCESS;
+}
+
+int rule_assignment_list(parser_t parser) {
 	EXECUTE_RULE(rule_ids);
-	EXECUTE_RULE(rule_assignOp);
-	EXECUTE_RULE(rule_exprs_funCall);
+	TK_MATCH(TK_ASSIGN);
+	EXECUTE_RULE(rule_exprs_funcall);
 	return EXIT_SUCCESS;
 }
 
@@ -489,7 +502,7 @@ int rule_id(parser_t parser) {
 }
 
 /// 28
-int rule_assignOp(parser_t parser) {
+int rule_assign_op(parser_t parser) {
 	// AssignOp -> 			  plus_assign
 	//						| minus_assing
 	//						| multiply_assign
@@ -501,11 +514,11 @@ int rule_assignOp(parser_t parser) {
 }
 
 /// 29
-int rule_exprs_funCall(parser_t parser) {
+int rule_exprs_funcall(parser_t parser) {
 	// Exprs_FunCall ->		  Expression
 	//						| FunctionCall .
 	if (TOKEN_SECOND_TYPE == TK_L_PARENTHESIS) {
-		// TODO: SEM - assignment operator allowed only 
+		// TODO: SEM - assignment operator allowed only
 		EXECUTE_RULE(rule_functionCall);
 	} else {
 		EXECUTE_RULE(rule_expressions);
@@ -522,14 +535,14 @@ int rule_functionCall(parser_t parser) {
 	TK_NEXT();
 	TK_MATCH(TK_L_PARENTHESIS);
 	EXECUTE_RULE(rule_eol_opt_n);
-	EXECUTE_RULE(rule_Arguments);
+	EXECUTE_RULE(rule_arguments);
 	SEM_ACTION(sem_call_argument_count);
 	TK_MATCH(TK_R_PARENTHESIS);
 	return EXIT_SUCCESS;
 }
 
 /// 31
-int rule_Arguments(parser_t parser) {
+int rule_arguments(parser_t parser) {
 	// Arguments ->			  Argument Argument_n
 	//						| eps .
 	SEM_ACTION(sem_arguments_begin);
@@ -540,16 +553,21 @@ int rule_Arguments(parser_t parser) {
 		case TK_STR_LIT:
 		case TK_KEYW_TRUE:
 		case TK_KEYW_FALSE:
-			EXECUTE_RULE(rule_Argument);
-			EXECUTE_RULE(rule_Argument_n);
+			EXECUTE_RULE(rule_argument);
+			EXECUTE_RULE(rule_argument_n);
+			break;
+		case TK_R_PARENTHESIS:
+			// eps
+			break;
 		default:
+			TK_TEST(TK_IDENTIFIER, TK_INT_LIT, TK_FLOAT_LIT, TK_STR_LIT, TK_KEYW_TRUE, TK_KEYW_FALSE);
 			break;
 	}
 	return EXIT_SUCCESS;
 }
 
 /// 32
-int rule_Argument_n(parser_t parser) {
+int rule_argument_n(parser_t parser) {
 	// Argument_n -> 	  	  comma Eol_opt Argument Argument_n
 	//						| eps .
 
@@ -557,8 +575,8 @@ int rule_Argument_n(parser_t parser) {
 		case TK_COMMA:
 			TK_NEXT();
 			EXECUTE_RULE(rule_eol_opt_n);
-			EXECUTE_RULE(rule_Argument);
-			EXECUTE_RULE(rule_Argument_n);
+			EXECUTE_RULE(rule_argument);
+			EXECUTE_RULE(rule_argument_n);
 		default:
 			// eps
 			break;
@@ -567,7 +585,7 @@ int rule_Argument_n(parser_t parser) {
 }
 
 /// 33
-int rule_Argument(parser_t parser) {
+int rule_argument(parser_t parser) {
 	// Argument -> 			  id
 	//						| Literal .
 	SEM_ACTION(sem_argument_begin);

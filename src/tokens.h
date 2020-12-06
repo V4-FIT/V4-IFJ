@@ -74,6 +74,8 @@ typedef enum
 	TK_KEYW_BOOL,
 } token_type_t;
 
+extern const char *tk2str_map[];
+
 typedef union
 {
 	int64_t i;

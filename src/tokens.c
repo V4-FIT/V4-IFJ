@@ -21,6 +21,30 @@ struct flist
 
 ////// Public
 
+const char *tk2str_map[] = {"TK_ERROR", "EOF",
+							"(", ")",
+							"{", "}",
+							",", ";",
+							"EOL", "string literal",
+							"int literal", "float64 literal",
+							"+", "-",
+							"*", "/",
+							"=", "!=",
+							"<", "<=",
+							">", ">=",
+							"||", "&&",
+							"!", ":=",
+							"=", "+=",
+							"-=", "*=",
+							"/=", "identifier",
+							"_", "package",
+							"func", "main",
+							"return", "if",
+							"else", "for",
+							"true", "false",
+							"int", "float64",
+							"string", "bool"};
+
 tklist_t tklist_init() {
 	tklist_t tklist = flist_init(sizeof(token_t));
 	if (tklist == NULL) {
