@@ -120,4 +120,7 @@ int sem_assignment_call_return(parser_t parser);
 // check expression type against assign into variable type
 int sem_assign_expr_type_compat(parser_t parser);
 
+// check expr count matches ids count
+int sem_assign_expr_count(parser_t parser);
+
 #endif // !IFJ_SEMANTICS_H

@@ -859,6 +859,9 @@ int sem_assign_expr_type_compat(parser_t parser) {
 	}
 	if (tklist_it_valid(parser->sem.ids_begin_it)) {
 		token_t var = tklist_get(parser->sem.ids_begin_it);
+		if (var->type != TK_IDENTIFIER || var->type != TK_UNDERSCORE) {
+			return EXIT_SUCCESS;
+		}
 		data_type_t var_dt = tk2dt(parser, var);
 		if (var_dt != parser->sem.expr_data_type) {
 			PARSER_ERROR_MSG("cannot use %s (type %s) as type %s in assignment",
@@ -866,6 +869,18 @@ int sem_assign_expr_type_compat(parser_t parser) {
 			return ERROR_TYPE_COMPAT;
 		}
 		parser->sem.ids_begin_it = tklist_it_next(parser->sem.ids_begin_it);
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_assign_expr_count(parser_t parser) {
+	if (parser->sem.stmt != STMT_ASSIGN) {
+		return EXIT_SUCCESS;
+	}
+	if (parser->sem.ids_count != parser->sem.expr_count) {
+			PARSER_ERROR_MSG("assignment mismatch: %d variables but %d values",
+							 parser->sem.ids_count, parser->sem.expr_count);
+		return ERROR_SEM;
 	}
 	return EXIT_SUCCESS;
 }

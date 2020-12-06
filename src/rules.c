@@ -522,7 +522,7 @@ int rule_exprs_funcall(parser_t parser) {
 		EXECUTE_RULE(rule_functionCall);
 	} else {
 		EXECUTE_RULE(rule_expressions);
-		// TODO: assing: ids count == expr count
+		SEM_ACTION(sem_assign_expr_count);
 	}
 	return EXIT_SUCCESS;
 }
