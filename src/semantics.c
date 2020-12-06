@@ -615,7 +615,7 @@ int sem_unary_op_type_compat(parser_t parser, prec_stack_t *head) {
 int sem_prec_rule_exit(parser_t parser, prec_stack_t *head) {
 	prec_stack_sem_t sem = STACK_FIRST->sem;
 	parser->sem.expr_data_type = sem.data_type;
-	parser->sem.expr_constant = /*sem.constant*/ false;
+	parser->sem.expr_constant = sem.constant;
 	parser->sem.expr_value = sem.value;
 	return EXIT_SUCCESS;
 }
