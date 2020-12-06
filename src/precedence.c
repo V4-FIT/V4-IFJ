@@ -131,6 +131,8 @@ prec_stack_sem_t get_stack_sem(parser_t parser) {
 		case TK_KEYW_FALSE:
 			sem.data_type = DT_BOOL;
 			break;
+		default:
+			break;
 	}
 	return sem;
 }
@@ -339,6 +341,8 @@ int reduce(parser_t parser, prec_stack_t *head) {
 				return rule_and(parser, head);
 			case PREC_OR:
 				return rule_or(parser, head);
+			default:
+				break;
 		}
 	} else if (stack_exit(head)) {
 		return rule_exit(parser, head);

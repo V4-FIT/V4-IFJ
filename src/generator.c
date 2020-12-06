@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "error.h"
 #include "generator_static.h"
@@ -37,7 +38,7 @@
 
 ////// Conversion tables and functions (private)
 
-static const char *tk_type2type[] = {
+static const char *datatype2metatype[] = {
 		[DT_UNDEFINED] = NULL,
 		[DT_INTEGER] = "int",
 		[DT_FLOAT64] = "float",
@@ -179,10 +180,7 @@ void gen_var_assign_expr_result(const char *identifier) {
  * @param operator token type, one of {+ - * /}
  */
 void gen_var_operator(token_t operator) {
-	if (operator== NULL) {
-		INFO("Operator is NULL!\n");
-		return;
-	}
+	assert(operator!= NULL);
 
 	switch (operator->type) {
 		case TK_PLUS:
@@ -209,8 +207,9 @@ void gen_var_operator(token_t operator) {
  * @param type type of variable to be negated, one of {int, float}
  */
 void gen_var_neg(data_type_t type) {
+	assert(type != DT_UNDEFINED);
 	INSTRUCTION("POPS GF@rega");
-	INSTRUCTION("PUSHS ", tk_type2type[type], "@0");
+	INSTRUCTION("PUSHS ", datatype2metatype[type], "@0");
 	INSTRUCTION("PUSHS GF@rega");
 	INSTRUCTION("SUBS");
 }
