@@ -3,11 +3,14 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "rulemacros.h"
-#include "precedence.h"
 #include "parser.h"
+#include "rulemacros.h"
+#include "semantics.h"
 
 ////// Forward declarations
+
+// defined in precedence.c
+int parse_expr(parser_t parser);
 
 static int rule_program(parser_t parser);
 static int rule_prolog(parser_t parser);
@@ -32,16 +35,18 @@ static int rule_conditional(parser_t parser);
 static int rule_iterative(parser_t parser);
 static int rule_assignment(parser_t parser);
 static int rule_assignment_opt(parser_t parser);
+static int rule_assignment_list(parser_t parser);
 static int rule_ids(parser_t parser);
 static int rule_id_n(parser_t parser);
 static int rule_id(parser_t parser);
-static int rule_assignOp(parser_t parser);
-static int rule_exprs_funCall(parser_t parser);
+static int rule_assign_op(parser_t parser);
+static int rule_exprs_funcall(parser_t parser);
 static int rule_functionCall(parser_t parser);
-static int rule_Arguments(parser_t parser);
-static int rule_Argument_n(parser_t parser);
-static int rule_Argument(parser_t parser);
+static int rule_arguments(parser_t parser);
+static int rule_argument_n(parser_t parser);
+static int rule_argument(parser_t parser);
 static int rule_return(parser_t parser);
+static int rule_expressions_opt(parser_t parser);
 static int rule_expressions(parser_t parser);
 static int rule_expression_n(parser_t parser);
 static int rule_expression(parser_t parser);
@@ -51,7 +56,9 @@ static int rule_literal(parser_t parser);
 
 int rule_root(parser_t parser) {
 	EXECUTE_RULE(parser_setup);
+	SEM_ACTION(sem_define_builtin_functions);
 	EXECUTE_RULE(rule_program);
+	SEM_ACTION(sem_main_defined);
 	return EXIT_SUCCESS;
 }
 
@@ -65,7 +72,6 @@ int rule_program(parser_t parser) {
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_functions);
 	EXECUTE_RULE(rule_eol_opt_n);
-
 	TK_TEST(TK_EOF);
 	return EXIT_SUCCESS;
 }
@@ -101,28 +107,25 @@ int rule_function(parser_t parser) {
 	// Function -> 		  func id l_parenthesis Param_list r_parenthesis
 	//					  Return_list l_curly eol Eol_opt_n Statements r_curly eol .
 	TK_MATCH(TK_KEYW_FUNC);
-
 	TK_TEST(TK_IDENTIFIER, TK_KEYW_MAIN);
-	// SEM_DEFINE_FUNC();
+	SEM_ACTION(sem_func_define);
 	TK_NEXT();
-
 	TK_MATCH(TK_L_PARENTHESIS);
+	SEM_ACTION(sem_enter_scope);
 	EXECUTE_RULE(rule_param_list);
 	TK_MATCH(TK_R_PARENTHESIS);
-
 	EXECUTE_RULE(rule_return_list);
-
-	FIRST_PASS_END();
-
+	/*************************/
+	/**/ FIRST_PASS_END(); /**/
+	/*************************/
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
-	symtable_enter_scope(parser->symtable);
 	EXECUTE_RULE(rule_eol_opt_n);
+	SEM_ACTION(sem_func_stmts_begin);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
-	TK_MATCH(TK_EOL);
-	symtable_exit_scope(parser->symtable);
-
+	SEM_ACTION(sem_exit_scope);
+	SEM_ACTION(sem_func_has_return_stmt);
 	return EXIT_SUCCESS;
 }
 
@@ -162,9 +165,16 @@ int rule_param_n(parser_t parser) {
 
 /// 7
 int rule_param(parser_t parser) {
-	// Param -> 			  id Typename
-	TK_MATCH(TK_IDENTIFIER);
-	EXECUTE_RULE(rule_typename);
+	// Param -> 			  id float64
+	//						| id int
+	//						| id string
+	//						| id bool .
+	TK_TEST(TK_IDENTIFIER);
+	SEM_ACTION(sem_func_declare_param);
+	TK_NEXT();
+	TK_TEST(TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
+	SEM_ACTION(sem_func_add_param_type);
+	TK_NEXT();
 	return EXIT_SUCCESS;
 }
 
@@ -217,7 +227,9 @@ int rule_typename(parser_t parser) {
 	//						| int
 	//						| string
 	//						| bool .
-	TK_MATCH(TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
+	TK_TEST(TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
+	SEM_ACTION(sem_func_add_return_type);
+	TK_NEXT();
 	return EXIT_SUCCESS;
 }
 
@@ -232,6 +244,7 @@ int rule_returntype(parser_t parser) {
 		case TK_KEYW_INT:
 		case TK_KEYW_STRING:
 		case TK_KEYW_BOOL:
+			SEM_ACTION(sem_func_add_return_type);
 			TK_NEXT();
 			break;
 		default:
@@ -252,7 +265,6 @@ int rule_statements(parser_t parser) {
 	switch (TOKEN_TYPE) {
 		case TK_UNDERSCORE:
 		case TK_IDENTIFIER:
-			// EXECUTE_RULE(rule_var_define);
 			EXECUTE_RULE(rule_def_ass_call);
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
@@ -283,18 +295,16 @@ int rule_statements(parser_t parser) {
 
 /// 14
 int rule_def_ass_call(parser_t parser) {
-	// Def_Ass_Call ->	  	  Ids AssignOp Exprs_FunCall eol
-	//						| Id defineOp Expression eol .
+	// Def_Ass_Call ->	  	  Var_define eol
+	//						| FunctionCall eol
+	//						| Assignment eol .
 	if (TOKEN_SECOND_TYPE == TK_VAR_INIT) {
-		TK_MATCH(TK_IDENTIFIER); // TK_IDENTIFIER
-		TK_NEXT();               // TK_VAR_INIT;
-		EXECUTE_RULE(rule_expression);
+		EXECUTE_RULE(rule_var_define);
 	} else if (TOKEN_SECOND_TYPE == TK_L_PARENTHESIS) {
 		EXECUTE_RULE(rule_functionCall);
+		SEM_ACTION(sem_call_no_return);
 	} else {
-		EXECUTE_RULE(rule_ids);
-		EXECUTE_RULE(rule_assignOp);
-		EXECUTE_RULE(rule_exprs_funCall);
+		EXECUTE_RULE(rule_assignment);
 	}
 	TK_MATCH(TK_EOL);
 	return EXIT_SUCCESS;
@@ -318,17 +328,13 @@ int rule_var_define_opt(parser_t parser) {
 
 int rule_var_define(parser_t parser) {
 	// Var_define -> 	  	  id defineOp Expression
-	//						| eps .
-	switch (TOKEN_TYPE) {
-		case TK_IDENTIFIER:
-			TK_NEXT();
-			TK_MATCH(TK_VAR_INIT);
-			EXECUTE_RULE(rule_expression);
-			break;
-		default:
-			// eps
-			break;
-	}
+	SEM_ACTION(sem_define_begin);
+	TK_TEST(TK_IDENTIFIER);
+	SEM_ACTION(sem_var_define);
+	TK_NEXT();
+	TK_MATCH(TK_VAR_INIT);
+	EXECUTE_RULE(rule_expression);
+	SEM_ACTION(sem_var_define_type);
 	return EXIT_SUCCESS;
 }
 
@@ -368,11 +374,11 @@ int rule_else(parser_t parser) {
 		case TK_L_CURLY:
 			TK_NEXT();
 			TK_MATCH(TK_EOL);
-			symtable_enter_scope(parser->symtable);
+			SEM_ACTION(sem_enter_scope);
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
 			TK_MATCH(TK_R_CURLY);
-			symtable_exit_scope(parser->symtable);
+			SEM_ACTION(sem_exit_scope);
 		default:
 			break;
 	}
@@ -382,16 +388,17 @@ int rule_else(parser_t parser) {
 /// 22
 int rule_conditional(parser_t parser) {
 	// Conditional -> 	  	  if Expression l_curly eol Eol_opt_n Statements r_curly .
+	SEM_ACTION(sem_conditional_begin);
 	TK_NEXT();
 	EXECUTE_RULE(rule_expression);
+	SEM_ACTION(sem_bool_condiiton);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
-	symtable_enter_scope(parser->symtable);
+	SEM_ACTION(sem_enter_scope);
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
-
-	symtable_exit_scope(parser->symtable);
+	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
 }
 
@@ -399,22 +406,24 @@ int rule_conditional(parser_t parser) {
 int rule_iterative(parser_t parser) {
 	// Iterative -> 		  for Var_define_opt semicolon Expression semicolon
 	//						  Assignment_opt l_curly eol Eol_opt_n Statements r_curly eol.
+	SEM_ACTION(sem_iterative_begin);
 	TK_NEXT();
-	symtable_enter_scope(parser->symtable);
+	SEM_ACTION(sem_enter_scope);
 	EXECUTE_RULE(rule_var_define_opt);
 	TK_MATCH(TK_SEMICOLON);
 	EXECUTE_RULE(rule_expression);
+	SEM_ACTION(sem_bool_condiiton);
 	TK_MATCH(TK_SEMICOLON);
 	EXECUTE_RULE(rule_assignment_opt);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
-	symtable_enter_scope(parser->symtable);
+	SEM_ACTION(sem_enter_scope);
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 	TK_MATCH(TK_EOL);
-	symtable_exit_scope(parser->symtable);
-	symtable_exit_scope(parser->symtable);
+	SEM_ACTION(sem_exit_scope);
+	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
 }
 
@@ -436,10 +445,24 @@ int rule_assignment_opt(parser_t parser) {
 
 /// 24
 int rule_assignment(parser_t parser) {
-	// Assignment -> 	  	  Ids AssignOp Exprs_FunCall .
+	// Assignment -> 	  	  Assignment_list
+	//						| Id AssignOp Exprs_FunCall .
+	SEM_ACTION(sem_assign_begin);
+	if (TOKEN_SECOND_TYPE == TK_COMMA) {
+		EXECUTE_RULE(rule_assignment_list);
+	} else {
+		EXECUTE_RULE(rule_id);
+		EXECUTE_RULE(rule_assign_op);
+		EXECUTE_RULE(rule_exprs_funcall);
+	}
+	SEM_ACTION(sem_func_stmts_begin);
+	return EXIT_SUCCESS;
+}
+
+int rule_assignment_list(parser_t parser) {
 	EXECUTE_RULE(rule_ids);
-	EXECUTE_RULE(rule_assignOp);
-	EXECUTE_RULE(rule_exprs_funCall);
+	TK_MATCH(TK_ASSIGN);
+	EXECUTE_RULE(rule_exprs_funcall);
 	return EXIT_SUCCESS;
 }
 
@@ -471,12 +494,17 @@ int rule_id_n(parser_t parser) {
 int rule_id(parser_t parser) {
 	// Id -> 				  id
 	//						| underscore .
-	TK_MATCH(TK_IDENTIFIER, TK_UNDERSCORE);
+	SEM_ACTION(sem_id_begin);
+	TK_TEST(TK_IDENTIFIER, TK_UNDERSCORE);
+	if (TK_IDENTIFIER) {
+		SEM_ACTION(sem_var_check);
+	}
+	TK_NEXT();
 	return EXIT_SUCCESS;
 }
 
 /// 28
-int rule_assignOp(parser_t parser) {
+int rule_assign_op(parser_t parser) {
 	// AssignOp -> 			  plus_assign
 	//						| minus_assing
 	//						| multiply_assign
@@ -488,13 +516,14 @@ int rule_assignOp(parser_t parser) {
 }
 
 /// 29
-int rule_exprs_funCall(parser_t parser) {
+int rule_exprs_funcall(parser_t parser) {
 	// Exprs_FunCall ->		  Expression
 	//						| FunctionCall .
 	if (TOKEN_SECOND_TYPE == TK_L_PARENTHESIS) {
 		EXECUTE_RULE(rule_functionCall);
 	} else {
 		EXECUTE_RULE(rule_expressions);
+		SEM_ACTION(sem_assign_expr_count);
 	}
 	return EXIT_SUCCESS;
 }
@@ -502,18 +531,24 @@ int rule_exprs_funCall(parser_t parser) {
 /// 30
 int rule_functionCall(parser_t parser) {
 	// FunctionCall -> 		  id l_parenthesis Eol_opt Arguments r_parenthesis .
-	TK_MATCH(TK_IDENTIFIER);
+	SEM_ACTION(sem_call_begin);
+	TK_TEST(TK_IDENTIFIER);
+	SEM_ACTION(sem_func_callable);
+	SEM_ACTION(sem_assignment_call_return);
+	TK_NEXT();
 	TK_MATCH(TK_L_PARENTHESIS);
 	EXECUTE_RULE(rule_eol_opt_n);
-	EXECUTE_RULE(rule_Arguments);
+	EXECUTE_RULE(rule_arguments);
+	SEM_ACTION(sem_call_argument_count);
 	TK_MATCH(TK_R_PARENTHESIS);
 	return EXIT_SUCCESS;
 }
 
 /// 31
-int rule_Arguments(parser_t parser) {
+int rule_arguments(parser_t parser) {
 	// Arguments ->			  Argument Argument_n
 	//						| eps .
+	SEM_ACTION(sem_arguments_begin);
 	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 		case TK_INT_LIT:
@@ -521,16 +556,21 @@ int rule_Arguments(parser_t parser) {
 		case TK_STR_LIT:
 		case TK_KEYW_TRUE:
 		case TK_KEYW_FALSE:
-			EXECUTE_RULE(rule_Argument);
-			EXECUTE_RULE(rule_Argument_n);
+			EXECUTE_RULE(rule_argument);
+			EXECUTE_RULE(rule_argument_n);
+			break;
+		case TK_R_PARENTHESIS:
+			// eps
+			break;
 		default:
+			TK_TEST(TK_IDENTIFIER, TK_INT_LIT, TK_FLOAT_LIT, TK_STR_LIT, TK_KEYW_TRUE, TK_KEYW_FALSE);
 			break;
 	}
 	return EXIT_SUCCESS;
 }
 
 /// 32
-int rule_Argument_n(parser_t parser) {
+int rule_argument_n(parser_t parser) {
 	// Argument_n -> 	  	  comma Eol_opt Argument Argument_n
 	//						| eps .
 
@@ -538,8 +578,8 @@ int rule_Argument_n(parser_t parser) {
 		case TK_COMMA:
 			TK_NEXT();
 			EXECUTE_RULE(rule_eol_opt_n);
-			EXECUTE_RULE(rule_Argument);
-			EXECUTE_RULE(rule_Argument_n);
+			EXECUTE_RULE(rule_argument);
+			EXECUTE_RULE(rule_argument_n);
 		default:
 			// eps
 			break;
@@ -548,9 +588,10 @@ int rule_Argument_n(parser_t parser) {
 }
 
 /// 33
-int rule_Argument(parser_t parser) {
+int rule_argument(parser_t parser) {
 	// Argument -> 			  id
 	//						| Literal .
+	SEM_ACTION(sem_argument_begin);
 	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
 			TK_NEXT();
@@ -564,10 +605,26 @@ int rule_Argument(parser_t parser) {
 
 /// 34
 int rule_return(parser_t parser) {
-	// Return -> 			  return Expressions eol.
+	// Return -> 			  return Expressions_opt eol.
+	SEM_ACTION(sem_return_begin);
 	TK_MATCH(TK_KEYW_RETURN);
-	EXECUTE_RULE(rule_expressions);
+	EXECUTE_RULE(rule_expressions_opt);
+	SEM_ACTION(sem_return_expr_count);
 	TK_MATCH(TK_EOL);
+	return EXIT_SUCCESS;
+}
+
+
+int rule_expressions_opt(parser_t parser) {
+	// Expressions -> 	  	  Expression Expression_n
+	//						| eps .
+	switch (TOKEN_TYPE) {
+		case TK_EOL:
+			break;
+		default:
+			EXECUTE_RULE(rule_expressions);
+			break;
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -599,11 +656,12 @@ int rule_expression_n(parser_t parser) {
 
 /// 37
 int rule_expression(parser_t parser) {
-	// Expression -> 	  	  Term
-	//						| Term BinaryOp Term
-	//						| l_parenthesis Eol_opt Term r_parenthesis .
-	// TODO: expression shits and don't forget other shits that are kinda expression related
-	return parse_expr(parser);
+	// Expression -> 	  	 expression .
+	SEM_ACTION(sem_expression_begin);
+	EXECUTE_RULE(parse_expr);
+	SEM_ACTION(sem_return_expr_type_compat);
+	SEM_ACTION(sem_assign_expr_type_compat);
+	return EXIT_SUCCESS;
 }
 
 /// 38

@@ -8,6 +8,8 @@
 #include "precedence.h"
 #include "tokens.h"
 
+const char *stmt2str_map[] = {"default", "define", "assign", "call", "if", "for", "return"};
+
 parser_t parser_init(tklist_t tklist) {
 	parser_t parser = malloc(sizeof(struct parser));
 	if (parser == NULL) {
@@ -40,11 +42,11 @@ int parser_setup(parser_t parser) {
 		return ERROR_SYN;
 	}
 	parser->token = tklist_get(parser->tkit);
-	parser->tkit = tklist_it_next(parser->tkit);
-	if (!tklist_it_valid(parser->tkit)) {
+	parser->tkit2 = tklist_it_next(parser->tkit);
+	if (!tklist_it_valid(parser->tkit2)) {
 		return ERROR_SYN;
 	}
-	parser->token_second = tklist_get(parser->tkit);
+	parser->token_second = tklist_get(parser->tkit2);
 	return EXIT_SUCCESS;
 }
 

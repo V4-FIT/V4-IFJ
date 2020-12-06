@@ -8,8 +8,9 @@ set(
         rules.c
         symtable.c
         precedence.c
-		tokens.c
-		generator.c
+        tokens.c
+        semantics.c
+        generator.c
 )
 
 include_directories(

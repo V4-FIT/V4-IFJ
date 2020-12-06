@@ -25,7 +25,7 @@ extern "C" {
 		}                                                 \
 	} while (0)
 
-class Precedence : public testing::Test
+class DISABLED_Precedence : public testing::Test
 {
 public:
 	FILE *stream;

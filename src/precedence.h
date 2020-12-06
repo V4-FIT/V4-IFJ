@@ -2,47 +2,124 @@
 #define IFJ_PRECEDENCE_H
 
 #include "parser.h"
+#include "rulemacros.h"
+
+//// Macros
+
+#define STACK_FIRST (*head)
+#define STACK_SECOND (*head)->next
+#define STACK_THIRD (*head)->next->next
+
+// setup stack and type variable
+#define PARSE_EXPR_BEGIN()            \
+	prec_stack_t head = stack_init(); \
+	if (head == NULL) {               \
+		ALLOCATION_ERROR_MSG();       \
+		return ERROR_MISC;            \
+	}                                 \
+	prec_token_type type
+
+// finish parsing expr and clean up
+#define PARSE_EXPR_END() stack_delete(head)
+
+// current precedence
+#define PREC_TABLE() prec_table[HEAD()->type][type]
+
+// Get next token and skip TK_EOLs when possible
+#define TK_PREC_NEXT()                        \
+	do {                                      \
+		switch (TOKEN_TYPE) {                 \
+			case TK_L_PARENTHESIS:            \
+			case TK_PLUS:                     \
+			case TK_MINUS:                    \
+			case TK_MULTIPLY:                 \
+			case TK_DIVIDE:                   \
+			case TK_EQUAL:                    \
+			case TK_NOT_EQUAL:                \
+			case TK_LESS:                     \
+			case TK_GREATER:                  \
+			case TK_LESS_EQUAL:               \
+			case TK_GREATER_EQUAL:            \
+			case TK_OR:                       \
+			case TK_AND:                      \
+				TK_NEXT();                    \
+				EXECUTE_RULE(rule_eol_opt_n); \
+				break;                        \
+			case TK_EOL:                      \
+				break;                        \
+			default:                          \
+				TK_NEXT();                    \
+				break;                        \
+		}                                     \
+	} while (0);
+
+// check semantics in parse_expr
+#define SEM_PREC_ACTION(_SEM_FUNC)   \
+	do {                             \
+		int ret = _SEM_FUNC(parser); \
+		if (ret != EXIT_SUCCESS) {   \
+			stack_delete(head);      \
+			return ret;              \
+		}                            \
+	} while (0)
+
+// check semantics in reduction rules
+#define SEM_PREC_RULE_ACTION(_SEM_FUNC)    \
+	do {                                   \
+		int ret = _SEM_FUNC(parser, head); \
+		if (ret != EXIT_SUCCESS) {         \
+			return ret;                    \
+		}                                  \
+	} while (0)
 
 // don't acount for E in stack head
-#define HEAD() (head->type == PREC_I && head->todo == false && head->next->type != PREC_UNARY ? head->next : head)
+#define HEAD() (head->type == PREC_I && head->processed && head->next->type != PREC_UNARY ? head->next : head)
 
-#define CHECK_RES()                \
-	do {                           \
-		if (res != EXIT_SUCCESS) { \
-			delete_stack(head);    \
-			return res;            \
-		}                          \
+// get precedence type
+#define GET_PREC_TYPE()                           \
+	do {                                          \
+		type = convert_type(head, parser->token); \
+		if (type == PREC_ERROR) {                 \
+			stack_delete(head);                   \
+			return ERROR_MISC;                    \
+		}                                         \
 	} while (0)
 
-#define CHECK_TYPE()              \
-	do {                          \
-		if (type == PREC_ERROR) { \
-			delete_stack(head);   \
-			return ERROR_MISC;    \
-		}                         \
+// save current and load next token
+#define LOAD_NEXT()                                                              \
+	do {                                                                         \
+		int ret = stack_push(&head, parser->token, type, get_stack_sem(parser)); \
+		if (ret != EXIT_SUCCESS) {                                               \
+			stack_delete(head);                                                  \
+			return ret;                                                          \
+		}                                                                        \
+		TK_PREC_NEXT();                                                          \
+		GET_PREC_TYPE();                                                         \
 	} while (0)
 
-#define LOAD_NEXT()                               \
-	res = push_stack(&head, parser->token, type); \
-	TK_PREC_NEXT();                               \
-	type = convert_type(head, parser->token);     \
-	CHECK_TYPE();                                 \
-	CHECK_RES()
-
+// execute reduction rule
+#define REDUCE()                         \
+	do {                                 \
+		int ret = reduce(parser, &head); \
+		if (ret != EXIT_SUCCESS) {       \
+			stack_delete(head);          \
+			return ret;                  \
+		}                                \
+	} while (0)
 
 typedef enum
 {
-	PREC_L_BR,       // (
-	PREC_R_BR,       // )
-	PREC_UNARY,      // +,-,!
-	PREC_MUL_DIV,    // *,/
-	PREC_PLUS_MINUS, // +,-
-	PREC_RELATION,   // <, <=, >, >=
-	PREC_EQUAL,      // ==, !=
-	PREC_AND,        // &&
-	PREC_OR,         // ||
-	PREC_I,          // id, string/int/float/bool literal
-	PREC_DOLLAR,     // eol?, eof, =
+	PREC_L_PARENTHESIS, // (
+	PREC_R_PARENTHESIS, // )
+	PREC_UNARY,         // +,-,!
+	PREC_MUL_DIV,       // *,/
+	PREC_PLUS_MINUS,    // +,-
+	PREC_RELATION,      // <, <=, >, >=
+	PREC_EQUALITY,      // ==, !=
+	PREC_AND,           // &&
+	PREC_OR,            // ||
+	PREC_I,             // id, string/int/float/bool literal
+	PREC_DOLLAR,        // eol?, eof, =
 	PREC_ERROR
 } prec_token_type;
 
@@ -65,35 +142,21 @@ typedef enum
 
 // stack
 
-typedef struct Stack
+typedef struct prec_stack_sem
+{
+	data_type_t data_type;
+	bool constant;
+	tk_param_t value;
+} prec_stack_sem_t;
+
+typedef struct prec_stack
 {
 	token_t token;
 	prec_token_type type;
-	bool todo;
-	struct Stack *next;
+	bool processed;
+	prec_stack_sem_t sem;
+	struct prec_stack *next;
 } * prec_stack_t;
-
-
-prec_token_type convert_type(prec_stack_t head, token_t t1);
-
-int push_stack(prec_stack_t *head, token_t token, prec_token_type prec);
-void pop_stack(prec_stack_t *head);
-void delete_stack(prec_stack_t head);
-
-
-// rule definitions
-void rule_i(prec_stack_t *head);
-void rule_brackets(prec_stack_t *head);
-void rule_exit(prec_stack_t *head);
-void rule_un(prec_stack_t *head);
-void rule_mul_div(prec_stack_t *head);
-void rule_rel(prec_stack_t *head);
-void rule_equal(prec_stack_t *head);
-void rule_and(prec_stack_t *head);
-void rule_or(prec_stack_t *head);
-
-
-int reduce(prec_stack_t *head);
 
 int parse_expr(parser_t parser);
 

@@ -6,7 +6,7 @@ TEST_F(ScannerTest, string_literal_basic) {
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_STR_LIT);
-	EXPECT_STREQ(token->param.s, "test");
+	EXPECT_STREQ(token->lexeme, "test");
 
 	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
@@ -18,7 +18,7 @@ TEST_F(ScannerTest, string_literal_escape_replace) {
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_STR_LIT);
-	EXPECT_STREQ(token->param.s, "test+");
+	EXPECT_STREQ(token->lexeme, "test+");
 
 	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
@@ -30,7 +30,7 @@ TEST_F(ScannerTest, string_literal_escape_replace_lowercase) {
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_STR_LIT);
-	EXPECT_STREQ(token->param.s, "test+");
+	EXPECT_STREQ(token->lexeme, "test+");
 
 	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
@@ -42,7 +42,7 @@ TEST_F(ScannerTest, string_literal_escape_whitespace) {
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_STR_LIT);
-	EXPECT_STREQ(token->param.s, "test\n");
+	EXPECT_STREQ(token->lexeme, "test\n");
 
 	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
@@ -54,7 +54,7 @@ TEST_F(ScannerTest, string_literal_escape_backslash) {
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_STR_LIT);
-	EXPECT_STREQ(token->param.s, "test\\");
+	EXPECT_STREQ(token->lexeme, "test\\");
 
 	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);
@@ -66,7 +66,7 @@ TEST_F(ScannerTest, string_literal_escape_quote) {
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_STR_LIT);
-	EXPECT_STREQ(token->param.s, "test\"");
+	EXPECT_STREQ(token->lexeme, "test\"");
 
 	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);

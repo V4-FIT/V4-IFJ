@@ -27,12 +27,17 @@ typedef enum
 */
 typedef enum
 {
+	DT_UNDEFINED,
 	DT_INTEGER,
 	DT_FLOAT64,
 	DT_STRING,
-	DT_BOOL,
-	DT_UNDEFINED
+	DT_BOOL
 } data_type_t;
+
+/**
+ * @brief	data_type_t to string map for printing error messages
+*/
+extern const char *dt2str_map[];
 
 /**
  * @brief	stored information about variables
@@ -40,7 +45,8 @@ typedef enum
 typedef struct
 {
 	data_type_t data_type;
-	//TODO: SYMTABLE - add required attributes for variables
+	bool constant;
+	tk_param_t value;
 } sym_var_t;
 
 /**
@@ -52,7 +58,6 @@ typedef struct
 	flist_t param_list;
 	unsigned int return_count;
 	flist_t return_list;
-	bool defined;
 } sym_func_t;
 
 /**
@@ -140,13 +145,6 @@ symbol_ref_t symtable_find(symtable_t symtable, token_t id_token);
 symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_t symbol_type);
 
 /**
- * @brief	checks if there are any undefined functions
- * @param	symtable 
- * @return	true if there is an undefined function, false if all functions are defined
-*/
-bool symtable_undefined_funcs(symtable_t symtable);
-
-/**
  * @brief	Add a parameter to the functions parameter list
  *			!!! Only call on ST_FUNC type symbols !!!
  * @param	symbol_ref 
@@ -185,6 +183,8 @@ bool symbol_valid(symbol_ref_t symbol_ref);
  * @return	True if the symbol is from the current scope
 */
 bool symbol_current_scope(symbol_ref_t symbol_ref);
+
+
 
 /**
  * @brief	Delete all symbols and free the allocated memory

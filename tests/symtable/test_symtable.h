@@ -14,7 +14,7 @@ extern "C" {
 #define TK_ID(_name, _param)          \
 	token_t _name = new struct token; \
 	_name->type = TK_IDENTIFIER;      \
-	_name->param.s = _param;
+	_name->lexeme = _param;
 
 class SymtableTest : public testing::Test
 {
