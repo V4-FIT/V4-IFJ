@@ -23,7 +23,7 @@ void gen_var_define(const char *identifier);
 void gen_var_load(token_t token);
 void gen_var_assign_expr_result(const char *identifier);
 void gen_var_operator(token_t operator);
-void gen_var_neg(token_type_t type);
+void gen_var_neg(data_type_t type);
 void gen_var_not();
 
 #endif //IFJ_GENERATOR_H

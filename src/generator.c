@@ -38,12 +38,11 @@
 ////// Conversion tables and functions (private)
 
 static const char *tk_type2type[] = {
-		[TK_INT_LIT] = "int",
-		[TK_FLOAT_LIT] = "float",
-		[TK_STR_LIT] = "string",
-		[TK_KEYW_TRUE] = "bool",
-		[TK_KEYW_FALSE] = "bool",
-		[TK_KEYW_BOOL] = NULL, // last
+		[DT_UNDEFINED] = NULL,
+		[DT_INTEGER] = "int",
+		[DT_FLOAT64] = "float",
+		[DT_STRING] = "string",
+		[DT_BOOL] = "bool",
 };
 
 static void encode_string_literal(const char *string) {
@@ -61,7 +60,7 @@ static void encode_string_literal(const char *string) {
 static void push_token(token_t token) {
 	switch (token->type) {
 		case TK_IDENTIFIER:
-			INSTRUCTION("PUSHS TF@", token->param.s);
+			INSTRUCTION("PUSHS TF@", token->lexeme);
 			break;
 		case TK_INT_LIT:
 			INSTRUCTION_PART("PUSHS int@");
@@ -75,7 +74,7 @@ static void push_token(token_t token) {
 			break;
 		case TK_STR_LIT:
 			INSTRUCTION_PART("PUSHS string@");
-			encode_string_literal(token->param.s);
+			encode_string_literal(token->lexeme);
 			INSTRUCTION_END();
 			break;
 		case TK_KEYW_TRUE:
@@ -209,7 +208,7 @@ void gen_var_operator(token_t operator) {
  * Negates the last stack value
  * @param type type of variable to be negated, one of {int, float}
  */
-void gen_var_neg(token_type_t type) {
+void gen_var_neg(data_type_t type) {
 	INSTRUCTION("POPS GF@rega");
 	INSTRUCTION("PUSHS ", tk_type2type[type], "@0");
 	INSTRUCTION("PUSHS GF@rega");
