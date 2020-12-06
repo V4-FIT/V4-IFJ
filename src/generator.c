@@ -97,6 +97,13 @@ static void push_token(token_t token) {
 	}
 }
 
+static void concat_stack() {
+	INSTRUCTION("POPS GF@rega");
+	INSTRUCTION("POPS GF@regb");
+	INSTRUCTION("CONCAT GF@rega GF@regb GF@rega");
+	INSTRUCTION("PUSHS GF@rega");
+}
+
 ////// Code segment generation -> public interface implementation
 
 void gen_init() {
@@ -223,7 +230,11 @@ void gen_var_operator_binary(token_type_t operator, data_type_t data_type) {
 	switch (operator) {
 		case TK_PLUS_ASSIGN:
 		case TK_PLUS:
-			INSTRUCTION("ADDS");
+			if (data_type == DT_STRING) {
+				concat_stack();
+			} else {
+				INSTRUCTION("ADDS");
+			}
 			break;
 		case TK_MINUS_ASSIGN:
 		case TK_MINUS:
