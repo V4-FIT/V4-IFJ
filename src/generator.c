@@ -35,6 +35,7 @@
  * - scoped variables
  * - check if every generation is after a semantic test
  * - test div and idiv
+ * - string concatenation on '+' and '+='
  */
 
 ////// Conversion tables and functions (private)
@@ -164,11 +165,21 @@ void gen_var_define(const char *identifier) {
 }
 
 /**
- * Pushes the literal/variable onto the stack for further computation
+ * Pushes the literal/identifier onto the stack for further computation
  * @param token literal or identifier token
  */
 void gen_var_load(token_t token) {
 	push_token(token);
+}
+
+/**
+ * Pushes the identifier onto the stack, before the last pushed item for further computation
+ * @param identifier name
+ */
+void gen_var_load_id_before(const char *identifier) {
+	INSTRUCTION("POPS GF@rega");
+	INSTRUCTION("PUSHS TF@", identifier);
+	INSTRUCTION("PUSHS GF@rega");
 }
 
 /**
@@ -210,15 +221,19 @@ void gen_var_operator_unary(token_type_t operator, data_type_t data_type) {
  */
 void gen_var_operator_binary(token_type_t operator, data_type_t data_type) {
 	switch (operator) {
+		case TK_PLUS_ASSIGN:
 		case TK_PLUS:
 			INSTRUCTION("ADDS");
 			break;
+		case TK_MINUS_ASSIGN:
 		case TK_MINUS:
 			INSTRUCTION("SUBS");
 			break;
+		case TK_MULTIPLY_ASSIGN:
 		case TK_MULTIPLY:
 			INSTRUCTION("MULS");
 			break;
+		case TK_DIVIDE_ASSIGN:
 		case TK_DIVIDE:
 			switch (data_type) {
 				case DT_INTEGER:

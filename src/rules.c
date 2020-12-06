@@ -486,6 +486,7 @@ int rule_assignment(parser_t parser) {
 int rule_assignment_list(parser_t parser) {
 	EXECUTE_RULE(rule_ids);
 	TK_MATCH(TK_ASSIGN);
+	parser->assign_type = TK_ASSIGN;
 	EXECUTE_RULE(rule_exprs_funcall);
 	return EXIT_SUCCESS;
 }
@@ -540,7 +541,9 @@ int rule_assign_op(parser_t parser) {
 	//						| multiply_assign
 	//						| divide_assign
 	//						| assign .
-	TK_MATCH(TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_ASSIGN);
+	TK_TEST(TK_PLUS_ASSIGN, TK_MINUS_ASSIGN, TK_MULTIPLY_ASSIGN, TK_DIVIDE_ASSIGN, TK_ASSIGN);
+	parser->assign_type = parser->token->type;
+	TK_NEXT();
 	EXECUTE_RULE(rule_eol_opt_n);
 	return EXIT_SUCCESS;
 }
@@ -558,6 +561,11 @@ int rule_exprs_funcall(parser_t parser) {
 
 	// Assign return values
 	for (flist_iterator_t it = flist_begin(parser->return_id_list); flist_it_valid(it); it = flist_it_next(it)) {
+		if (parser->assign_type != TK_ASSIGN) {
+			assert(parser->sem.expr_data_type == DT_INTEGER || parser->sem.expr_data_type == DT_FLOAT64 || (parser->assign_type == TK_PLUS_ASSIGN && parser->sem.expr_data_type == DT_STRING));
+			gen_var_load_id_before(flist_get(it));
+			gen_var_operator_binary(parser->assign_type, parser->sem.expr_data_type);
+		}
 		gen_var_assign_expr_result(flist_get(it));
 	}
 	flist_clear(parser->return_id_list);

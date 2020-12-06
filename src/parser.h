@@ -70,6 +70,7 @@ typedef struct parser
 	bool first_pass;
 	semantics_t sem;
 	flist_t return_id_list;
+	token_type_t assign_type;
 } * parser_t;
 
 /**
