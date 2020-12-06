@@ -562,7 +562,9 @@ int rule_exprs_funcall(parser_t parser) {
 	// Assign return values
 	for (flist_iterator_t it = flist_begin(parser->return_id_list); flist_it_valid(it); it = flist_it_next(it)) {
 		if (parser->assign_type != TK_ASSIGN) {
-			assert(parser->sem.expr_data_type == DT_INTEGER || parser->sem.expr_data_type == DT_FLOAT64 || (parser->assign_type == TK_PLUS_ASSIGN && parser->sem.expr_data_type == DT_STRING));
+			assert(parser->sem.expr_data_type == DT_INTEGER
+				   || parser->sem.expr_data_type == DT_FLOAT64
+				   || (parser->assign_type == TK_PLUS_ASSIGN && parser->sem.expr_data_type == DT_STRING));
 			gen_var_load_id_before(flist_get(it));
 			gen_var_operator_binary(parser->assign_type, parser->sem.expr_data_type);
 		}

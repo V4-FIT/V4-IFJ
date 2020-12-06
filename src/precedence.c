@@ -183,36 +183,36 @@ void stack_delete(prec_stack_t head) {
 // reduction type checks
 
 bool stack_term(prec_stack_t *head) {
-	return STACK_FIRST->processed == false &&
-		   STACK_FIRST->type == PREC_I;
+	return STACK_FIRST->processed == false
+		   && STACK_FIRST->type == PREC_I;
 }
 
 bool stack_un_term(prec_stack_t *head) {
-	return STACK_FIRST->type == PREC_I &&
-		   STACK_FIRST->processed == true &&
-		   STACK_SECOND != NULL &&
-		   STACK_SECOND->type == PREC_UNARY;
+	return STACK_FIRST->type == PREC_I
+		   && STACK_FIRST->processed == true
+		   && STACK_SECOND != NULL
+		   && STACK_SECOND->type == PREC_UNARY;
 }
 
 bool stack_lparenthesis_term_rparenthesis(prec_stack_t *head) {
-	return STACK_FIRST->type == PREC_R_PARENTHESIS &&
-		   STACK_SECOND != NULL &&
-		   STACK_SECOND->type == PREC_I &&
-		   STACK_THIRD != NULL &&
-		   STACK_THIRD->type == PREC_L_PARENTHESIS;
+	return STACK_FIRST->type == PREC_R_PARENTHESIS
+		   && STACK_SECOND != NULL
+		   && STACK_SECOND->type == PREC_I
+		   && STACK_THIRD != NULL
+		   && STACK_THIRD->type == PREC_L_PARENTHESIS;
 }
 
 bool stack_term_op_term(prec_stack_t *head) {
-	return STACK_FIRST->type == PREC_I &&
-		   STACK_SECOND != NULL &&
-		   STACK_SECOND->next != NULL &&
-		   STACK_THIRD->type == PREC_I &&
-		   STACK_THIRD->processed == false;
+	return STACK_FIRST->type == PREC_I
+		   && STACK_SECOND != NULL
+		   && STACK_SECOND->next != NULL
+		   && STACK_THIRD->type == PREC_I
+		   && STACK_THIRD->processed == false;
 }
 
 bool stack_exit(prec_stack_t *head) {
-	return STACK_FIRST->processed &&
-		   STACK_FIRST->type == PREC_I;
+	return STACK_FIRST->processed
+		   && STACK_FIRST->type == PREC_I;
 }
 
 

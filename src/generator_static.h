@@ -33,9 +33,7 @@
  * Insert a newline
  */
 #define INSTRUCTION_END(...) \
-	do {                     \
-		fputs("\n", stdout); \
-	} while (0)
+	do { fputs("\n", stdout); } while (0)
 
 /**
  * Print variadic arguments and insert a newline
