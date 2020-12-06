@@ -123,4 +123,7 @@ int sem_assign_expr_type_compat(parser_t parser);
 // check expr count matches ids count
 int sem_assign_expr_count(parser_t parser);
 
+// check against zero div
+int sem_assign_zero_div(parser_t parser);
+
 #endif // !IFJ_SEMANTICS_H

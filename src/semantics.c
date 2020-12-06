@@ -888,3 +888,26 @@ int sem_assign_expr_count(parser_t parser) {
 	}
 	return EXIT_SUCCESS;
 }
+
+int sem_assign_zero_div(parser_t parser) {
+	if (tklist_it_valid(parser->sem.ids_begin_it)) {
+		token_t assign_op = tklist_get(parser->sem.ids_begin_it);
+		if (assign_op->type == TK_DIVIDE_ASSIGN) {
+			switch (parser->sem.expr_data_type) {
+				case DT_INTEGER:
+					if (parser->sem.expr_value.i == 0) {
+						PARSER_ERROR_MSG("division by zero");
+						return ERROR_ZERO_DIV;
+					}
+					break;
+				case DT_FLOAT64:
+					if (parser->sem.expr_value.f == 0.0) {
+						PARSER_ERROR_MSG("division by zero");
+						return ERROR_ZERO_DIV;
+					}
+					break;
+			}
+		}
+	}
+	return EXIT_SUCCESS;
+}
