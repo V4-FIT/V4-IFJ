@@ -569,13 +569,16 @@ int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head) {
 		return ERROR_TYPE_COMPAT;
 	}
 	if (STACK_FIRST->sem.data_type == DT_BOOL) {
-		PARSER_EXPR_ERROR_MSG(OPERATION_NOT_DEFINED_MSG);
-		return ERROR_TYPE_COMPAT;
+		if (STACK_SECOND->token->type != TK_EQUAL
+			&& STACK_SECOND->token->type != TK_NOT_EQUAL) {
+			PARSER_EXPR_ERROR_MSG(OPERATION_NOT_DEFINED_MSG);
+			return ERROR_TYPE_COMPAT;
+		}
 	}
 	if (STACK_FIRST->sem.data_type == DT_STRING) {
-		if (STACK_SECOND->token->type == TK_MINUS ||
-			STACK_SECOND->token->type == TK_MULTIPLY ||
-			STACK_SECOND->token->type == TK_DIVIDE) {
+		if (STACK_SECOND->token->type == TK_MINUS
+			|| STACK_SECOND->token->type == TK_MULTIPLY
+			|| STACK_SECOND->token->type == TK_DIVIDE) {
 			PARSER_EXPR_ERROR_MSG(OPERATION_NOT_DEFINED_MSG);
 			return ERROR_TYPE_COMPAT;
 		}
@@ -612,7 +615,7 @@ int sem_unary_op_type_compat(parser_t parser, prec_stack_t *head) {
 int sem_prec_rule_exit(parser_t parser, prec_stack_t *head) {
 	prec_stack_sem_t sem = STACK_FIRST->sem;
 	parser->sem.expr_data_type = sem.data_type;
-	parser->sem.expr_constant = /*sem.constant*/ false;
+	parser->sem.expr_constant = sem.constant;
 	parser->sem.expr_value = sem.value;
 	return EXIT_SUCCESS;
 }
@@ -667,7 +670,7 @@ int sem_evaulate_unary_const_expr(parser_t parser, prec_stack_t *head) {
 }
 
 int sem_zero_division(parser_t parser, prec_stack_t *head) {
-	if (STACK_FIRST->sem.constant) {
+	if (STACK_FIRST->sem.constant && STACK_SECOND->token->type == TK_DIVIDE) {
 		switch (STACK_FIRST->sem.data_type) {
 			case DT_INTEGER:
 				if (STACK_FIRST->sem.value.i == 0) {
@@ -696,6 +699,12 @@ int sem_bool_condiiton(parser_t parser) {
 
 int sem_id_begin(parser_t parser) {
 	parser->sem.ids_count++;
+	if (parser->token->type == TK_IDENTIFIER) {
+		symbol_ref_t symbol_ref = symtable_find(parser->symtable, parser->token);
+		if (symbol_valid(symbol_ref) && symbol_ref.symbol->type == ST_VAR) {
+			symbol_ref.symbol->var.constant = false;
+		}
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -810,11 +819,7 @@ int sem_call_argument_count(parser_t parser) {
 }
 
 bool assign_op(token_type_t token_type) {
-	return token_type == TK_PLUS_ASSIGN ||
-		   token_type == TK_MINUS_ASSIGN ||
-		   token_type == TK_MULTIPLY_ASSIGN ||
-		   token_type == TK_DIVIDE_ASSIGN ||
-		   token_type == TK_ASSIGN;
+	return token_type == TK_PLUS_ASSIGN || token_type == TK_MINUS_ASSIGN || token_type == TK_MULTIPLY_ASSIGN || token_type == TK_DIVIDE_ASSIGN || token_type == TK_ASSIGN;
 }
 
 int sem_assignment_call_return(parser_t parser) {
@@ -870,7 +875,7 @@ int sem_assign_expr_type_compat(parser_t parser) {
 		data_type_t var_dt = tk2dt(parser, var);
 		if (var_dt != parser->sem.expr_data_type) {
 			PARSER_ERROR_MSG("cannot use %s (type %s) as type %s in assignment",
-							 var->lexeme,dt2str_map[var_dt], dt2str_map[parser->sem.expr_data_type]);
+							 var->lexeme, dt2str_map[var_dt], dt2str_map[parser->sem.expr_data_type]);
 			return ERROR_TYPE_COMPAT;
 		}
 		parser->sem.ids_begin_it = tklist_it_next(parser->sem.ids_begin_it);
@@ -883,9 +888,32 @@ int sem_assign_expr_count(parser_t parser) {
 		return EXIT_SUCCESS;
 	}
 	if (parser->sem.ids_count != parser->sem.expr_count) {
-			PARSER_ERROR_MSG("assignment mismatch: %d variables but %d values",
-							 parser->sem.ids_count, parser->sem.expr_count);
+		PARSER_ERROR_MSG("assignment mismatch: %d variables but %d values",
+						 parser->sem.ids_count, parser->sem.expr_count);
 		return ERROR_SEM;
+	}
+	return EXIT_SUCCESS;
+}
+
+int sem_assign_zero_div(parser_t parser) {
+	if (tklist_it_valid(parser->sem.ids_begin_it)) {
+		token_t assign_op = tklist_get(parser->sem.ids_begin_it);
+		if (assign_op->type == TK_DIVIDE_ASSIGN) {
+			switch (parser->sem.expr_data_type) {
+				case DT_INTEGER:
+					if (parser->sem.expr_value.i == 0) {
+						PARSER_ERROR_MSG("division by zero");
+						return ERROR_ZERO_DIV;
+					}
+					break;
+				case DT_FLOAT64:
+					if (parser->sem.expr_value.f == 0.0) {
+						PARSER_ERROR_MSG("division by zero");
+						return ERROR_ZERO_DIV;
+					}
+					break;
+			}
+		}
 	}
 	return EXIT_SUCCESS;
 }

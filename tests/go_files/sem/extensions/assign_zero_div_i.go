@@ -1,8 +1,10 @@
-//compiler 2 0
+//compiler 9
 // TODO consider extensions
 //
 package main
 
 func main () {
-	a := -69
+	a := 1
+	a /= 0
 }
+

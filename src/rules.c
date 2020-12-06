@@ -454,6 +454,7 @@ int rule_assignment(parser_t parser) {
 		EXECUTE_RULE(rule_id);
 		EXECUTE_RULE(rule_assign_op);
 		EXECUTE_RULE(rule_exprs_funcall);
+		SEM_ACTION(sem_assign_zero_div);
 	}
 	SEM_ACTION(sem_func_stmts_begin);
 	return EXIT_SUCCESS;
