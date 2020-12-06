@@ -206,7 +206,7 @@ void gen_var_operator_unary(token_type_t operator, data_type_t data_type) {
 
 /**
  * Generates a binary operator specific instruction
- * @param operator token type, one of {+ - * /}
+ * @param operator token type, one of {+ - * / == != <= < >= > && ||}
  */
 void gen_var_operator_binary(token_type_t operator, data_type_t data_type) {
 	switch (operator) {
@@ -230,6 +230,47 @@ void gen_var_operator_binary(token_type_t operator, data_type_t data_type) {
 				default:
 					assert(false);
 			}
+			break;
+		case TK_EQUAL:
+			INSTRUCTION("EQS");
+			break;
+		case TK_NOT_EQUAL:
+			INSTRUCTION("EQS");
+			INSTRUCTION("NOTS");
+			break;
+		case TK_LESS_EQUAL:
+			INSTRUCTION("POPS GF@regb");
+			INSTRUCTION("POPS GF@rega");
+			INSTRUCTION("PUSHS GF@rega");
+			INSTRUCTION("PUSHS GF@regb");
+			INSTRUCTION("EQS");
+			INSTRUCTION("PUSHS GF@rega");
+			INSTRUCTION("PUSHS GF@regb");
+			INSTRUCTION("LTS");
+			INSTRUCTION("ORS");
+			break;
+		case TK_LESS:
+			INSTRUCTION("LTS");
+			break;
+		case TK_GREATER_EQUAL:
+			INSTRUCTION("POPS GF@regb");
+			INSTRUCTION("POPS GF@rega");
+			INSTRUCTION("PUSHS GF@rega");
+			INSTRUCTION("PUSHS GF@regb");
+			INSTRUCTION("EQS");
+			INSTRUCTION("PUSHS GF@rega");
+			INSTRUCTION("PUSHS GF@regb");
+			INSTRUCTION("GTS");
+			INSTRUCTION("ORS");
+			break;
+		case TK_GREATER:
+			INSTRUCTION("GTS");
+			break;
+		case TK_AND:
+			INSTRUCTION("ANDS");
+			break;
+		case TK_OR:
+			INSTRUCTION("ORS");
 			break;
 		default:
 			assert(false);

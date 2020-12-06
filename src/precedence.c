@@ -299,6 +299,9 @@ int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 int rule_relation(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E<>E\n");
 	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
+
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -309,6 +312,9 @@ int rule_relation(parser_t parser, prec_stack_t *head) {
 int rule_equality(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E==E\n");
 	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
+
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -319,6 +325,9 @@ int rule_equality(parser_t parser, prec_stack_t *head) {
 int rule_and(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E && E\n");
 	SEM_PREC_RULE_ACTION(sem_logical_op_type_compat);
+
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -328,6 +337,9 @@ int rule_and(parser_t parser, prec_stack_t *head) {
 int rule_or(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E || E\n");
 	SEM_PREC_RULE_ACTION(sem_logical_op_type_compat);
+
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
