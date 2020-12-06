@@ -56,8 +56,234 @@
 			dt2str_map[parser->sem.expr_data_type],                                     \
 			dt2str_map[func_ret_dt])
 
-////// Semantic actions
+////// Private
 
+// func inputs() (string, int)
+int sem_define_builtin_inputs(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "inputs"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_STRING)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+// func inputi() (int, int)
+int sem_define_builtin_inputi(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "inputi"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+// func inputf() (float64, int)
+int sem_define_builtin_inputf(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "inputf"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_FLOAT64)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+// func inputb() (bool, int)
+int sem_define_builtin_inputb(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "inputb"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_BOOL)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+// func print (term1, term2, ..., termn)
+int sem_define_builtin_print(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "print"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+//func int2float(i int) (float64)
+int sem_define_builtin_int2float(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "int2float"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_param(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_FLOAT64)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+// func float2int(f float64) (int)
+int sem_define_builtin_float2int(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "float2int"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_param(func_ref, DT_FLOAT64)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+// func len(s string) (int)
+int sem_define_builtin_len(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "len"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_param(func_ref, DT_STRING)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+// func substr(s string, i int, n int) (string, int)
+int sem_define_builtin_substr(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "substr"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_param(func_ref, DT_STRING)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_param(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_param(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_STRING)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+// func ord(s string, i int) (int, int)
+int sem_define_builtin_ord(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "ord"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_param(func_ref, DT_STRING)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_param(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+// func chr(i int) (string, int)
+int sem_define_builtin_chr(parser_t parser) {
+	struct token tk = {.type = TK_IDENTIFIER, .lexeme = "chr"};
+	symbol_ref_t func_ref = symtable_insert(parser->symtable, &tk, ST_FUNC);
+	if (!symbol_valid(func_ref)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_param(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_STRING)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	if (!symbol_func_add_return(func_ref, DT_INTEGER)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
+	return EXIT_SUCCESS;
+}
+
+// converts token to data type
 data_type_t tk2dt(parser_t parser, token_t token) {
 	symbol_ref_t symbol_ref;
 	switch (token->type) {
@@ -76,6 +302,25 @@ data_type_t tk2dt(parser_t parser, token_t token) {
 			return DT_BOOL;
 	}
 	return DT_UNDEFINED;
+}
+
+////// Semantic actions
+
+int sem_define_builtin_functions(parser_t parser) {
+	if (parser->first_pass) {
+		SEM_ACTION(sem_define_builtin_inputs);
+		SEM_ACTION(sem_define_builtin_inputi);
+		SEM_ACTION(sem_define_builtin_inputf);
+		SEM_ACTION(sem_define_builtin_inputb);
+		SEM_ACTION(sem_define_builtin_print);
+		SEM_ACTION(sem_define_builtin_int2float);
+		SEM_ACTION(sem_define_builtin_float2int);
+		SEM_ACTION(sem_define_builtin_len);
+		SEM_ACTION(sem_define_builtin_substr);
+		SEM_ACTION(sem_define_builtin_ord);
+		SEM_ACTION(sem_define_builtin_chr);
+	}
+	return EXIT_SUCCESS;
 }
 
 int sem_enter_scope(parser_t parser) {
@@ -478,7 +723,7 @@ int sem_return_expr_count(parser_t parser) {
 			fprintf(stderr, "not enough arguments to return\n\t\thave ( ");
 		}
 		while (parser->sem.expr_begin_it.ptr != parser->tkit.ptr) {
-			if (fprintf(stderr, "%s", dt2str_map[tk2dt(parser,tklist_get(parser->sem.expr_begin_it))]) > 0) {
+			if (fprintf(stderr, "%s", dt2str_map[tk2dt(parser, tklist_get(parser->sem.expr_begin_it))]) > 0) {
 				fprintf(stderr, " ");
 			}
 			parser->sem.expr_begin_it = tklist_it_next(parser->sem.expr_begin_it);
@@ -486,7 +731,7 @@ int sem_return_expr_count(parser_t parser) {
 		fprintf(stderr, ")\n\t\twant ( ");
 		flist_iterator_t it = flist_begin(parser->sem.func_cur.symbol->func.return_list);
 		while (flist_it_valid(it)) {
-			if (fprintf(stderr, "%s", dt2str_map[*(data_type_t*)flist_get(it)]) > 0) {
+			if (fprintf(stderr, "%s", dt2str_map[*(data_type_t *)flist_get(it)]) > 0) {
 				fprintf(stderr, " ");
 			}
 			it = flist_it_next(it);

@@ -6,8 +6,8 @@
 // defined in precedence.h
 typedef struct prec_stack *prec_stack_t;
 
-// converts token to data type
-data_type_t tk2dt(parser_t parser, token_t token);
+// pass1 - defines all the builting functions
+int sem_define_builtin_functions(parser_t parser);
 
 // Creates a new scope for storing symbols
 int sem_enter_scope(parser_t parser);

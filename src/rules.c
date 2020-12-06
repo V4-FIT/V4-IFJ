@@ -56,6 +56,7 @@ static int rule_literal(parser_t parser);
 
 int rule_root(parser_t parser) {
 	EXECUTE_RULE(parser_setup);
+	SEM_ACTION(sem_define_builtin_functions);
 	EXECUTE_RULE(rule_program);
 	SEM_ACTION(sem_main_defined);
 	return EXIT_SUCCESS;
