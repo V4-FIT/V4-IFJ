@@ -68,6 +68,7 @@ static inline void builtin_print() {
 
 	// end
 	INSTRUCTION("LABEL !print");
+	INSTRUCTION("PUSHS nil@nil");
 	INSTRUCTION("RETURN");
 }
 
@@ -81,15 +82,11 @@ static void builtin_input(const char *fname, const char *type) {
 	// function label
 	INSTRUCTION("LABEL ", fname);
 
-	// initialize return stack
-	// TODO: Check if this is needed
-	INSTRUCTION("PUSHS nil@nil");
-
 	// read stdin and push on return stack
 	INSTRUCTION("READ GF@rega ", type);
 	INSTRUCTION("PUSHS GF@rega");
 
-	// test type, jump to error if nil
+	// test READ result, jump to error if nil
 	INSTRUCTION("JUMPIFEQ !", fname, " GF@rega nil@nil");
 
 	// on success push return values to stack and return
@@ -299,6 +296,7 @@ static inline void header() {
 	INSTRUCTION("DEFVAR GF@rega");
 	INSTRUCTION("DEFVAR GF@regb");
 
+	INSTRUCTION("PUSHS nil@nil");
 	INSTRUCTION("CREATEFRAME");
 	INSTRUCTION("CALL main");
 

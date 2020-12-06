@@ -204,8 +204,6 @@ int rule_return_list(parser_t parser) {
 		case TK_L_PARENTHESIS:
 			TK_NEXT();
 
-			GENERATE_ONCE(gen_func_init_stack());
-
 			EXECUTE_RULE(rule_return_n);
 			TK_MATCH(TK_R_PARENTHESIS);
 			break;
@@ -562,7 +560,6 @@ int rule_exprs_funcall(parser_t parser) {
 	for (flist_iterator_t it = flist_begin(parser->return_id_list); flist_it_valid(it); it = flist_it_next(it)) {
 		gen_var_assign_expr_result(flist_get(it));
 	}
-	gen_func_restore_stack();
 	flist_clear(parser->return_id_list);
 
 	return EXIT_SUCCESS;
@@ -591,6 +588,8 @@ int rule_functionCall(parser_t parser) {
 int rule_arguments(parser_t parser) {
 	// Arguments ->			  Argument Argument_n
 	//						| eps .
+	token_t tk_firstarg;
+
 	SEM_ACTION(sem_arguments_begin);
 	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
@@ -599,8 +598,7 @@ int rule_arguments(parser_t parser) {
 		case TK_STR_LIT:
 		case TK_KEYW_TRUE:
 		case TK_KEYW_FALSE:
-			gen_func_init_stack();
-			token_t tk_firstarg = parser->token;
+			tk_firstarg = parser->token;
 			EXECUTE_RULE(rule_argument);
 			EXECUTE_RULE(rule_argument_n);
 			gen_func_call_arg(tk_firstarg);

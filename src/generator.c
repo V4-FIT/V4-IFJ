@@ -17,6 +17,7 @@
  * return values are pushed onto the stack instead of passed trough a register
  * (this design choice is the result of multiple possible return values instead of one)
  * The root of argument stack is NIL -> for variadic arguments as in print(...)
+ * The root nil should not be removed
  * RETURN VAUES are in order from LEFT to RIGHT [fun(2, 1, 0) (0, 1, 2)] (order of stack pushes)
  * TL;DR: Function arguments and return values are stored on the stack until nil is met (stack root value must be nil)
  *
@@ -32,7 +33,6 @@
  *
  * TODO
  * - scoped variables
- * - fix PUSHS nil inconsistecy
  * - check if every generation is after a semantic test
  * - test div and idiv
  */
@@ -105,6 +105,7 @@ void gen_init() {
 
 void gen_finish() {
 	INSTRUCTION("LABEL !_main");
+	INSTRUCTION("CLEARS");
 
 #ifndef NDEBUG
 	INSTRUCTION("BREAK");
@@ -124,14 +125,6 @@ void gen_func_begin(const char *identifier) {
 	INSTRUCTION("LABEL ", identifier);
 	INSTRUCTION("PUSHFRAME");
 	INSTRUCTION("CREATEFRAME");
-}
-
-void gen_func_init_stack() {
-	INSTRUCTION("PUSHS nil@nil");
-}
-
-void gen_func_restore_stack() {
-	INSTRUCTION("POPS GF@rega");
 }
 
 void gen_func_param(const char *identifier) {
