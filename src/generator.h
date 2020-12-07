@@ -3,6 +3,9 @@
 
 #include "symtable.h"
 
+/// Helper functions
+char *compose_immersion_string(const char *basestr, unsigned long counter);
+
 /// Misc
 void gen_init();
 void gen_finish();
@@ -33,5 +36,9 @@ void gen_for_jump_condition(flist_iterator_t immersion);
 void gen_for_jump_assignment(flist_iterator_t immersion);
 void gen_for_jump_content(flist_iterator_t immersion);
 void gen_for_jump_cond_end(flist_iterator_t immersion);
+
+/// Condition
+void gen_if_label_finish(flist_iterator_t immersion, unsigned long elseid);
+void gen_if_jump_finish(flist_iterator_t immersion, unsigned long elseid);
 
 #endif //IFJ_GENERATOR_H

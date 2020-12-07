@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <assert.h>
+#include <string.h>
 
 #include "generator_static.h"
 
@@ -138,6 +139,22 @@ static void concat_stack() {
 	INSTRUCTION("POPS GF@regb");
 	INSTRUCTION("CONCAT GF@rega GF@regb GF@rega");
 	INSTRUCTION("PUSHS GF@rega");
+}
+
+////// Helper functions
+
+char *compose_immersion_string(const char *basestr, unsigned long counter) {
+	size_t basesize = strlen(basestr);
+	size_t countersize = snprintf(NULL, 0, "%lu", counter);
+	char *tmp = calloc(basesize + countersize + 1, sizeof(char));
+	if (tmp == NULL) {
+		// failsafe
+		return (char *)basestr;
+	}
+
+	strncpy(tmp, basestr, basesize);
+	snprintf(tmp + basesize, countersize + 1, "%lu", counter);
+	return tmp;
 }
 
 ////// Code segment generation -> public interface implementation
@@ -430,5 +447,19 @@ void gen_for_jump_cond_end(flist_iterator_t immersion) {
 	INSTRUCTION("PUSHS bool@true");
 	INSTRUCTION_PART("JUMPIFNEQS !");
 	immersion_label(immersion);
+	INSTRUCTION_END();
+}
+
+void gen_if_label_finish(flist_iterator_t immersion, unsigned long elseid) {
+	INSTRUCTION_PART("LABEL !!");
+	printf("else%lu", elseid);
+	immersion_label(flist_it_next(immersion));
+	INSTRUCTION_END();
+}
+
+void gen_if_jump_finish(flist_iterator_t immersion, unsigned long elseid) {
+	INSTRUCTION_PART("JUMP !!");
+	printf("else%lu", elseid);
+	immersion_label(flist_it_next(immersion));
 	INSTRUCTION_END();
 }

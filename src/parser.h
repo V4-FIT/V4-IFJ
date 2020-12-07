@@ -63,6 +63,7 @@ typedef struct BlockCounter
 {
 	unsigned long for_c;
 	unsigned long if_c;
+	unsigned long else_id;
 } * counter_t;
 
 typedef struct parser

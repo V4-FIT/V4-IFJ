@@ -9,23 +9,6 @@
 #include "semantics.h"
 #include "generator.h"
 
-////// Helper functions
-// TODO: Should be moved somewhere else
-// TODO: refactor as update_last_scope
-static char *compose_immersion_string(const char *basestr, unsigned long counter) {
-	size_t basesize = strlen(basestr);
-	size_t countersize = snprintf(NULL, 0, "%lu", counter);
-	char *tmp = calloc(basesize + countersize + 1, sizeof(char));
-	if (tmp == NULL) {
-		// failsafe
-		return (char *)basestr;
-	}
-
-	memcpy(tmp, basestr, basesize);
-	snprintf(tmp + basesize, countersize + 1, "%lu", counter);
-	return tmp;
-}
-
 ////// Forward declarations
 
 // defined in precedence.c
@@ -396,6 +379,7 @@ int rule_var_define(parser_t parser) {
 /// 19
 int rule_conditionals(parser_t parser) {
 	// Conditionals -> 		  Conditional Conditional_n eol.
+	COUNTERS->else_id = COUNTERS->if_c;
 	EXECUTE_RULE(rule_conditional);
 	EXECUTE_RULE(rule_conditional_n);
 	TK_MATCH(TK_EOL);
@@ -432,10 +416,13 @@ int rule_else(parser_t parser) {
 			parser->last_scope = compose_immersion_string("else", COUNTERS->if_c);
 			SEM_ACTION(sem_enter_scope);
 			free(parser->last_scope);
-			COUNTERS->if_c++;
+
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
 			TK_MATCH(TK_R_CURLY);
+
+			gen_if_label_finish(symtable_immersion(parser->symtable), COUNTERS->else_id);
+
 			SEM_ACTION(sem_exit_scope);
 		default:
 			break;
@@ -455,13 +442,18 @@ int rule_conditional(parser_t parser) {
 	parser->last_scope = compose_immersion_string("if", COUNTERS->if_c);
 	SEM_ACTION(sem_enter_scope);
 	free(parser->last_scope);
-	COUNTERS->if_c++;
 
-	//	gen_cond_skip(parser->immersion);
+	gen_for_jump_cond_end(symtable_immersion(parser->symtable));
+	COUNTERS->if_c++;
 
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
+
+	gen_if_jump_finish(symtable_immersion(parser->symtable), COUNTERS->else_id);
+
+	gen_for_label_end(symtable_immersion(parser->symtable));
+
 	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
 }
