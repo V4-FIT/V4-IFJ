@@ -102,6 +102,10 @@ void symtable_exit_scope(symtable_t symtable) {
 	}
 }
 
+flist_iterator_t symtable_immersion(symtable_t symtable) {
+	return flist_begin(symtable->immersion);
+}
+
 bool symtable_has_symbol(symtable_t symtable, token_t id_token) {
 	symbol_ref_t symbol_ref = symtable_find(symtable, id_token);
 	return symbol_valid(symbol_ref);

@@ -36,10 +36,9 @@
  * !_main -> program end
  *
  * TODO
- * - scoped variables
- * - check if every generation is after a semantic test
  * - think about how the else label will look like -> this is generated after expression evaluation
- * - ifcounter + forcounter in parser
+ * - return statement in functions
+ * - definitions in for
  */
 
 ////// Conversion tables and functions (private)
@@ -71,8 +70,8 @@ static void encode_string_literal(const char *string) {
 static void immersion_label(flist_iterator_t immersion) {
 	for (flist_iterator_t it = immersion; flist_it_valid(it); it = flist_it_next(it)) {
 		assert(flist_get(it) != NULL);
+		INSTRUCTION_PART("?");
 		INSTRUCTION_PART(*((char **)flist_get(it)));
-		INSTRUCTION_PART("$");
 	}
 }
 
@@ -347,4 +346,53 @@ void gen_var_operator_binary(token_type_t operator, data_type_t data_type) {
 		default:
 			assert(false);
 	}
+}
+
+void gen_for_label_condition(flist_iterator_t immersion) {
+	INSTRUCTION_PART("LABEL ");
+	immersion_label(immersion);
+	INSTRUCTION_END();
+}
+
+void gen_for_label_assignment(flist_iterator_t immersion) {
+	INSTRUCTION_PART("LABEL *");
+	immersion_label(immersion);
+	INSTRUCTION_END();
+}
+
+void gen_for_label_content(flist_iterator_t immersion) {
+	INSTRUCTION_PART("LABEL _");
+	immersion_label(immersion);
+	INSTRUCTION_END();
+}
+
+void gen_for_label_end(flist_iterator_t immersion) {
+	INSTRUCTION_PART("LABEL !");
+	immersion_label(immersion);
+	INSTRUCTION_END();
+}
+
+void gen_for_jump_condition(flist_iterator_t immersion) {
+	INSTRUCTION_PART("JUMP ");
+	immersion_label(immersion);
+	INSTRUCTION_END();
+}
+
+void gen_for_jump_assignment(flist_iterator_t immersion) {
+	INSTRUCTION_PART("JUMP *");
+	immersion_label(immersion);
+	INSTRUCTION_END();
+}
+
+void gen_for_jump_content(flist_iterator_t immersion) {
+	INSTRUCTION_PART("JUMP _");
+	immersion_label(immersion);
+	INSTRUCTION_END();
+}
+
+void gen_for_jump_cond_end(flist_iterator_t immersion) {
+	INSTRUCTION("PUSHS bool@true");
+	INSTRUCTION_PART("JUMPIFNEQS !");
+	immersion_label(immersion);
+	INSTRUCTION_END();
 }

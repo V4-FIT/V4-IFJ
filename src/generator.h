@@ -24,4 +24,14 @@ void gen_var_assign_expr_result(symbol_ref_t symbol_ref);
 void gen_var_operator_unary(token_type_t operator, data_type_t data_type);
 void gen_var_operator_binary(token_type_t operator, data_type_t data_type);
 
+/// for
+void gen_for_label_condition(flist_iterator_t immersion);
+void gen_for_label_assignment(flist_iterator_t immersion);
+void gen_for_label_content(flist_iterator_t immersion);
+void gen_for_label_end(flist_iterator_t immersion);
+void gen_for_jump_condition(flist_iterator_t immersion);
+void gen_for_jump_assignment(flist_iterator_t immersion);
+void gen_for_jump_content(flist_iterator_t immersion);
+void gen_for_jump_cond_end(flist_iterator_t immersion);
+
 #endif //IFJ_GENERATOR_H

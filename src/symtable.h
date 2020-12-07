@@ -105,6 +105,13 @@ bool symtable_enter_scope(symtable_t symtable, const char *scopename);
 void symtable_exit_scope(symtable_t symtable);
 
 /**
+ * @brief	Returns an iterator to the current immersion
+ * @param 	symtable
+ * @return 	immersion iterator
+ */
+flist_iterator_t symtable_immersion(symtable_t symtable);
+
+/**
  * @brief	checks if there is an entry for the symbol in the whole table
  * @param	symtable 
  * @param	id_token	TK_IDENTIFIER 
@@ -192,8 +199,6 @@ bool symbol_valid(symbol_ref_t symbol_ref);
  * @return	True if the symbol is from the current scope
 */
 bool symbol_current_scope(symbol_ref_t symbol_ref);
-
-
 
 /**
  * @brief	Delete all symbols and free the allocated memory

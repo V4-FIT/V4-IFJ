@@ -474,14 +474,30 @@ int rule_iterative(parser_t parser) {
 	parser->last_scope = compose_immersion_string("for", COUNTERS->for_c);
 	SEM_ACTION(sem_enter_scope);
 	free(parser->last_scope);
+
+	// define
 	EXECUTE_RULE(rule_var_define_opt);
 	TK_MATCH(TK_SEMICOLON);
+
+	flist_iterator_t outer_immersion = symtable_immersion(parser->symtable);
+
+	// condition
+	gen_for_label_condition(outer_immersion);
 	EXECUTE_RULE(rule_expression);
 	SEM_ACTION(sem_bool_condiiton);
 	TK_MATCH(TK_SEMICOLON);
+	gen_for_jump_cond_end(outer_immersion);
+	gen_for_jump_content(outer_immersion);
+
+	// assignment
+	gen_for_label_assignment(outer_immersion);
 	EXECUTE_RULE(rule_assignment_opt);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
+	gen_for_jump_condition(outer_immersion);
+
+	// inner shit
+	gen_for_label_content(outer_immersion);
 	parser->last_scope = compose_immersion_string("innerfor", COUNTERS->for_c);
 	SEM_ACTION(sem_enter_scope);
 	free(parser->last_scope);
@@ -490,6 +506,9 @@ int rule_iterative(parser_t parser) {
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 	TK_MATCH(TK_EOL);
+	gen_for_jump_assignment(outer_immersion);
+	gen_for_label_end(outer_immersion);
+
 	SEM_ACTION(sem_exit_scope);
 	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
