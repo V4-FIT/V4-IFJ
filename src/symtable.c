@@ -152,7 +152,7 @@ symbol_ref_t symtable_find(symtable_t symtable, token_t id_token) {
 			break;
 		}
 
-		flist_it_next(imm_it);
+		imm_it = flist_it_next(imm_it);
 	}
 
 	return symbol_ref;
