@@ -20,13 +20,13 @@
 /**
  * Print variadic arguments
  */
-#define INSTRUCTION_PART(...)                               \
-	do {                                                    \
-		const char *_asm[] = {__VA_ARGS__};                 \
-		size_t count = sizeof(_asm) / sizeof(const char *); \
-		for (int i = 0; i < count; ++i) {                   \
-			fputs(_asm[i], stdout);                         \
-		}                                                   \
+#define INSTRUCTION_PART(...)                                \
+	do {                                                     \
+		const char *_code[] = {__VA_ARGS__};                 \
+		size_t count = sizeof(_code) / sizeof(const char *); \
+		for (int i = 0; i < count; ++i) {                    \
+			fputs(_code[i], stdout);                         \
+		}                                                    \
 	} while (0)
 
 /**

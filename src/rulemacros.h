@@ -98,10 +98,10 @@
  * Generate only on the second pass
  * @note used everywhere before FIRST_PASS_END
  */
-#define GENERATE_ONCE(_asm)        \
+#define GENERATE_ONCE(_code)       \
 	do {                           \
 		if (!parser->first_pass) { \
-			_asm;                  \
+			_code;                 \
 		}                          \
 	} while (0)
 
