@@ -135,7 +135,8 @@ int rule_function(parser_t parser) {
 	TK_TEST(TK_IDENTIFIER, TK_KEYW_MAIN);
 	SEM_ACTION(sem_func_define);
 
-	GENERATE_ONCE(gen_func_begin(parser->token->lexeme));
+	token_t id = parser->token;
+	GENERATE_ONCE(gen_func_begin(id->lexeme));
 
 	TK_NEXT();
 	TK_MATCH(TK_L_PARENTHESIS);
@@ -167,7 +168,7 @@ int rule_function(parser_t parser) {
 
 	SEM_ACTION(sem_func_has_return_stmt);
 
-	gen_func_end();
+	gen_func_end(id->lexeme);
 
 	return EXIT_SUCCESS;
 }

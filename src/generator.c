@@ -41,6 +41,10 @@
  * - definitions in for
  */
 
+////// DEFVAR stack
+
+static charseq_t defvar_buffer;
+
 ////// Conversion tables and functions (private)
 
 static const char *datatype2metatype[] = {
@@ -82,6 +86,15 @@ static void immersion_var(flist_iterator_t immersion, const char *name) {
 		INSTRUCTION_PART("$");
 	}
 	INSTRUCTION_PART(name);
+}
+
+static void immersion_var_charseq(flist_iterator_t immersion, const char *name) {
+	for (flist_iterator_t it = immersion; flist_it_valid(it); it = flist_it_next(it)) {
+		assert(flist_get(it) != NULL);
+		charseq_push_string(defvar_buffer, *((char **)flist_get(it)));
+		charseq_push_back(defvar_buffer, '$');
+	}
+	charseq_push_string(defvar_buffer, name);
 }
 
 static void push_identifier(symbol_ref_t symbol_ref) {
@@ -134,6 +147,8 @@ static void concat_stack() {
 void gen_init() {
 	header();
 	builtin_define();
+
+	defvar_buffer = charseq_init();
 }
 
 void gen_finish() {
@@ -146,6 +161,9 @@ void gen_finish() {
 
 	// just for the sake of completeness
 	fflush(stdout);
+
+	// TODO: This does not happen on error!
+	charseq_free(defvar_buffer);
 }
 
 /// Function definition
@@ -158,6 +176,9 @@ void gen_func_begin(const char *identifier) {
 	INSTRUCTION("LABEL ", identifier);
 	INSTRUCTION("PUSHFRAME");
 	INSTRUCTION("CREATEFRAME");
+
+	// call defvars
+	INSTRUCTION("CALL %", identifier);
 }
 
 void gen_func_param(symbol_ref_t symbol_ref) {
@@ -171,11 +192,28 @@ void gen_func_param(symbol_ref_t symbol_ref) {
 	INSTRUCTION_END();
 }
 
-void gen_func_end() {
+void gen_func_end(const char *identifier) {
+	// jump to real end
+	INSTRUCTION("JUMP !", identifier);
+
+	// defvars
+	COMMENT("Begin defvars - ", identifier);
+	INSTRUCTION("LABEL %", identifier);
+
+	const char *tmp = charseq_data(defvar_buffer);
+	INSTRUCTION_PART(tmp);
+	charseq_clear(defvar_buffer);
+
+	INSTRUCTION("RETURN");
+	COMMENT("End defvars - ", identifier);
+
+	// real end
+	INSTRUCTION("LABEL !", identifier);
+
 	INSTRUCTION("POPFRAME");
 	INSTRUCTION("RETURN");
 
-	COMMENT("End funtion");
+	COMMENT("End funtion - ", identifier);
 }
 
 /// Function call
@@ -197,9 +235,9 @@ void gen_func_call_arg(symtable_t symtable, token_t token) {
 void gen_var_define(symbol_ref_t symbol_ref) {
 	assert(symbol_ref.symbol != NULL);
 
-	INSTRUCTION_PART("DEFVAR TF@");
-	immersion_var(symbol_ref.immersion_it, symbol_ref.symbol->name);
-	INSTRUCTION_END();
+	charseq_push_string(defvar_buffer, "DEFVAR TF@");
+	immersion_var_charseq(symbol_ref.immersion_it, symbol_ref.symbol->name);
+	charseq_push_back(defvar_buffer, '\n');
 }
 
 /**

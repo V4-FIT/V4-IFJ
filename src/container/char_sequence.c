@@ -69,6 +69,14 @@ bool charseq_push_back(charseq_t charseq, int c) {
 	return true;
 }
 
+bool charseq_push_string(charseq_t charseq, const char *string) {
+	for (const char *c = string; *c != '\0'; c++) {
+		charseq_push_back(charseq, *c);
+	}
+
+	return true;
+}
+
 size_t charseq_len(charseq_t charseq) {
 	return charseq->len;
 }

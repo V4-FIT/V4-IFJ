@@ -10,7 +10,7 @@ void gen_finish();
 /// Function definition
 void gen_func_begin(const char *identifier);
 void gen_func_param(symbol_ref_t symbol_ref);
-void gen_func_end();
+void gen_func_end(const char *identifier);
 
 /// Function call
 void gen_func_call(const char *identifier);
