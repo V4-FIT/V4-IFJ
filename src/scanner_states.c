@@ -571,7 +571,7 @@ scanner_state_t s_float_sci_lit(scanner_t scanner, int c) {
 		get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
 		if (*endptr != '\0') {
 			get_tok(scanner)->type = TK_ERROR;
-			get_tok(scanner)->param.i = ERROR_MISC;
+			get_tok(scanner)->param.i = ERROR_LEX;
 		}
 		return S_END;
 	}
@@ -605,7 +605,7 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 				get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
 				if (*endptr != '\0') {
 					get_tok(scanner)->type = TK_ERROR;
-					get_tok(scanner)->param.i = ERROR_MISC;
+					get_tok(scanner)->param.i = ERROR_LEX;
 				}
 				return S_END;
 			}
