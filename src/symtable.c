@@ -68,7 +68,13 @@ bool symtable_enter_scope(symtable_t symtable, const char *scopename) {
 	}
 
 	if (scopename != NULL) {
-		if (!flist_push_front(symtable->immersion, (void *)scopename)) {
+		size_t sz = strlen(scopename) + 1;
+		char *tmp = malloc(sz);
+		if (tmp == NULL) {
+			return false;
+		}
+		memcpy(tmp, scopename, sz);
+		if (!flist_push_front(symtable->immersion, &tmp)) {
 			return false;
 		}
 	}
@@ -90,7 +96,10 @@ void symtable_exit_scope(symtable_t symtable) {
 
 	hmap_free(hmap);
 	flist_pop_front(symtable->tables);
-	flist_pop_front(symtable->immersion);
+	if (!flist_empty(symtable->immersion)) {
+		free(*((char **)flist_front(symtable->immersion)));
+		flist_pop_front(symtable->immersion);
+	}
 }
 
 bool symtable_has_symbol(symtable_t symtable, token_t id_token) {

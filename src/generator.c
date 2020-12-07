@@ -70,14 +70,16 @@ static void encode_string_literal(const char *string) {
 
 static void immersion_label(flist_iterator_t immersion) {
 	for (flist_iterator_t it = immersion; flist_it_valid(it); it = flist_it_next(it)) {
-		INSTRUCTION_PART(flist_get(it));
+		assert(flist_get(it) != NULL);
+		INSTRUCTION_PART(*((char **)flist_get(it)));
 		INSTRUCTION_PART("$");
 	}
 }
 
 static void immersion_var(flist_iterator_t immersion, const char *name) {
 	for (flist_iterator_t it = immersion; flist_it_valid(it); it = flist_it_next(it)) {
-		INSTRUCTION_PART(flist_get(it));
+		assert(flist_get(it) != NULL);
+		INSTRUCTION_PART(*((char **)flist_get(it)));
 		INSTRUCTION_PART("$");
 	}
 	INSTRUCTION_PART(name);

@@ -105,13 +105,6 @@
 		}                          \
 	} while (0)
 
-#define SCOPE_ENTER(_name) \
-	do {                   \
-                           \
-	} while (0)
-
-#define SCOPE_EXIT() \
-	do {             \
-	} while (0)
+#define COUNTERS ((counter_t)flist_front(parser->blockcounter))
 
 #endif // !IFJ_RULEMACROS_H

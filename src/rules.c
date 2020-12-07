@@ -2,11 +2,29 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "parser.h"
 #include "rulemacros.h"
 #include "semantics.h"
 #include "generator.h"
+
+////// Helper functions
+// TODO: Should be moved somewhere else
+// TODO: refactor as update_last_scope
+static char *compose_immersion_string(const char *basestr, unsigned long counter) {
+	size_t basesize = strlen(basestr);
+	size_t countersize = snprintf(NULL, 0, "%lu", counter);
+	char *tmp = calloc(basesize + countersize + 1, sizeof(char));
+	if (tmp == NULL) {
+		// failsafe
+		return (char *)basestr;
+	}
+
+	memcpy(tmp, basestr, basesize);
+	snprintf(tmp + basesize, countersize + 1, "%lu", counter);
+	return tmp;
+}
 
 ////// Forward declarations
 
@@ -122,8 +140,14 @@ int rule_function(parser_t parser) {
 	TK_NEXT();
 	TK_MATCH(TK_L_PARENTHESIS);
 
+	// make a new counter layer for this function
+	parser->last_scope = (char *)parser->sem.func_cur.symbol->name;
+	struct BlockCounter tmp = {0};
+	if (!flist_push_front(parser->blockcounter, &tmp)) {
+		ALLOCATION_ERROR_MSG();
+		return ERROR_MISC;
+	}
 	SEM_ACTION(sem_enter_scope);
-	SCOPE_ENTER(parser->sem.func_cur.symbol->name);
 
 	EXECUTE_RULE(rule_param_list);
 	TK_MATCH(TK_R_PARENTHESIS);
@@ -138,8 +162,8 @@ int rule_function(parser_t parser) {
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 
-	SCOPE_EXIT();
 	SEM_ACTION(sem_exit_scope);
+	flist_pop_front(parser->blockcounter);
 
 	SEM_ACTION(sem_func_has_return_stmt);
 
@@ -404,12 +428,13 @@ int rule_else(parser_t parser) {
 		case TK_L_CURLY:
 			TK_NEXT();
 			TK_MATCH(TK_EOL);
+			parser->last_scope = compose_immersion_string("else", COUNTERS->if_c);
 			SEM_ACTION(sem_enter_scope);
-			SCOPE_ENTER("else");
+			free(parser->last_scope);
+			COUNTERS->if_c++;
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
 			TK_MATCH(TK_R_CURLY);
-			SCOPE_EXIT();
 			SEM_ACTION(sem_exit_scope);
 		default:
 			break;
@@ -426,15 +451,16 @@ int rule_conditional(parser_t parser) {
 	SEM_ACTION(sem_bool_condiiton);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
+	parser->last_scope = compose_immersion_string("if", COUNTERS->if_c);
 	SEM_ACTION(sem_enter_scope);
-	SCOPE_ENTER("if");
+	free(parser->last_scope);
+	COUNTERS->if_c++;
 
 	//	gen_cond_skip(parser->immersion);
 
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
-	SCOPE_EXIT();
 	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
 }
@@ -445,8 +471,9 @@ int rule_iterative(parser_t parser) {
 	//						  Assignment_opt l_curly eol Eol_opt_n Statements r_curly eol.
 	SEM_ACTION(sem_iterative_begin);
 	TK_NEXT();
+	parser->last_scope = compose_immersion_string("for", COUNTERS->for_c);
 	SEM_ACTION(sem_enter_scope);
-	SCOPE_ENTER("for");
+	free(parser->last_scope);
 	EXECUTE_RULE(rule_var_define_opt);
 	TK_MATCH(TK_SEMICOLON);
 	EXECUTE_RULE(rule_expression);
@@ -455,15 +482,15 @@ int rule_iterative(parser_t parser) {
 	EXECUTE_RULE(rule_assignment_opt);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
+	parser->last_scope = compose_immersion_string("innerfor", COUNTERS->for_c);
 	SEM_ACTION(sem_enter_scope);
-	SCOPE_ENTER("innerfor");
+	free(parser->last_scope);
+	COUNTERS->for_c++;
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 	TK_MATCH(TK_EOL);
-	SCOPE_EXIT();
 	SEM_ACTION(sem_exit_scope);
-	SCOPE_EXIT();
 	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
 }
