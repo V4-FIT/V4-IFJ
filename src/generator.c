@@ -170,10 +170,6 @@ void gen_finish() {
 	INSTRUCTION("LABEL !_main");
 	INSTRUCTION("CLEARS");
 
-#ifndef NDEBUG
-	INSTRUCTION("BREAK");
-#endif
-
 	// just for the sake of completeness
 	fflush(stdout);
 
