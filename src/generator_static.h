@@ -32,7 +32,7 @@
 /**
  * Insert a newline
  */
-#define INSTRUCTION_END(...) \
+#define INSTRUCTION_END() \
 	do { fputs("\n", stdout); } while (0)
 
 /**

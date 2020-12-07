@@ -121,7 +121,10 @@ int rule_function(parser_t parser) {
 
 	TK_NEXT();
 	TK_MATCH(TK_L_PARENTHESIS);
+
 	SEM_ACTION(sem_enter_scope);
+	SCOPE_ENTER(parser->sem.func_cur.symbol->name);
+
 	EXECUTE_RULE(rule_param_list);
 	TK_MATCH(TK_R_PARENTHESIS);
 	EXECUTE_RULE(rule_return_list);
@@ -134,7 +137,10 @@ int rule_function(parser_t parser) {
 	SEM_ACTION(sem_func_stmts_begin);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
+
+	SCOPE_EXIT();
 	SEM_ACTION(sem_exit_scope);
+
 	SEM_ACTION(sem_func_has_return_stmt);
 
 	gen_func_end();
@@ -189,7 +195,7 @@ int rule_param(parser_t parser) {
 	TK_TEST(TK_KEYW_FLOAT64, TK_KEYW_INT, TK_KEYW_STRING, TK_KEYW_BOOL);
 	SEM_ACTION(sem_func_add_param_type);
 
-	GENERATE_ONCE(gen_func_param(tk_param->lexeme));
+	GENERATE_ONCE(gen_func_param(symtable_find(parser->symtable, tk_param)));
 
 	TK_NEXT();
 	return EXIT_SUCCESS;
@@ -349,16 +355,16 @@ int rule_var_define(parser_t parser) {
 	SEM_ACTION(sem_define_begin);
 	TK_TEST(TK_IDENTIFIER);
 
-	gen_var_define(parser->token->lexeme);
 	token_t id = parser->token;
 
 	SEM_ACTION(sem_var_define);
+	gen_var_define(symtable_find(parser->symtable, parser->token));
 	TK_NEXT();
 	TK_MATCH(TK_VAR_INIT);
 	EXECUTE_RULE(rule_expression);
 	SEM_ACTION(sem_var_define_type);
 
-	gen_var_assign_expr_result(id->lexeme);
+	gen_var_assign_expr_result(symtable_find(parser->symtable, id));
 	return EXIT_SUCCESS;
 }
 
@@ -399,9 +405,11 @@ int rule_else(parser_t parser) {
 			TK_NEXT();
 			TK_MATCH(TK_EOL);
 			SEM_ACTION(sem_enter_scope);
+			SCOPE_ENTER("else");
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
 			TK_MATCH(TK_R_CURLY);
+			SCOPE_EXIT();
 			SEM_ACTION(sem_exit_scope);
 		default:
 			break;
@@ -419,9 +427,14 @@ int rule_conditional(parser_t parser) {
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
 	SEM_ACTION(sem_enter_scope);
+	SCOPE_ENTER("if");
+
+	//	gen_cond_skip(parser->immersion);
+
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
+	SCOPE_EXIT();
 	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
 }
@@ -433,6 +446,7 @@ int rule_iterative(parser_t parser) {
 	SEM_ACTION(sem_iterative_begin);
 	TK_NEXT();
 	SEM_ACTION(sem_enter_scope);
+	SCOPE_ENTER("for");
 	EXECUTE_RULE(rule_var_define_opt);
 	TK_MATCH(TK_SEMICOLON);
 	EXECUTE_RULE(rule_expression);
@@ -442,11 +456,14 @@ int rule_iterative(parser_t parser) {
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
 	SEM_ACTION(sem_enter_scope);
+	SCOPE_ENTER("innerfor");
 	EXECUTE_RULE(rule_eol_opt_n);
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 	TK_MATCH(TK_EOL);
+	SCOPE_EXIT();
 	SEM_ACTION(sem_exit_scope);
+	SCOPE_EXIT();
 	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
 }
@@ -565,10 +582,10 @@ int rule_exprs_funcall(parser_t parser) {
 			assert(parser->sem.expr_data_type == DT_INTEGER
 				   || parser->sem.expr_data_type == DT_FLOAT64
 				   || (parser->assign_type == TK_PLUS_ASSIGN && parser->sem.expr_data_type == DT_STRING));
-			gen_var_load_id_before(flist_get(it));
+			gen_var_load_id_before(symtable_find_by_string(parser->symtable, flist_get(it)));
 			gen_var_operator_binary(parser->assign_type, parser->sem.expr_data_type);
 		}
-		gen_var_assign_expr_result(flist_get(it));
+		gen_var_assign_expr_result(symtable_find_by_string(parser->symtable, flist_get(it)));
 	}
 	flist_clear(parser->return_id_list);
 
@@ -611,7 +628,7 @@ int rule_arguments(parser_t parser) {
 			tk_firstarg = parser->token;
 			EXECUTE_RULE(rule_argument);
 			EXECUTE_RULE(rule_argument_n);
-			gen_func_call_arg(tk_firstarg);
+			gen_func_call_arg(parser->symtable, tk_firstarg);
 			break;
 		case TK_R_PARENTHESIS:
 			// eps
@@ -635,7 +652,7 @@ int rule_argument_n(parser_t parser) {
 			token_t tk_arg = parser->token;
 			EXECUTE_RULE(rule_argument);
 			EXECUTE_RULE(rule_argument_n);
-			gen_func_call_arg(tk_arg);
+			gen_func_call_arg(parser->symtable, tk_arg);
 		default:
 			// eps
 			break;

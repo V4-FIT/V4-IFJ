@@ -23,19 +23,23 @@
  *
  * Expression operations are implemented similar to FPU (stack) operations
  *
+ * SCOPES
+ * Each variable identifier with has an unique name $
+ *
  * Allowed label chars:
  *  _ - $ & % * ! ?
  *
- * Label prefixes:
+ * Label prefixes: <outdated>
  * ^! -> function end (cleanup or error)
  * ^? -> loop label
+ * ^$ -> conditional label
  * !_main -> program end
  *
  * TODO
  * - scoped variables
  * - check if every generation is after a semantic test
- * - test div and idiv
- * - string concatenation on '+' and '+='
+ * - think about how the else label will look like -> this is generated after expression evaluation
+ * - ifcounter + forcounter in parser
  */
 
 ////// Conversion tables and functions (private)
@@ -64,13 +68,33 @@ static void encode_string_literal(const char *string) {
 
 ////// Dynamic code segment generation -> private
 
-static void push_token(token_t token) {
+static void immersion_label(flist_iterator_t immersion) {
+	for (flist_iterator_t it = immersion; flist_it_valid(it); it = flist_it_next(it)) {
+		INSTRUCTION_PART(flist_get(it));
+		INSTRUCTION_PART("$");
+	}
+}
+
+static void immersion_var(flist_iterator_t immersion, const char *name) {
+	for (flist_iterator_t it = immersion; flist_it_valid(it); it = flist_it_next(it)) {
+		INSTRUCTION_PART(flist_get(it));
+		INSTRUCTION_PART("$");
+	}
+	INSTRUCTION_PART(name);
+}
+
+static void push_identifier(symbol_ref_t symbol_ref) {
+	assert(symbol_ref.symbol != NULL);
+
+	INSTRUCTION_PART("PUSHS TF@");
+	immersion_var(symbol_ref.immersion_it, symbol_ref.symbol->name);
+	INSTRUCTION_END();
+}
+
+static void push_literal(token_t token) {
 	assert(token != NULL);
 
 	switch (token->type) {
-		case TK_IDENTIFIER:
-			INSTRUCTION("PUSHS TF@", token->lexeme);
-			break;
 		case TK_INT_LIT:
 			INSTRUCTION_PART("PUSHS int@");
 			printf("%lld", token->param.i);
@@ -135,11 +159,15 @@ void gen_func_begin(const char *identifier) {
 	INSTRUCTION("CREATEFRAME");
 }
 
-void gen_func_param(const char *identifier) {
-	assert(identifier != NULL);
+void gen_func_param(symbol_ref_t symbol_ref) {
+	assert(symbol_ref.symbol != NULL);
 
-	INSTRUCTION("DEFVAR TF@", identifier);
-	INSTRUCTION("POPS TF@", identifier);
+	INSTRUCTION_PART("DEFVAR TF@");
+	immersion_var(symbol_ref.immersion_it, symbol_ref.symbol->name);
+	INSTRUCTION_END();
+	INSTRUCTION_PART("POPS TF@");
+	immersion_var(symbol_ref.immersion_it, symbol_ref.symbol->name);
+	INSTRUCTION_END();
 }
 
 void gen_func_end() {
@@ -161,31 +189,41 @@ void gen_func_call(const char *identifier) {
  * Pushes the function call argument onto the argument stack
  * @param token literal or identifier token
  */
-void gen_func_call_arg(token_t token) {
-	push_token(token);
+void gen_func_call_arg(symtable_t symtable, token_t token) {
+	gen_var_load(symtable, token);
 }
 
-void gen_var_define(const char *identifier) {
-	assert(identifier != NULL);
+void gen_var_define(symbol_ref_t symbol_ref) {
+	assert(symbol_ref.symbol != NULL);
 
-	INSTRUCTION("DEFVAR TF@", identifier);
+	INSTRUCTION_PART("DEFVAR TF@");
+	immersion_var(symbol_ref.immersion_it, symbol_ref.symbol->name);
+	INSTRUCTION_END();
 }
 
 /**
  * Pushes the literal/identifier onto the stack for further computation
  * @param token literal or identifier token
  */
-void gen_var_load(token_t token) {
-	push_token(token);
+void gen_var_load(symtable_t symtable, token_t token) {
+	if (token->type == TK_IDENTIFIER) {
+		push_identifier(symtable_find(symtable, token));
+	} else {
+		push_literal(token);
+	}
 }
 
 /**
  * Pushes the identifier onto the stack, before the last pushed item for further computation
  * @param identifier name
  */
-void gen_var_load_id_before(const char *identifier) {
+void gen_var_load_id_before(symbol_ref_t symbol_ref) {
+	assert(symbol_ref.symbol != NULL);
+
 	INSTRUCTION("POPS GF@rega");
-	INSTRUCTION("PUSHS TF@", identifier);
+	INSTRUCTION_PART("PUSHS TF@");
+	immersion_var(symbol_ref.immersion_it, symbol_ref.symbol->name);
+	INSTRUCTION_END();
 	INSTRUCTION("PUSHS GF@rega");
 }
 
@@ -193,10 +231,16 @@ void gen_var_load_id_before(const char *identifier) {
  * Assigns expression result to a frame variable
  * @param identifier
  */
-void gen_var_assign_expr_result(const char *identifier) {
-	assert(identifier != NULL);
+void gen_var_assign_expr_result(symbol_ref_t symbol_ref) {
+	if (symbol_ref.symbol == NULL) { // in case of _ = ...
+		// TODO: maybe test if this really happens only for _
+		INSTRUCTION("POPS GF@rega");
+		return;
+	}
 
-	INSTRUCTION("POPS TF@", identifier);
+	INSTRUCTION_PART("POPS TF@");
+	immersion_var(symbol_ref.immersion_it, symbol_ref.symbol->name);
+	INSTRUCTION_END();
 }
 
 /**

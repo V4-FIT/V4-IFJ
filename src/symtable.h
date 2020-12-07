@@ -82,6 +82,7 @@ typedef struct
 	hmap_iterator_t it;
 	symbol_t *symbol;
 	symtable_t symtable;
+	flist_iterator_t immersion_it;
 } symbol_ref_t;
 
 /**
@@ -95,7 +96,7 @@ symtable_t symtable_init();
  * @param	symtable
  * @return	true on success, false on allocation error
 */
-bool symtable_enter_scope(symtable_t symtable);
+bool symtable_enter_scope(symtable_t symtable, const char *scopename);
 
 /**
  * @brief	Exits the current scope and destroys all data in it
@@ -134,6 +135,14 @@ bool symtable_has_var(symtable_t symtable, token_t id_token);
  * @return	a reference to the potentionally found symbol, must be checked with symbol_valid() to determine if found
 */
 symbol_ref_t symtable_find(symtable_t symtable, token_t id_token);
+
+/**
+ * @brief	Searches for a given symbol in the whole table (const char equivalent of symtable_find)
+ * @param	symtable
+ * @param	key			symbol name
+ * @return	a reference to the potentionally found symbol, must be checked with symbol_valid() to determine if found
+*/
+symbol_ref_t symtable_find_by_string(symtable_t symtable, const char *key);
 
 /**
  * @brief	Inserts a symbol into the current scope of the symbol table

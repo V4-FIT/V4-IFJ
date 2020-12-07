@@ -226,7 +226,7 @@ int rule_i(parser_t parser, prec_stack_t *head) {
 	// printf("E -> i\n");
 
 	// if there's an identifier left unprocessed, load it
-	gen_var_load(STACK_FIRST->token);
+	gen_var_load(parser->symtable, STACK_FIRST->token);
 
 	(*head)->processed = true;
 	return EXIT_SUCCESS;

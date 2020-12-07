@@ -105,4 +105,13 @@
 		}                          \
 	} while (0)
 
+#define SCOPE_ENTER(_name) \
+	do {                   \
+                           \
+	} while (0)
+
+#define SCOPE_EXIT() \
+	do {             \
+	} while (0)
+
 #endif // !IFJ_RULEMACROS_H

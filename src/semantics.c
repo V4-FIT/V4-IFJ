@@ -325,7 +325,7 @@ int sem_define_builtin_functions(parser_t parser) {
 }
 
 int sem_enter_scope(parser_t parser) {
-	if (!symtable_enter_scope(parser->symtable)) {
+	if (!symtable_enter_scope(parser->symtable, parser->sem.func_cur.symbol->name)) {
 		ALLOCATION_ERROR_MSG();
 		return ERROR_MISC;
 	}
