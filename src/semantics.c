@@ -686,7 +686,7 @@ int sem_zero_division(parser_t parser, prec_stack_t *head) {
 	return EXIT_SUCCESS;
 }
 
-int sem_bool_condiiton(parser_t parser) {
+int sem_bool_condition(parser_t parser) {
 	if (parser->sem.expr_data_type != DT_BOOL) {
 		PARSER_COND_EXPR_ERROR_MSG();
 		return ERROR_TYPE_COMPAT;

@@ -37,8 +37,6 @@
  *
  * TODO
  * - think about how the else label will look like -> this is generated after expression evaluation
- * - return statement in functions
- * - definitions in for
  */
 
 ////// DEFVAR stack

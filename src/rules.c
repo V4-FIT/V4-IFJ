@@ -449,7 +449,7 @@ int rule_conditional(parser_t parser) {
 	SEM_ACTION(sem_conditional_begin);
 	TK_NEXT();
 	EXECUTE_RULE(rule_expression);
-	SEM_ACTION(sem_bool_condiiton);
+	SEM_ACTION(sem_bool_condition);
 	TK_MATCH(TK_L_CURLY);
 	TK_MATCH(TK_EOL);
 	parser->last_scope = compose_immersion_string("if", COUNTERS->if_c);
@@ -485,7 +485,7 @@ int rule_iterative(parser_t parser) {
 	// condition
 	gen_for_label_condition(outer_immersion);
 	EXECUTE_RULE(rule_expression);
-	SEM_ACTION(sem_bool_condiiton);
+	SEM_ACTION(sem_bool_condition);
 	TK_MATCH(TK_SEMICOLON);
 	gen_for_jump_cond_end(outer_immersion);
 	gen_for_jump_content(outer_immersion);
