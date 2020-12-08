@@ -8,12 +8,13 @@
 #include "generator_static.h"
 
 /**
- * Some notes on code generation
+ * Notes on code generation
  *
- * TERMINOLOGY
+ * === TERMINOLOGY ===
  * return stack vs argument stack - same physical stack but in a different context
+ * refers to the target interpreter data stack
  *
- * CALLING CONVENTION:
+ * === CALLING CONVENTION ===
  * Functions use the CDECL calling convention with the exception that
  * return values are pushed onto the stack instead of passed trough a register
  * (this design choice is the result of multiple possible return values instead of one)
@@ -24,20 +25,35 @@
  *
  * Expression operations are implemented similar to FPU (stack) operations
  *
- * SCOPES
- * Each variable identifier with has an unique name $
+ * === SCOPES ===
+ * Each "for" loop has a unique label name with an embedded "for id", counting from 0 onwards, resets inside functions
  *
- * Allowed label chars:
+ * Each "if" and "else if" block has a unique label name with an embedded "if id", same as "for" labels
+ * The final jump label of a conditional block has the same id
+ * as the first "if" block and its label starts with "!!else" instead of "if"
+ *
+ * === LABEL & VARIABLE NAMES ===
+ * Each variable identifier has a unique name composed of its definition location and the identifier itself
+ * $ -> variable name separator
+ * example:
+ * TF@for0$main$i <- corresponds to the variable i, inside function main but defined inside a for loop
+ *
+ * Allowed label & var name chars:
  *  _ - $ & % * ! ?
  *
- * Label prefixes: <outdated>
- * ^! -> function end (cleanup or error)
- * ^? -> loop label
- * ^$ -> conditional label
- * !_main -> program end
+ * Label regexes:
+ * ^\w      -> function call
+ * ^!       -> function (cleanup or error inside builtin)
+ * [?]      -> loop.conditional label name separator
+ * ^?       -> loop/conditional block start
+ * ^!?      -> loop/conditional block end
+ * ^&       -> "for" condition label
+ * ^*       -> "for" assignment label
+ * ^_       -> "for" content label
+ * ^!!      -> "if" end
+ * ^%       -> DEFVAR area (called before function body)
+ * !_main   -> program end
  *
- * TODO
- * - think about how the else label will look like -> this is generated after expression evaluation
  */
 
 ////// DEFVAR stack
@@ -417,7 +433,7 @@ void gen_jump_cond_end(flist_iterator_t immersion) {
 ////// for
 
 void gen_for_label_condition(flist_iterator_t immersion) {
-	INSTRUCTION_PART("LABEL ");
+	INSTRUCTION_PART("LABEL &");
 	immersion_label(immersion);
 	INSTRUCTION_END();
 }
@@ -435,7 +451,7 @@ void gen_for_label_content(flist_iterator_t immersion) {
 }
 
 void gen_for_jump_condition(flist_iterator_t immersion) {
-	INSTRUCTION_PART("JUMP ");
+	INSTRUCTION_PART("JUMP &");
 	immersion_label(immersion);
 	INSTRUCTION_END();
 }
