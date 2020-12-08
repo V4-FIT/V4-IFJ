@@ -163,10 +163,12 @@ static void concat_stack() {
 // this function is failsafe
 char *compose_immersion_string(const char *basestr, unsigned long counter) {
 	size_t basesize = strlen(basestr);
-	int countersize = snprintf(NULL, 0, "%lu", counter);
-	if (countersize < 0) {
+	int expected_n_size = snprintf(NULL, 0, "%lu", counter);
+	if (expected_n_size < 0) {
 		return (char *)basestr;
 	}
+
+	size_t countersize = (size_t)expected_n_size;
 
 	char *tmp = calloc(basesize + countersize + 1, sizeof(char));
 	if (tmp == NULL) {
