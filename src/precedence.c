@@ -1,9 +1,7 @@
 #include "precedence.h"
 
 #include <assert.h>
-#include <stdlib.h>
 
-#include "error.h"
 #include "generator.h"
 #include "rules.h"
 #include "semantics.h"

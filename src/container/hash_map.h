@@ -2,6 +2,7 @@
 #define HASH_MAP_H
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 /**
  * @brief	handle for the hash map

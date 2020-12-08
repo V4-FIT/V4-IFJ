@@ -1,13 +1,8 @@
 #include "parser.h"
 
-#include <assert.h>
-#include <stdlib.h>
-
 #include "error.h"
 #include "generator.h"
-#include "precedence.h"
 #include "rules.h"
-#include "tokens.h"
 
 const char *stmt2str_map[] = {"default", "define", "assign", "call", "if", "for", "return"};
 

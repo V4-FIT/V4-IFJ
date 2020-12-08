@@ -1,11 +1,8 @@
 #include "rules.h"
 
 #include <assert.h>
-#include <stdio.h>
-#include <string.h>
 
 #include "generator.h"
-#include "parser.h"
 #include "rulemacros.h"
 #include "semantics.h"
 

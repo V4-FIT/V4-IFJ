@@ -1,7 +1,5 @@
 #include "scanner.h"
 
-#include <stdio.h>
-
 #include "error.h"
 #include "hash_map.h"
 #include "scanner_states.h"

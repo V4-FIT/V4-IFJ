@@ -2,7 +2,6 @@
 
 #include <ctype.h>
 #include <errno.h>
-#include <stdio.h>
 
 #include "error.h"
 #include "hash_map.h"
