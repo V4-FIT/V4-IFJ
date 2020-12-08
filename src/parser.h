@@ -1,6 +1,6 @@
 /**
  * @file parser.h
- * @author Adrián Kálazi, Kevin Lackó, Julie Gyselová
+ * @author Adrián Kálazi, Kevin Lackó
  * @brief Syntax analysis interface
  * @date 2020-12-08
  *

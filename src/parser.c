@@ -1,6 +1,6 @@
 /**
  * @file parser.c
- * @author Adrián Kálazi, Kevin Lackó, Juraj Hrdlica
+ * @author Adrián Kálazi, Kevin Lackó
  * @brief Parser
  * @date 2020-12-08
  *

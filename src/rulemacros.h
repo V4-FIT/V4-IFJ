@@ -1,6 +1,6 @@
 /**
  * @file rulemacros.h
- * @author Adrián Kálazi, Kevin Lackó, Julie Gyselová
+ * @author Adrián Kálazi, Kevin Lackó
  * @brief Helper macros for rules.c
  * @date 2020-12-08
  *

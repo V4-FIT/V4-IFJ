@@ -1,6 +1,6 @@
 /**
  * @file main.c
- * @author Adrián Kálazi, Kevin Lackó
+ * @author Adrián Kálazi
  * @brief
  * @date 2020-12-08
  *
