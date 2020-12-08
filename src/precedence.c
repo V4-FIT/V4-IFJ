@@ -398,6 +398,8 @@ int parse_expr(parser_t parser) {
 			case EMPT:
 				PARSE_EXPR_END();
 				return ERROR_SYN;
+			default:
+				break;
 		}
 	} while (!dpda_finished(type, head));
 
