@@ -129,16 +129,7 @@ typedef enum
 	CLOS,
 	EQUA,
 	EMPT,
-	DONE
 } prec;
-
-typedef enum
-{
-	R_EMPTY,
-	R_UNARY,
-	R_BINARY,
-	R_TERTIARY
-} rule_size;
 
 // stack
 
