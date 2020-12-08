@@ -1,6 +1,6 @@
-#include <string.h>
-
 #include "char_sequence.h"
+
+#include <string.h>
 
 ////// Private
 

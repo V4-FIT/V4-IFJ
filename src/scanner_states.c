@@ -1,10 +1,10 @@
-#include <stdio.h>
+#include "scanner_states.h"
+
 #include <ctype.h>
 #include <errno.h>
 
-#include "scanner_states.h"
-#include "hash_map.h"
 #include "error.h"
+#include "hash_map.h"
 
 ////// Literal conversion
 
@@ -704,7 +704,7 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) {
 			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
-	} else if (c == '_'){
+	} else if (c == '_') {
 		return S_HEX_LIT_UNDERSCORE;
 	} else {
 		ungetc(c, get_stream(scanner));
@@ -868,5 +868,4 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 		get_tok(scanner)->lexeme = charseq_data(get_charseq(scanner));
 		return S_END;
 	}
-
 }

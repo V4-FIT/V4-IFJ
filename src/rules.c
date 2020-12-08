@@ -1,13 +1,10 @@
 #include "rules.h"
 
 #include <assert.h>
-#include <stdio.h>
-#include <string.h>
 
-#include "parser.h"
+#include "generator.h"
 #include "rulemacros.h"
 #include "semantics.h"
-#include "generator.h"
 
 ////// Forward declarations
 

@@ -1,10 +1,10 @@
 #include "generator.h"
 
-#include <stdio.h>
-#include <ctype.h>
 #include <assert.h>
-#include <string.h>
+#include <ctype.h>
 #include <inttypes.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "generator_static.h"
 
@@ -160,12 +160,18 @@ static void concat_stack() {
 
 ////// Helper functions
 
+// this function is failsafe
 char *compose_immersion_string(const char *basestr, unsigned long counter) {
 	size_t basesize = strlen(basestr);
-	size_t countersize = snprintf(NULL, 0, "%lu", counter);
+	int expected_n_size = snprintf(NULL, 0, "%lu", counter);
+	if (expected_n_size < 0) {
+		return (char *)basestr;
+	}
+
+	size_t countersize = (size_t)expected_n_size;
+
 	char *tmp = calloc(basesize + countersize + 1, sizeof(char));
 	if (tmp == NULL) {
-		// failsafe
 		return (char *)basestr;
 	}
 

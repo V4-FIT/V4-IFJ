@@ -1,9 +1,8 @@
-#include <stdio.h>
-
 #include "scanner.h"
-#include "scanner_states.h"
-#include "hash_map.h"
+
 #include "error.h"
+#include "hash_map.h"
+#include "scanner_states.h"
 
 #define HMAP_BUCKET_COUNT 53
 
@@ -131,7 +130,7 @@ int scanner_scan(FILE *stream, tklist_t token_list) {
 	token_t tk;
 	while ((tk = scanner_next_token(scanner))->type != TK_EOF) {
 		if (tk->type == TK_ERROR) {
-			ret = tk->param.i;
+			ret = (int)tk->param.i;
 			goto SS_ERROR;
 		}
 		if (!tklist_push_back(token_list, tk)) {

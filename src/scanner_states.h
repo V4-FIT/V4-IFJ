@@ -6,8 +6,8 @@
 #ifndef IFJ_SCANNER_STATES_H
 #define IFJ_SCANNER_STATES_H
 
-#include "tokens.h"
 #include "scanner.h"
+#include "tokens.h"
 
 /*states of the scanner finite state machine*/
 typedef enum
