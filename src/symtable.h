@@ -1,10 +1,9 @@
 #ifndef SYMTABLE_H
 #define SYMTABLE_H
 
-#include "forward_list.h"
-
 #include <stdbool.h>
 
+#include "forward_list.h"
 #include "hash_map.h"
 #include "tokens.h"
 

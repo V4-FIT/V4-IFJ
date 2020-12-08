@@ -1,6 +1,6 @@
-#include "scanner.h"
-#include "parser.h"
 #include "error.h"
+#include "parser.h"
+#include "scanner.h"
 
 int main() {
 	tklist_t tklist = tklist_init();

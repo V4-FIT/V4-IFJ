@@ -24,7 +24,7 @@ int sem_func_declare_param(parser_t parser);
 // pass1 - add parameter types to the function signature
 int sem_func_add_param_type(parser_t parser);
 
-// pass1 - add return types to the function signature 
+// pass1 - add return types to the function signature
 int sem_func_add_return_type(parser_t parser);
 
 // checks if a function with a returns had a return statement at the end

@@ -1,10 +1,10 @@
 #include "generator.h"
 
-#include <stdio.h>
-#include <ctype.h>
 #include <assert.h>
-#include <string.h>
+#include <ctype.h>
 #include <inttypes.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "generator_static.h"
 

@@ -1,9 +1,10 @@
+#include "scanner.h"
+
 #include <stdio.h>
 
-#include "scanner.h"
-#include "scanner_states.h"
-#include "hash_map.h"
 #include "error.h"
+#include "hash_map.h"
+#include "scanner_states.h"
 
 #define HMAP_BUCKET_COUNT 53
 
