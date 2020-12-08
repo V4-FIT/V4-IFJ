@@ -88,7 +88,7 @@ static inline void builtin_print() {
  * @param fname function name -> one of  {inputi, inputf, inputs, inputb}
  * @param type var type -> one of {int, float, string, bool}
  */
-static void builtin_input(const char *fname, const char *type) {
+static void builtin_input(const char *fname, const char *type, const char *defvalue) {
 	COMMENT("Builtin - inputs");
 
 	// function label
@@ -96,17 +96,18 @@ static void builtin_input(const char *fname, const char *type) {
 
 	// read stdin and push on return stack
 	INSTRUCTION("READ GF@rega ", type);
-	INSTRUCTION("PUSHS GF@rega");
 
 	// test READ result, jump to error if nil
 	INSTRUCTION("JUMPIFEQ !", fname, " GF@rega nil@nil");
 
 	// on success push return values to stack and return
+	INSTRUCTION("PUSHS GF@rega");
 	INSTRUCTION("PUSHS int@0");
 	INSTRUCTION("RETURN");
 
 	// end - error
 	INSTRUCTION("LABEL !", fname);
+	INSTRUCTION("PUSHS ", type, "@", defvalue);
 	INSTRUCTION("PUSHS int@1");
 	INSTRUCTION("RETURN");
 }
@@ -351,10 +352,10 @@ static inline void builtin_define() {
 	COMMENT("Builtin function definitions - start");
 
 	builtin_print();
-	builtin_input("inputi", "int");
-	builtin_input("inputf", "float");
-	builtin_input("inputs", "string");
-	builtin_input("inputb", "bool");
+	builtin_input("inputi", "int", "0");
+	builtin_input("inputf", "float", "0x0p+0");
+	builtin_input("inputs", "string", "");
+	builtin_input("inputb", "bool", "false");
 	builtin_int2float();
 	builtin_float2int();
 	builtin_len();
