@@ -364,7 +364,7 @@ int sem_func_declare_param(parser_t parser) {
 			ALLOCATION_ERROR_MSG();
 			return ERROR_MISC;
 		}
-		sym_var_t var_data = {.data_type = DT_UNDEFINED, .constant = false, .value = 0};
+		sym_var_t var_data = {0};
 		switch (parser->token_second->type) {
 			case TK_KEYW_FLOAT64:
 				var_data.data_type = DT_FLOAT64;

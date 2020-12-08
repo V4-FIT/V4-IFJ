@@ -26,7 +26,7 @@ typedef enum
 */
 typedef enum
 {
-	DT_UNDEFINED,
+	DT_UNDEFINED = 0,
 	DT_INTEGER,
 	DT_FLOAT64,
 	DT_STRING,
