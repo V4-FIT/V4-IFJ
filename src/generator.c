@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "generator_static.h"
 
@@ -49,7 +50,7 @@
  * ^!?      -> loop/conditional block end
  * ^&       -> "for" condition label
  * ^*       -> "for" assignment label
- * ^_       -> "for" content label
+ * ^-       -> "for" content label
  * ^!!      -> "if" end
  * ^%       -> DEFVAR area (called before function body)
  * !_main   -> program end
@@ -126,7 +127,7 @@ static void push_literal(token_t token) {
 	switch (token->type) {
 		case TK_INT_LIT:
 			INSTRUCTION_PART("PUSHS int@");
-			printf("%lld", token->param.i);
+			printf("%" PRId64, token->param.i);
 			INSTRUCTION_END();
 			break;
 		case TK_FLOAT_LIT:
@@ -443,7 +444,7 @@ void gen_for_label_assignment(flist_iterator_t immersion) {
 }
 
 void gen_for_label_content(flist_iterator_t immersion) {
-	INSTRUCTION_PART("LABEL _");
+	INSTRUCTION_PART("LABEL -");
 	immersion_label(immersion);
 	INSTRUCTION_END();
 }
@@ -461,7 +462,7 @@ void gen_for_jump_assignment(flist_iterator_t immersion) {
 }
 
 void gen_for_jump_content(flist_iterator_t immersion) {
-	INSTRUCTION_PART("JUMP _");
+	INSTRUCTION_PART("JUMP -");
 	immersion_label(immersion);
 	INSTRUCTION_END();
 }
