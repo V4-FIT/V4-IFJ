@@ -1,3 +1,11 @@
+/**
+ * @file semantics.h
+ * @author Kevin Lackó, Adrián Kálazi
+ * @brief Parser interface for sematic analysis
+ * @date 2020-12-08
+ *
+ */
+
 #ifndef IFJ_SEMANTICS_H
 #define IFJ_SEMANTICS_H
 
@@ -6,124 +14,326 @@
 // defined in precedence.h
 typedef struct prec_stack *prec_stack_t;
 
-// pass1 - defines all the builting functions
+/**
+ * @brief Defines all builting functions
+ *
+ * @param parser
+ * @return int
+ */
 int sem_define_builtin_functions(parser_t parser);
 
-// Creates a new scope for storing symbols
+/**
+ * @brief Create new scope for storing symbols
+ *
+ * @param parser
+ * @return int
+ */
 int sem_enter_scope(parser_t parser);
 
-// Exits the current scope
+/**
+ * @brief Exit current scope
+ *
+ * @param parser
+ * @return int
+ */
 int sem_exit_scope(parser_t parser);
 
-// pass1 - defines a functions and checks for redefinition
+/**
+ * @brief Define functions and check for redefinition
+ *
+ * @param parser
+ * @return int
+ */
 int sem_func_define(parser_t parser);
 
-// pass2 - inserts function parameters into the symbol table
+/**
+ * @brief Insert function parameters into the symbol table
+ *
+ * @param parser
+ * @return int
+ */
 int sem_func_declare_param(parser_t parser);
 
-// pass1 - add parameter types to the function signature
+/**
+ * @brief Add parameter type to function signature
+ *
+ * @param parser
+ * @return int
+ */
 int sem_func_add_param_type(parser_t parser);
 
 // pass1 - add return types to the function signature
 int sem_func_add_return_type(parser_t parser);
 
-// checks if a function with a returns had a return statement at the end
+/**
+ * @brief Check if function with return values has a return statement
+ *
+ * @param parser
+ * @return int
+ */
 int sem_func_has_return_stmt(parser_t parser);
 
-// check if the function is callable (defined)
+/**
+ * @brief Check if function can be called (is defined)
+ *
+ * @param parser
+ * @return int
+ */
 int sem_func_callable(parser_t parser);
 
-// check if the function main was defined and if done so with no parameters or returns
+/**
+ * @brief Check if function main is defined and is defined correctly
+ *
+ * @param parser
+ * @return int
+ */
 int sem_main_defined(parser_t parser);
 
-// define variable in current scope and check for redefinition
+/**
+ * @brief Define variable in current scope and check for redefinition
+ *
+ * @param parser
+ * @return int
+ */
 int sem_var_define(parser_t parser);
 
-// deduce variable type from expression
+/**
+ * @brief Determine variable type
+ *
+ * @param parser
+ * @return int
+ */
 int sem_var_define_type(parser_t parser);
 
-// check if variable has been defined
+/**
+ * @brief Check for variable definition
+ *
+ * @param parser
+ * @return int
+ */
 int sem_var_check(parser_t parser);
 
-// call in function definition before stamtements
+/**
+ * @brief Call in function definition before stamtements
+ *
+ * @param parser
+ * @return int
+ */
 int sem_func_stmts_begin(parser_t parser);
 
-// init define statmenet
+/**
+ * @brief Initialize definition statement
+ *
+ * @param parser
+ * @return int
+ */
 int sem_define_begin(parser_t parser);
 
-// init assign statmenet
+/**
+ * @brief Initialize assignment statement
+ *
+ * @param parser
+ * @return int
+ */
 int sem_assign_begin(parser_t parser);
 
-// init call statmenet
+/**
+ * @brief Initialize call statement
+ *
+ * @param parser
+ * @return int
+ */
 int sem_call_begin(parser_t parser);
 
-// init conditional statmenet
+/**
+ * @brief Initialize conditional statement
+ *
+ * @param parser
+ * @return int
+ */
 int sem_conditional_begin(parser_t parser);
 
-// init iterative statmenet
+/**
+ * @brief Initialize iterative statement
+ *
+ * @param parser
+ * @return int
+ */
 int sem_iterative_begin(parser_t parser);
 
-// init return statmenet
+/**
+ * @brief Initialize return statement
+ *
+ * @param parser
+ * @return int
+ */
 int sem_return_begin(parser_t parser);
 
-// init semantics for expressions
+/**
+ * @brief Initialize expression
+ *
+ * @param parser
+ * @return int
+ */
 int sem_expression_begin(parser_t parser);
 
-// check type compatibility around a binary operation
+/**
+ * @brief Check operator and operand compatibility
+ *
+ * @param parser
+ * @param head
+ * @return int
+ */
 int sem_binary_op_type_compat(parser_t parser, prec_stack_t *head);
 
-// check type compatibility around a logical operation
+/**
+ * @brief Check logical operator and operand compatibility
+ *
+ * @param parser
+ * @param head
+ * @return int
+ */
 int sem_logical_op_type_compat(parser_t parser, prec_stack_t *head);
 
-// cheack unary operator type compatibility
+/**
+ * @brief Check unary operator and operand compatibility
+ *
+ * @param parser
+ * @param head
+ * @return int
+ */
 int sem_unary_op_type_compat(parser_t parser, prec_stack_t *head);
 
-// set expression return values for semantic purposes
+/**
+ * @brief Determine expression return values
+ *
+ * @param parser
+ * @param head
+ * @return int
+ */
 int sem_prec_rule_exit(parser_t parser, prec_stack_t *head);
 
-// evauluate binary constant expression value
+/**
+ * @brief Determine binary constant expression value
+ *
+ * @param parser
+ * @param head
+ * @return int
+ */
 int sem_evaulate_binary_const_expr(parser_t parser, prec_stack_t *head);
 
-// evauluate unary constant expression value
+/**
+ * @brief Determine unary constant expression value
+ *
+ * @param parser
+ * @param head
+ * @return int
+ */
 int sem_evaulate_unary_const_expr(parser_t parser, prec_stack_t *head);
 
-// check against zero dvision
+/**
+ * @brief Check zero division
+ *
+ * @param parser
+ * @param head
+ * @return int
+ */
 int sem_zero_division(parser_t parser, prec_stack_t *head);
 
-// check if condition expression is of type bool
+/**
+ * @brief Check expression type in condition
+ *
+ * @param parser
+ * @return int
+ */
 int sem_bool_condition(parser_t parser);
 
-// semantic action for ids
+/**
+ * @brief Semantic action for identificators
+ *
+ * @param parser
+ * @return int
+ */
 int sem_id_begin(parser_t parser);
 
-// a function with return params need to be a part of an assignment
+/**
+ * @brief Check if function with return parameters is part of assignment statement
+ *
+ * @param parser
+ * @return int
+ */
 int sem_call_no_return(parser_t parser);
 
-// check return expression type compatibility with function return params
+/**
+ * @brief Check return expression type compatibility with function return parameters
+ *
+ * @param parser
+ * @return int
+ */
 int sem_return_expr_type_compat(parser_t parser);
 
-// check if return statement expression count matches the function return count
+/**
+ * @brief Check if return statement expression count matches the function return count
+ *
+ * @param parser
+ * @return int
+ */
 int sem_return_expr_count(parser_t parser);
 
-// semantic action at the beginning of rule_arguments
+/**
+ * @brief Semantic action at the beginning of rule_arguments
+ *
+ * @param parser
+ * @return int
+ */
 int sem_arguments_begin(parser_t parser);
 
-// semantic action for arguments (calls sem_var_check for identifiers)
+/**
+ * @brief Semantic action for arguments (calls sem_var_check for identifiers)
+ *
+ * @param parser
+ * @return int
+ */
 int sem_argument_begin(parser_t parser);
 
-// check if function call argument count matches called function param count
+/**
+ * @brief Check if function call argument count matches called function param count
+ *
+ * @param parser
+ * @return int
+ */
 int sem_call_argument_count(parser_t parser);
 
-// check called function return against assignment list
+/**
+ * @brief Check called function return against assignment list
+ *
+ * @param parser
+ * @return int
+ */
 int sem_assignment_call_return(parser_t parser);
 
-// check expression type against assign into variable type
+/**
+ * @brief Check if expression type against assign into variable type
+ *
+ * @param parser
+ * @return int
+ */
 int sem_assign_expr_type_compat(parser_t parser);
 
-// check expr count matches ids count
+/**
+ * @brief Check if exprression count matches identifier count
+ *
+ * @param parser
+ * @return int
+ */
 int sem_assign_expr_count(parser_t parser);
 
-// check against zero div
+/**
+ * @brief Check zero division
+ *
+ * @param parser
+ * @return int
+ */
 int sem_assign_zero_div(parser_t parser);
 
 #endif // !IFJ_SEMANTICS_H

@@ -1,3 +1,11 @@
+/**
+ * @file rules.c
+ * @author Kevin Lackó, Adrián Kálazi, Julie Gyselová
+ * @brief Grammar rules
+ * @date 2020-12-08
+ *
+ */
+
 #include "rules.h"
 
 #include <assert.h>

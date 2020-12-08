@@ -1,3 +1,11 @@
+/**
+ * @file scanner_states.c
+ * @author Adrián Kálazi, Juraj Hrdlica, Kevin Lackó
+ * @brief
+ * @date 2020-12-08
+ *
+ */
+
 #include "scanner_states.h"
 
 #include <ctype.h>

@@ -1,3 +1,11 @@
+/**
+ * @file error.h
+ * @author Adrián Kálazi, Kevin Lackó
+ * @brief Error handling and error codes
+ * @date 2020-12-08
+ *
+ */
+
 #ifndef IFJ_ERROR_H
 #define IFJ_ERROR_H
 

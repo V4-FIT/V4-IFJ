@@ -1,3 +1,11 @@
+/**
+ * @file tokens.h
+ * @author Adrián Kálazi, Juraj Hrdlica, Kevin Lackó
+ * @brief Token definitions
+ * @date 2020-12-08
+ *
+ */
+
 #ifndef IFJ_TOKENS_H
 #define IFJ_TOKENS_H
 
@@ -119,14 +127,14 @@ bool tklist_push_back(tklist_t tklist, token_t token);
 
 /**
  * @brief	Returns the token at the front of the list
- * @param	tklist 
+ * @param	tklist
  * @return	pointer to the token at the front or NULL if the list is empty
 */
 token_t tklist_front(tklist_t tklist);
 
 /**
  * @brief	Returns the second token from the front of the list
- * @param	tklist 
+ * @param	tklist
  * @return	pointer to the second token from the front or NULL if the list is empty or there is no second
 */
 token_t tklist_second(tklist_t tklist);
@@ -155,7 +163,7 @@ tklist_iterator_t tklist_it_next(tklist_iterator_t iterator);
 
 /**
  * @brief	iterator != tklist_end_iterator
- * @param	iterator 
+ * @param	iterator
  * @return	return true if the iterator is valid
 */
 bool tklist_it_valid(tklist_iterator_t iterator);
@@ -177,14 +185,14 @@ void tklist_free(tklist_t tklist);
 
 /**
  * @brief	Create a deep copy of a token
- * @param	to_copy 
+ * @param	to_copy
  * @return	Pointer to the new copy or NULL on allocation error
 */
 token_t token_copy(token_t to_copy);
 
 /**
  * @brief	Free allocated memory
- * @param	token 
+ * @param	token
 */
 void token_free(token_t token);
 

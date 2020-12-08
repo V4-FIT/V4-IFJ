@@ -1,3 +1,11 @@
+/**
+ * @file parser.c
+ * @author Adrián Kálazi, Kevin Lackó
+ * @brief Parser
+ * @date 2020-12-08
+ *
+ */
+
 #include "parser.h"
 
 #include "error.h"

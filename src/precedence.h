@@ -1,3 +1,11 @@
+/**
+ * @file precedence.h
+ * @author Julie Gyselová, Adrián Kálazi, Kevin Lackó
+ * @brief Expression parsing - precedence syntax analysis
+ * @date 2020-12-08
+ *
+ */
+
 #ifndef IFJ_PRECEDENCE_H
 #define IFJ_PRECEDENCE_H
 
@@ -159,6 +167,13 @@ typedef struct prec_stack
 	struct prec_stack *next;
 } * prec_stack_t;
 
+
+/**
+ * @brief Expression parser main function
+ *
+ * @param parser
+ * @return int Exit code
+ */
 int parse_expr(parser_t parser);
 
 #endif

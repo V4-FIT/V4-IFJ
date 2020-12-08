@@ -1,3 +1,10 @@
+/**
+ * @file semantics.c
+ * @author Kevin Lackó, Adrián Kálazi
+ * @brief Parser interface for semantic analysis
+ * @date 2020-12-08
+ *
+ */
 #include "semantics.h"
 
 #include <assert.h>

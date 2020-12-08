@@ -1,8 +1,10 @@
 /**
- * scanner_states.h
- * Private header used by scanner.c and scanner_states.c
+ * @file scanner_states.h
+ * @author Juraj Hrdlica, Adrián Kálazi, Kevin Lackó
+ * @brief Private header used by scanner.c and scanner_states.c
+ * @date 2020-12-08
+ *
  */
-
 #ifndef IFJ_SCANNER_STATES_H
 #define IFJ_SCANNER_STATES_H
 
