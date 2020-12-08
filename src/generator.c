@@ -1,3 +1,11 @@
+/**
+ * @file generator.c
+ * @author Adrián Kálazi
+ * @brief IFJcode20 generator
+ * @date 2020-12-08
+ *
+ */
+
 #include "generator.h"
 
 #include <stdio.h>

@@ -1,5 +1,9 @@
 /**
- * This file contains private helper functions and macros for the generator
+ * @file generator_static.h
+ * @author Adrián Kálazi
+ * @brief Private helper functions and macros for the generator
+ * @date 2020-12-08
+ *
  */
 
 #ifndef IFJ_GENERATOR_STATIC_H
@@ -8,7 +12,8 @@
 ////// Macros
 
 /**
- * Single line comment
+ * @brief Single line comment macro
+ *
  */
 #define COMMENT(...)                   \
 	do {                               \
@@ -18,7 +23,8 @@
 	} while (0)
 
 /**
- * Print variadic arguments
+ * @brief Print variadic arguments macro
+ *
  */
 #define INSTRUCTION_PART(...)                                \
 	do {                                                     \
@@ -30,13 +36,15 @@
 	} while (0)
 
 /**
- * Insert a newline
+ * @brief Insert a newline macro
+ *
  */
 #define INSTRUCTION_END() \
 	do { fputs("\n", stdout); } while (0)
 
 /**
- * Print variadic arguments and insert a newline
+ * @brief Print variadic arguments and insert a newline
+ *
  */
 #define INSTRUCTION(...)               \
 	do {                               \
@@ -44,9 +52,14 @@
 		fputs("\n", stdout);           \
 	} while (0)
 
+
 ////// Builtin function definitions (private)
 ////// These functions generate static code which does not depend on the input file
 
+/**
+ * @brief Builtin print function - print arguments until argument type is nil
+ *
+ */
 static inline void builtin_print() {
 	COMMENT("Builtin - print");
 
@@ -71,6 +84,7 @@ static inline void builtin_print() {
 }
 
 /**
+ * @brief
  * @param fname function name -> one of  {inputi, inputf, inputs, inputb}
  * @param type var type -> one of {int, float, string, bool}
  */
@@ -97,6 +111,10 @@ static void builtin_input(const char *fname, const char *type) {
 	INSTRUCTION("RETURN");
 }
 
+/**
+ * @brief Builtin int to float conversion function
+ *
+ */
 static inline void builtin_int2float() {
 	COMMENT("Builtin - int2float");
 
@@ -110,6 +128,10 @@ static inline void builtin_int2float() {
 	INSTRUCTION("RETURN");
 }
 
+/**
+ * @brief Builtin float to int conversion function
+ *
+ */
 static inline void builtin_float2int() {
 	COMMENT("Builtin - float2int");
 
@@ -123,6 +145,10 @@ static inline void builtin_float2int() {
 	INSTRUCTION("RETURN");
 }
 
+/**
+ * @brief Builtin string length function
+ *
+ */
 static inline void builtin_len() {
 	COMMENT("Builtin - len");
 
@@ -142,6 +168,10 @@ static inline void builtin_len() {
 	INSTRUCTION("RETURN");
 }
 
+/**
+ * @brief Builtin substring function
+ *
+ */
 static inline void builtin_substr() {
 	COMMENT("Builtin - substr");
 
@@ -208,6 +238,10 @@ static inline void builtin_substr() {
 	INSTRUCTION("RETURN");
 }
 
+/**
+ * @brief Buildin ordinal function
+ *
+ */
 static inline void builtin_ord() {
 	COMMENT("Builtin - ord");
 
@@ -253,6 +287,10 @@ static inline void builtin_ord() {
 	INSTRUCTION("RETURN");
 }
 
+/**
+ * @brief builtin character function
+ *
+ */
 static inline void builtin_chr() {
 	COMMENT("Builtin - chr");
 
@@ -286,6 +324,10 @@ static inline void builtin_chr() {
 	INSTRUCTION("RETURN");
 }
 
+/**
+ * @brief Create header
+ *
+ */
 static inline void header() {
 	COMMENT("begin");
 
@@ -301,6 +343,10 @@ static inline void header() {
 	INSTRUCTION("JUMP !_main");
 }
 
+/**
+ * @brief Define builtin functions
+ *
+ */
 static inline void builtin_define() {
 	COMMENT("Builtin function definitions - start");
 

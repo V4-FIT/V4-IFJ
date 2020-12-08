@@ -1,3 +1,11 @@
+/**
+ * @file rulemacros.h
+ * @author Adrián Kálazi, Kevin Lackó, Julie Gyselová
+ * @brief Helper macros for rules.c
+ * @date 2020-12-08
+ *
+ */
+
 #ifndef IFJ_RULEMACROS_H
 #define IFJ_RULEMACROS_H
 

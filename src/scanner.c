@@ -1,3 +1,10 @@
+/**
+ * @file scanner.c
+ * @author Adrián Kálazi, Juraj Hrdlica, Kevin Lackó
+ * @brief
+ * @date 2020-12-08
+ *
+ */
 #include <stdio.h>
 
 #include "scanner.h"

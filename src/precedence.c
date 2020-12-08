@@ -1,3 +1,11 @@
+/**
+ * @file precedence.c
+ * @author Julie Gyselová, Adrián Kálazi, Kevin Lackó
+ * @brief Expression parser - precedence syntax analysis
+ * @date 2020-12-08
+ *
+ */
+
 #include "precedence.h"
 
 #include <stdlib.h>

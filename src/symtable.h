@@ -1,3 +1,10 @@
+/**
+ * @file symtable.h
+ * @author Adrián Kálazi, Kevin Lackó
+ * @brief Symbol table interface
+ * @date 2020-12-08
+ *
+ */
 #ifndef SYMTABLE_H
 #define SYMTABLE_H
 
@@ -100,7 +107,7 @@ bool symtable_enter_scope(symtable_t symtable, const char *scopename);
 
 /**
  * @brief	Exits the current scope and destroys all data in it
- * @param	symtable 
+ * @param	symtable
 */
 void symtable_exit_scope(symtable_t symtable);
 
@@ -113,31 +120,31 @@ flist_iterator_t symtable_immersion(symtable_t symtable);
 
 /**
  * @brief	checks if there is an entry for the symbol in the whole table
- * @param	symtable 
- * @param	id_token	TK_IDENTIFIER 
+ * @param	symtable
+ * @param	id_token	TK_IDENTIFIER
  * @return	true if symbol found
 */
 bool symtable_has_symbol(symtable_t symtable, token_t id_token);
 
 /**
  * @brief	checks if there is an entry for the symbol of type func in the whole table
- * @param	symtable 
- * @param	id_token	TK_IDENTIFIER 
+ * @param	symtable
+ * @param	id_token	TK_IDENTIFIER
  * @return	true if symbol found
 */
 bool symtable_has_func(symtable_t symtable, token_t id_token);
 
 /**
  * @brief	checks if there is an entry for the symbol of type var in the whole table
- * @param	symtable 
- * @param	id_token	TK_IDENTIFIER 
+ * @param	symtable
+ * @param	id_token	TK_IDENTIFIER
  * @return	true if symbol found
 */
 bool symtable_has_var(symtable_t symtable, token_t id_token);
 
 /**
  * @brief	Searches for a given symbol in the whole table
- * @param	symtable 
+ * @param	symtable
  * @param	id_token	TK_IDENTIFIER
  * @return	a reference to the potentionally found symbol, must be checked with symbol_valid() to determine if found
 */
@@ -153,7 +160,7 @@ symbol_ref_t symtable_find_by_string(symtable_t symtable, const char *key);
 
 /**
  * @brief	Inserts a symbol into the current scope of the symbol table
- * @param	symtable 
+ * @param	symtable
  * @param	id_token	TK_IDENTIFIER
  * @param	symbol_type ST_VAR or ST_FUNC
  * @return	a reference to the inserted symbol, must be checked with symbol_valid() for allocation errors
@@ -163,8 +170,8 @@ symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_
 /**
  * @brief	Add a parameter to the functions parameter list
  *			!!! Only call on ST_FUNC type symbols !!!
- * @param	symbol_ref 
- * @param	data_type	data type of the parameter 
+ * @param	symbol_ref
+ * @param	data_type	data type of the parameter
  * @return	true on success, false on allocation error
 */
 bool symbol_func_add_param(symbol_ref_t symbol_ref, data_type_t data_type);
@@ -172,8 +179,8 @@ bool symbol_func_add_param(symbol_ref_t symbol_ref, data_type_t data_type);
 /**
  * @brief	Add a return to the functions return list
  *			!!! Only call on ST_FUNC type symbols !!!
- * @param	symbol_ref 
- * @param	data_type	data type of the return value 
+ * @param	symbol_ref
+ * @param	data_type	data type of the return value
  * @return	true on success, false on allocation error
 */
 bool symbol_func_add_return(symbol_ref_t symbol_ref, data_type_t data_type);
@@ -181,28 +188,28 @@ bool symbol_func_add_return(symbol_ref_t symbol_ref, data_type_t data_type);
 /**
  * @brief	Set the data for a variable symbol in the symbol table
  *			!!! Only call on ST_VAR type symbols !!!
- * @param	symbol_ref 
- * @param	sym_var_data 
+ * @param	symbol_ref
+ * @param	sym_var_data
 */
 void symbol_var_set_data(symbol_ref_t symbol_ref, sym_var_t sym_var_data);
 
 /**
  * @brief	Checks if the symbol refernce is valid
- * @param	symbol_ref 
+ * @param	symbol_ref
  * @return	true if valid
 */
 bool symbol_valid(symbol_ref_t symbol_ref);
 
 /**
  * @brief	Checks if the symbol was declared in the current scope
- * @param	symbol_ref 
+ * @param	symbol_ref
  * @return	True if the symbol is from the current scope
 */
 bool symbol_current_scope(symbol_ref_t symbol_ref);
 
 /**
  * @brief	Delete all symbols and free the allocated memory
- * @param	symtable 
+ * @param	symtable
  * @note	Invalidates all symbol references
 */
 void symtable_free(symtable_t symtable);

@@ -1,3 +1,11 @@
+/**
+ * @file main.c
+ * @author Adrián Kálazi, Kevin Lackó
+ * @brief
+ * @date 2020-12-08
+ *
+ */
+
 #include "scanner.h"
 #include "parser.h"
 #include "error.h"

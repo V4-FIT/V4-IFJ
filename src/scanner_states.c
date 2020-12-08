@@ -1,3 +1,10 @@
+/**
+ * @file scanner_states.c
+ * @author Adrián Kálazi, Juraj Hrdlica, Kevin Lackó
+ * @brief
+ * @date 2020-12-08
+ *
+ */
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
@@ -671,7 +678,7 @@ scanner_state_t s_hex_lit2(scanner_t scanner, int c) {
 			get_tok(scanner)->param.i = ERROR_MISC;
 			return S_END;
 		}
-	} else if (c == '_'){
+	} else if (c == '_') {
 		return S_HEX_LIT_UNDERSCORE;
 	} else {
 		ungetc(c, get_stream(scanner));
@@ -835,5 +842,4 @@ scanner_state_t s_identif(scanner_t scanner, int c) {
 		get_tok(scanner)->lexeme = charseq_data(get_charseq(scanner));
 		return S_END;
 	}
-
 }

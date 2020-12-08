@@ -1,3 +1,11 @@
+/**
+ * @file scanner.h
+ * @author Adrián Kálazi, Kevin Lackó, Julie Gyselová
+ * @brief Scanner interface for syntax analysis
+ * @date 2020-12-08
+ *
+ */
+
 #ifndef IFJ_SCANNER_H
 #define IFJ_SCANNER_H
 
@@ -33,8 +41,8 @@ token_t scanner_token(scanner_t scanner);
 
 /**
  * @brief	Scans the stream and populates token_list
- * @param	stream 
- * @param	token_list 
+ * @param	stream
+ * @param	token_list
  * @return	return code: 0 - success, 1 - lexical error, 99 - misc error
 */
 int scanner_scan(FILE *stream, tklist_t token_list);

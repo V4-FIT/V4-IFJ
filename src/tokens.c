@@ -1,3 +1,10 @@
+/**
+ * @file tokens.c
+ * @author Adrián Kálazi, Kevin Lackó
+ * @brief Token definition
+ * @date 2020-12-08
+ *
+ */
 #include "tokens.h"
 
 #include <stdlib.h>
