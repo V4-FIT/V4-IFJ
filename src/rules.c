@@ -60,12 +60,8 @@ int rule_root(parser_t parser) {
 	EXECUTE_RULE(parser_setup);
 	SEM_ACTION(sem_define_builtin_functions);
 
-	GENERATE_ONCE(gen_init());
-
 	EXECUTE_RULE(rule_program);
 	SEM_ACTION(sem_main_defined);
-
-	GENERATE_ONCE(gen_finish());
 
 	return EXIT_SUCCESS;
 }

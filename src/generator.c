@@ -189,7 +189,6 @@ void gen_finish() {
 	// just for the sake of completeness
 	fflush(stdout);
 
-	// TODO: This does not happen on error!
 	charseq_free(defvar_buffer);
 }
 
@@ -301,7 +300,6 @@ void gen_var_load_id_before(symbol_ref_t symbol_ref) {
  */
 void gen_var_assign_expr_result(symbol_ref_t symbol_ref) {
 	if (symbol_ref.symbol == NULL) { // in case of _ = ...
-		// TODO: maybe test if this really happens only for _
 		INSTRUCTION("POPS GF@rega");
 		return;
 	}
