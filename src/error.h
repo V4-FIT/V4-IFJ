@@ -19,6 +19,8 @@ enum CompilerErrors
 	ERROR_MISC = 99,       ///< internal errors such as allocation error
 };
 
+////// Macros
+
 #define ERROR_MSG(...)            \
 	fprintf(stderr, "ERROR - ");  \
 	fprintf(stderr, __VA_ARGS__); \

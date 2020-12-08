@@ -21,8 +21,8 @@ TEST_F(SymtableDeathTest, exit_scope) {
 }
 
 TEST_F(SymtableTest, enter_scope) {
-	EXPECT_TRUE(symtable_enter_scope(symtable));
-	EXPECT_TRUE(symtable_enter_scope(symtable));
+	EXPECT_TRUE(symtable_enter_scope(symtable, nullptr));
+	EXPECT_TRUE(symtable_enter_scope(symtable, nullptr));
 }
 
 TEST_F(SymtableTest, empty_has_functions) {
@@ -111,7 +111,7 @@ TEST_F(SymtableTest, advanced) {
 	symbol_ref_t sy = symtable_insert(symtable, ty, ST_VAR);
 	ASSERT_TRUE(symbol_valid(sy));
 
-	EXPECT_TRUE(symtable_enter_scope(symtable));
+	EXPECT_TRUE(symtable_enter_scope(symtable, nullptr));
 	{
 		symbol_ref_t sxx = symtable_insert(symtable, tx, ST_VAR);
 		ASSERT_TRUE(symbol_valid(sxx));
@@ -122,7 +122,7 @@ TEST_F(SymtableTest, advanced) {
 		EXPECT_FALSE(hmap_it_eq(ref.it, sx.it));
 		EXPECT_TRUE(symbol_current_scope(ref));
 
-		EXPECT_TRUE(symtable_enter_scope(symtable));
+		EXPECT_TRUE(symtable_enter_scope(symtable, nullptr));
 		{
 			ref = symtable_find(symtable, tx);
 			ASSERT_TRUE(symbol_valid(ref));

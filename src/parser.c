@@ -7,6 +7,7 @@
 #include "rules.h"
 #include "precedence.h"
 #include "tokens.h"
+#include "generator.h"
 
 const char *stmt2str_map[] = {"default", "define", "assign", "call", "if", "for", "return"};
 
@@ -22,10 +23,26 @@ parser_t parser_init(tklist_t tklist) {
 		return NULL;
 	}
 
+	parser->return_id_list = flist_init(sizeof(char *));
+	if (parser->return_id_list == NULL) {
+		symtable_free(parser->symtable);
+		free(parser);
+		return NULL;
+	}
+
+	parser->blockcounter = flist_init(sizeof(struct BlockCounter));
+	if (parser->blockcounter == NULL) {
+		flist_free(parser->return_id_list);
+		symtable_free(parser->symtable);
+		free(parser);
+		return NULL;
+	}
+
 	parser->tklist = tklist;
 	parser->token = tklist_front(tklist);
 	parser->first_pass = true;
 
+	gen_init();
 	return parser;
 }
 
@@ -57,6 +74,10 @@ int parser_parse(tklist_t tklist) {
 }
 
 void parser_free(parser_t parser) {
+	gen_finish();
+
 	symtable_free(parser->symtable);
+	flist_free(parser->return_id_list);
+	flist_free(parser->blockcounter);
 	free(parser);
 }

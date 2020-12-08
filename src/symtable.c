@@ -13,6 +13,7 @@
 struct symtable
 {
 	flist_t tables;
+	flist_t immersion;
 	hmap_t global_table;
 };
 
@@ -36,8 +37,16 @@ symtable_t symtable_init() {
 		return NULL;
 	}
 
-	if (!symtable_enter_scope(symtable)) {
+	symtable->immersion = flist_init(sizeof(char *));
+	if (symtable->immersion == NULL) {
 		flist_free(symtable->tables);
+		free(symtable);
+		return NULL;
+	}
+
+	if (!symtable_enter_scope(symtable, NULL)) {
+		flist_free(symtable->tables);
+		flist_free(symtable->immersion);
 		free(symtable);
 		return NULL;
 	}
@@ -47,7 +56,7 @@ symtable_t symtable_init() {
 	return symtable;
 }
 
-bool symtable_enter_scope(symtable_t symtable) {
+bool symtable_enter_scope(symtable_t symtable, const char *scopename) {
 	assert(symtable);
 	hmap_t hmap = hmap_init(BUCKET_COUNT, sizeof(symbol_t));
 	if (hmap == NULL) {
@@ -56,6 +65,18 @@ bool symtable_enter_scope(symtable_t symtable) {
 
 	if (!flist_push_front(symtable->tables, &hmap)) {
 		return false;
+	}
+
+	if (scopename != NULL) {
+		size_t sz = strlen(scopename) + 1;
+		char *tmp = malloc(sz);
+		if (tmp == NULL) {
+			return false;
+		}
+		memcpy(tmp, scopename, sz);
+		if (!flist_push_front(symtable->immersion, &tmp)) {
+			return false;
+		}
 	}
 
 	return true;
@@ -75,6 +96,14 @@ void symtable_exit_scope(symtable_t symtable) {
 
 	hmap_free(hmap);
 	flist_pop_front(symtable->tables);
+	if (!flist_empty(symtable->immersion)) {
+		free(*((char **)flist_front(symtable->immersion)));
+		flist_pop_front(symtable->immersion);
+	}
+}
+
+flist_iterator_t symtable_immersion(symtable_t symtable) {
+	return flist_begin(symtable->immersion);
 }
 
 bool symtable_has_symbol(symtable_t symtable, token_t id_token) {
@@ -116,16 +145,30 @@ symbol_ref_t symtable_find(symtable_t symtable, token_t id_token) {
 	symbol_ref_t symbol_ref;
 	symbol_ref.symbol = NULL;
 	symbol_ref.symtable = symtable;
+
+	flist_iterator_t imm_it = flist_begin(symtable->immersion);
 	for (flist_iterator_t it = flist_begin(symtable->tables); flist_it_valid(it); it = flist_it_next(it)) {
 		hmap_t hmap = *(hmap_t *)flist_get(it);
 		symbol_ref.it = hmap_find(hmap, key);
 		if (hmap_it_valid(symbol_ref.it)) {
 			symbol_ref.symbol = hmap_get_value(symbol_ref.it);
+			symbol_ref.immersion_it = imm_it;
 			break;
 		}
+
+		imm_it = flist_it_next(imm_it);
 	}
 
 	return symbol_ref;
+}
+
+symbol_ref_t symtable_find_by_string(symtable_t symtable, const char *key) {
+	assert(symtable && key);
+
+	struct token tmp_token;
+	tmp_token.type = TK_IDENTIFIER;
+	tmp_token.lexeme = key;
+	return symtable_find(symtable, &tmp_token);
 }
 
 symbol_ref_t symtable_insert(symtable_t symtable, token_t id_token, symbol_type_t symbol_type) {
@@ -222,5 +265,6 @@ void symtable_free(symtable_t symtable) {
 		symtable_exit_scope(symtable);
 	}
 	flist_free(symtable->tables);
+	flist_free(symtable->immersion);
 	free(symtable);
 }

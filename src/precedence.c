@@ -6,6 +6,7 @@
 #include "error.h"
 #include "rules.h"
 #include "semantics.h"
+#include "generator.h"
 
 ////// Forward declarations
 
@@ -131,6 +132,8 @@ prec_stack_sem_t get_stack_sem(parser_t parser) {
 		case TK_KEYW_FALSE:
 			sem.data_type = DT_BOOL;
 			break;
+		default:
+			break;
 	}
 	return sem;
 }
@@ -180,36 +183,36 @@ void stack_delete(prec_stack_t head) {
 // reduction type checks
 
 bool stack_term(prec_stack_t *head) {
-	return STACK_FIRST->processed == false &&
-		   STACK_FIRST->type == PREC_I;
+	return STACK_FIRST->processed == false
+		   && STACK_FIRST->type == PREC_I;
 }
 
 bool stack_un_term(prec_stack_t *head) {
-	return STACK_FIRST->type == PREC_I &&
-		   STACK_FIRST->processed == true &&
-		   STACK_SECOND != NULL &&
-		   STACK_SECOND->type == PREC_UNARY;
+	return STACK_FIRST->type == PREC_I
+		   && STACK_FIRST->processed == true
+		   && STACK_SECOND != NULL
+		   && STACK_SECOND->type == PREC_UNARY;
 }
 
 bool stack_lparenthesis_term_rparenthesis(prec_stack_t *head) {
-	return STACK_FIRST->type == PREC_R_PARENTHESIS &&
-		   STACK_SECOND != NULL &&
-		   STACK_SECOND->type == PREC_I &&
-		   STACK_THIRD != NULL &&
-		   STACK_THIRD->type == PREC_L_PARENTHESIS;
+	return STACK_FIRST->type == PREC_R_PARENTHESIS
+		   && STACK_SECOND != NULL
+		   && STACK_SECOND->type == PREC_I
+		   && STACK_THIRD != NULL
+		   && STACK_THIRD->type == PREC_L_PARENTHESIS;
 }
 
 bool stack_term_op_term(prec_stack_t *head) {
-	return STACK_FIRST->type == PREC_I &&
-		   STACK_SECOND != NULL &&
-		   STACK_SECOND->next != NULL &&
-		   STACK_THIRD->type == PREC_I &&
-		   STACK_THIRD->processed == false;
+	return STACK_FIRST->type == PREC_I
+		   && STACK_SECOND != NULL
+		   && STACK_SECOND->next != NULL
+		   && STACK_THIRD->type == PREC_I
+		   && STACK_THIRD->processed == false;
 }
 
 bool stack_exit(prec_stack_t *head) {
-	return STACK_FIRST->processed &&
-		   STACK_FIRST->type == PREC_I;
+	return STACK_FIRST->processed
+		   && STACK_FIRST->type == PREC_I;
 }
 
 
@@ -221,6 +224,10 @@ bool dpda_finished(prec_token_type type, prec_stack_t head) {
 
 int rule_i(parser_t parser, prec_stack_t *head) {
 	// printf("E -> i\n");
+
+	// if there's an identifier left unprocessed, load it
+	gen_var_load(parser->symtable, STACK_FIRST->token);
+
 	(*head)->processed = true;
 	return EXIT_SUCCESS;
 }
@@ -252,6 +259,9 @@ int rule_unary(parser_t parser, prec_stack_t *head) {
 	SEM_PREC_RULE_ACTION(sem_evaulate_unary_const_expr);
 	token_t tk = (*head)->token;
 	prec_stack_sem_t sem = (*head)->sem;
+
+	gen_var_operator_unary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	stack_push(head, tk, PREC_I, sem);
@@ -264,6 +274,9 @@ int rule_mul_div(parser_t parser, prec_stack_t *head) {
 	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
 	SEM_PREC_RULE_ACTION(sem_zero_division);
 	SEM_PREC_RULE_ACTION(sem_evaulate_binary_const_expr);
+
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -274,6 +287,9 @@ int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E+-E\n");
 	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
 	SEM_PREC_RULE_ACTION(sem_evaulate_binary_const_expr);
+
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -283,6 +299,9 @@ int rule_plus_minus(parser_t parser, prec_stack_t *head) {
 int rule_relation(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E<>E\n");
 	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
+
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -293,6 +312,9 @@ int rule_relation(parser_t parser, prec_stack_t *head) {
 int rule_equality(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E==E\n");
 	SEM_PREC_RULE_ACTION(sem_binary_op_type_compat);
+
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -303,6 +325,9 @@ int rule_equality(parser_t parser, prec_stack_t *head) {
 int rule_and(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E && E\n");
 	SEM_PREC_RULE_ACTION(sem_logical_op_type_compat);
+
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -312,6 +337,9 @@ int rule_and(parser_t parser, prec_stack_t *head) {
 int rule_or(parser_t parser, prec_stack_t *head) {
 	// printf("E -> E || E\n");
 	SEM_PREC_RULE_ACTION(sem_logical_op_type_compat);
+
+	gen_var_operator_binary(STACK_SECOND->token->type, STACK_FIRST->sem.data_type);
+
 	stack_pop(head);
 	stack_pop(head);
 	(*head)->processed = true;
@@ -339,6 +367,8 @@ int reduce(parser_t parser, prec_stack_t *head) {
 				return rule_and(parser, head);
 			case PREC_OR:
 				return rule_or(parser, head);
+			default:
+				break;
 		}
 	} else if (stack_exit(head)) {
 		return rule_exit(parser, head);

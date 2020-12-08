@@ -92,4 +92,19 @@
 		}                            \
 	} while (0)
 
+////// Code generation
+
+/**
+ * Generate only on the second pass
+ * @note used everywhere before FIRST_PASS_END
+ */
+#define GENERATE_ONCE(_code)       \
+	do {                           \
+		if (!parser->first_pass) { \
+			_code;                 \
+		}                          \
+	} while (0)
+
+#define COUNTERS ((counter_t)flist_front(parser->blockcounter))
+
 #endif // !IFJ_RULEMACROS_H

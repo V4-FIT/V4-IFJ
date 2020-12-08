@@ -59,6 +59,13 @@ typedef struct semantics
 	int ids_count;
 } semantics_t;
 
+typedef struct BlockCounter
+{
+	unsigned long for_c;
+	unsigned long if_c;
+	unsigned long else_id;
+} * counter_t;
+
 typedef struct parser
 {
 	symtable_t symtable;
@@ -69,6 +76,10 @@ typedef struct parser
 	token_t token_second;
 	bool first_pass;
 	semantics_t sem;
+	flist_t return_id_list;
+	token_type_t assign_type;
+	char *last_scope;
+	flist_t blockcounter;
 } * parser_t;
 
 /**

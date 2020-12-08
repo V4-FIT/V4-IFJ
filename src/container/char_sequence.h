@@ -21,6 +21,14 @@ charseq_t charseq_init();
 bool charseq_push_back(charseq_t charseq, int c);
 
 /**
+ * Appends the given string to the end a char sequence
+ * @param charseq
+ * @param string char * to be appended
+ * @return true on success, false on allocation error
+ */
+bool charseq_push_string(charseq_t charseq, const char *string);
+
+/**
  * Getter for the char sequence length
  * @param charseq
  * @return actual length of the string in bytes (should be equal to strlen)

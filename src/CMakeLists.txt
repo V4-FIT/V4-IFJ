@@ -9,7 +9,8 @@ set(
         symtable.c
         precedence.c
         tokens.c
-		semantics.c
+        semantics.c
+        generator.c
 )
 
 include_directories(
