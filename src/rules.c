@@ -383,6 +383,7 @@ int rule_conditionals(parser_t parser) {
 	EXECUTE_RULE(rule_conditional);
 	EXECUTE_RULE(rule_conditional_n);
 	TK_MATCH(TK_EOL);
+	gen_if_label_finish(symtable_immersion(parser->symtable), COUNTERS->else_id);
 	return EXIT_SUCCESS;
 }
 
@@ -420,8 +421,6 @@ int rule_else(parser_t parser) {
 			EXECUTE_RULE(rule_eol_opt_n);
 			EXECUTE_RULE(rule_statements);
 			TK_MATCH(TK_R_CURLY);
-
-			gen_if_label_finish(symtable_immersion(parser->symtable), COUNTERS->else_id);
 
 			SEM_ACTION(sem_exit_scope);
 		default:

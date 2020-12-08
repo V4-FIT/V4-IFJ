@@ -457,7 +457,7 @@ void gen_for_jump_content(flist_iterator_t immersion) {
 void gen_if_label_finish(flist_iterator_t immersion, unsigned long elseid) {
 	INSTRUCTION_PART("LABEL !!");
 	printf("else%lu", elseid);
-	immersion_label(flist_it_next(immersion));
+	immersion_label(immersion);
 	INSTRUCTION_END();
 }
 
