@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "generator_static.h"
 
@@ -126,7 +127,7 @@ static void push_literal(token_t token) {
 	switch (token->type) {
 		case TK_INT_LIT:
 			INSTRUCTION_PART("PUSHS int@");
-			printf("%lld", token->param.i);
+			printf("%" PRId64, token->param.i);
 			INSTRUCTION_END();
 			break;
 		case TK_FLOAT_LIT:
