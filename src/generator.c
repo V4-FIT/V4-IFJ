@@ -79,6 +79,14 @@ static const char *datatype2metatype[] = {
 		[DT_BOOL] = "bool",
 };
 
+static const char *datatype2defvalue[] = {
+		[DT_UNDEFINED] = NULL,
+		[DT_INTEGER] = "0",
+		[DT_FLOAT64] = "0x0p+0",
+		[DT_STRING] = "",
+		[DT_BOOL] = "false",
+};
+
 static void encode_string_literal(const char *string) {
 	if (string == NULL) {
 		return;
@@ -335,7 +343,7 @@ void gen_var_operator_unary(token_type_t operator, data_type_t data_type) {
 		case TK_MINUS:
 			assert(data_type == DT_INTEGER || data_type == DT_FLOAT64);
 			INSTRUCTION("POPS GF@rega");
-			INSTRUCTION("PUSHS ", datatype2metatype[data_type], "@0");
+			INSTRUCTION("PUSHS ", datatype2metatype[data_type], "@", datatype2defvalue[data_type]);
 			INSTRUCTION("PUSHS GF@rega");
 			INSTRUCTION("SUBS");
 			break;
