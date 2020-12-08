@@ -177,7 +177,7 @@ void gen_finish() {
 	charseq_free(defvar_buffer);
 }
 
-/// Function definition
+////// Function definition
 
 void gen_func_begin(const char *identifier) {
 	assert(identifier != NULL);
@@ -227,7 +227,7 @@ void gen_func_end(const char *identifier) {
 	COMMENT("End funtion - ", identifier);
 }
 
-/// Function call
+////// Function call
 
 void gen_func_call(const char *identifier) {
 	assert(identifier != NULL);
@@ -242,6 +242,8 @@ void gen_func_call(const char *identifier) {
 void gen_func_call_arg(symtable_t symtable, token_t token) {
 	gen_var_load(symtable, token);
 }
+
+////// Variable
 
 void gen_var_define(symbol_ref_t symbol_ref) {
 	assert(symbol_ref.symbol != NULL);
@@ -397,6 +399,23 @@ void gen_var_operator_binary(token_type_t operator, data_type_t data_type) {
 	}
 }
 
+////// Conditional jumps
+
+void gen_label_end(flist_iterator_t immersion) {
+	INSTRUCTION_PART("LABEL !");
+	immersion_label(immersion);
+	INSTRUCTION_END();
+}
+
+void gen_jump_cond_end(flist_iterator_t immersion) {
+	INSTRUCTION("PUSHS bool@true");
+	INSTRUCTION_PART("JUMPIFNEQS !");
+	immersion_label(immersion);
+	INSTRUCTION_END();
+}
+
+////// for
+
 void gen_for_label_condition(flist_iterator_t immersion) {
 	INSTRUCTION_PART("LABEL ");
 	immersion_label(immersion);
@@ -411,12 +430,6 @@ void gen_for_label_assignment(flist_iterator_t immersion) {
 
 void gen_for_label_content(flist_iterator_t immersion) {
 	INSTRUCTION_PART("LABEL _");
-	immersion_label(immersion);
-	INSTRUCTION_END();
-}
-
-void gen_for_label_end(flist_iterator_t immersion) {
-	INSTRUCTION_PART("LABEL !");
 	immersion_label(immersion);
 	INSTRUCTION_END();
 }
@@ -439,12 +452,7 @@ void gen_for_jump_content(flist_iterator_t immersion) {
 	INSTRUCTION_END();
 }
 
-void gen_for_jump_cond_end(flist_iterator_t immersion) {
-	INSTRUCTION("PUSHS bool@true");
-	INSTRUCTION_PART("JUMPIFNEQS !");
-	immersion_label(immersion);
-	INSTRUCTION_END();
-}
+////// if
 
 void gen_if_label_finish(flist_iterator_t immersion, unsigned long elseid) {
 	INSTRUCTION_PART("LABEL !!");

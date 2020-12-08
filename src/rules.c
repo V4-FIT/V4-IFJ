@@ -443,7 +443,7 @@ int rule_conditional(parser_t parser) {
 	SEM_ACTION(sem_enter_scope);
 	free(parser->last_scope);
 
-	gen_for_jump_cond_end(symtable_immersion(parser->symtable));
+	gen_jump_cond_end(symtable_immersion(parser->symtable));
 	COUNTERS->if_c++;
 
 	EXECUTE_RULE(rule_eol_opt_n);
@@ -452,7 +452,7 @@ int rule_conditional(parser_t parser) {
 
 	gen_if_jump_finish(symtable_immersion(parser->symtable), COUNTERS->else_id);
 
-	gen_for_label_end(symtable_immersion(parser->symtable));
+	gen_label_end(symtable_immersion(parser->symtable));
 
 	SEM_ACTION(sem_exit_scope);
 	return EXIT_SUCCESS;
@@ -479,7 +479,7 @@ int rule_iterative(parser_t parser) {
 	EXECUTE_RULE(rule_expression);
 	SEM_ACTION(sem_bool_condition);
 	TK_MATCH(TK_SEMICOLON);
-	gen_for_jump_cond_end(outer_immersion);
+	gen_jump_cond_end(outer_immersion);
 	gen_for_jump_content(outer_immersion);
 
 	// assignment
@@ -500,7 +500,7 @@ int rule_iterative(parser_t parser) {
 	TK_MATCH(TK_R_CURLY);
 	TK_MATCH(TK_EOL);
 	gen_for_jump_assignment(outer_immersion);
-	gen_for_label_end(outer_immersion);
+	gen_label_end(outer_immersion);
 
 	SEM_ACTION(sem_exit_scope);
 	SEM_ACTION(sem_exit_scope);

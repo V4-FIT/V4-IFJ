@@ -27,17 +27,19 @@ void gen_var_assign_expr_result(symbol_ref_t symbol_ref);
 void gen_var_operator_unary(token_type_t operator, data_type_t data_type);
 void gen_var_operator_binary(token_type_t operator, data_type_t data_type);
 
+/// Conditional jumps
+void gen_label_end(flist_iterator_t immersion);
+void gen_jump_cond_end(flist_iterator_t immersion);
+
 /// for
 void gen_for_label_condition(flist_iterator_t immersion);
 void gen_for_label_assignment(flist_iterator_t immersion);
 void gen_for_label_content(flist_iterator_t immersion);
-void gen_for_label_end(flist_iterator_t immersion);
 void gen_for_jump_condition(flist_iterator_t immersion);
 void gen_for_jump_assignment(flist_iterator_t immersion);
 void gen_for_jump_content(flist_iterator_t immersion);
-void gen_for_jump_cond_end(flist_iterator_t immersion);
 
-/// Condition
+/// if
 void gen_if_label_finish(flist_iterator_t immersion, unsigned long elseid);
 void gen_if_jump_finish(flist_iterator_t immersion, unsigned long elseid);
 
