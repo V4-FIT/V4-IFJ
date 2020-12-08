@@ -8,10 +8,9 @@
 #ifndef SYMTABLE_H
 #define SYMTABLE_H
 
-#include "forward_list.h"
-
 #include <stdbool.h>
 
+#include "forward_list.h"
 #include "hash_map.h"
 #include "tokens.h"
 
@@ -34,7 +33,7 @@ typedef enum
 */
 typedef enum
 {
-	DT_UNDEFINED,
+	DT_UNDEFINED = 0,
 	DT_INTEGER,
 	DT_FLOAT64,
 	DT_STRING,
@@ -51,8 +50,8 @@ extern const char *dt2str_map[];
 */
 typedef struct
 {
-	data_type_t data_type;
 	bool constant;
+	data_type_t data_type;
 	tk_param_t value;
 } sym_var_t;
 

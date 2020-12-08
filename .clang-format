@@ -66,4 +66,10 @@ SpacesInSquareBrackets: false
 TabWidth: 4
 UseTab: ForContinuationAndIndentation
 UseCRLF: false
-SortIncludes: false
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '<.*>'
+    Priority:        100
+  - Regex:           '.*'
+    Priority:        200

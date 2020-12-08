@@ -11,8 +11,8 @@
 
 #include <stdio.h>
 
-#include "tokens.h"
 #include "symtable.h"
+#include "tokens.h"
 
 #define PARSER_ERROR_MSG(...)                                          \
 	fprintf(stderr, "ERROR (line %d) - ", parser->token->line_number); \

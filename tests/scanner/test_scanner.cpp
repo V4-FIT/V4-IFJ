@@ -98,15 +98,35 @@ TEST_F(ScannerTest, s_ml_comment_3) {
 	EXPECT_EQ(token->type, TK_EOF);
 }
 
-TEST_F(ScannerTest, s_ml_comment_4) {
-	fprintf(stream, " { /* this is a single \n line comment */ } ");
+TEST_F(ScannerTest, s_ml_comment_eol_single) {
+	fprintf(stream, " { /* this is a multi \n line comment */ } ");
 	rewind(stream);
 
 	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_L_CURLY);
 
 	scanner_next_token(scanner);
+	ASSERT_EQ(token->type, TK_EOL);
+
+	scanner_next_token(scanner);
 	ASSERT_EQ(token->type, TK_R_CURLY);
+
+	scanner_next_token(scanner);
+	EXPECT_EQ(token->type, TK_EOF);
+}
+
+TEST_F(ScannerTest, s_ml_comment_eol_multi) {
+	fprintf(stream, "( /* this \n is \n a \n multi \n line \n comment */ ) ");
+	rewind(stream);
+
+	scanner_next_token(scanner);
+	ASSERT_EQ(token->type, TK_L_PARENTHESIS);
+
+	scanner_next_token(scanner);
+	ASSERT_EQ(token->type, TK_EOL);
+
+	scanner_next_token(scanner);
+	ASSERT_EQ(token->type, TK_R_PARENTHESIS);
 
 	scanner_next_token(scanner);
 	EXPECT_EQ(token->type, TK_EOF);

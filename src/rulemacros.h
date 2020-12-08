@@ -10,6 +10,7 @@
 #define IFJ_RULEMACROS_H
 
 #include <stdbool.h>
+
 #include "error.h"
 
 ////// Macros

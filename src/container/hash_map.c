@@ -1,9 +1,8 @@
-#include <stdlib.h>
+#include "hash_map.h"
+
+#include <assert.h>
 #include <stdint.h>
 #include <string.h>
-#include <assert.h>
-
-#include "hash_map.h"
 
 ////// Private
 

@@ -1,8 +1,8 @@
 #ifndef IFJ_CHAR_SEQUENCE_H
 #define IFJ_CHAR_SEQUENCE_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef struct CharSequence *charseq_t;
 

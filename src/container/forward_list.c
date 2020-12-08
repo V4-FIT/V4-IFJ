@@ -1,8 +1,7 @@
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-
 #include "forward_list.h"
+
+#include <assert.h>
+#include <string.h>
 
 ////// Private
 
@@ -132,7 +131,7 @@ void flist_pop_back(flist_t flist) {
 	} else {
 		while (it.ptr->next != flist->tail) {
 			it = flist_it_next(it);
-		};
+		}
 		flist->tail = it.ptr;
 	}
 	free(node->data);

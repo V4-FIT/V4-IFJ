@@ -10,9 +10,6 @@
 #include <assert.h>
 #include <string.h>
 
-#include "forward_list.h"
-#include "hash_map.h"
-
 ////// Private
 
 #define BUCKET_COUNT 769

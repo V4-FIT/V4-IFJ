@@ -5,13 +5,14 @@
  * @date 2020-12-08
  *
  */
-#include <stdio.h>
+
+#include "scanner_states.h"
+
 #include <ctype.h>
 #include <errno.h>
 
-#include "scanner_states.h"
-#include "hash_map.h"
 #include "error.h"
+#include "hash_map.h"
 
 ////// Literal conversion
 
@@ -51,6 +52,8 @@ state_fun_ptr_t state_map[] = {
 		[S_SL_COMMENT] = &s_sl_comment,
 		[S_ML_COMMENT1] = &s_ml_comment1,
 		[S_ML_COMMENT2] = &s_ml_comment2,
+		[S_ML_COMMENT_EOL1] = &s_ml_comment_eol1,
+		[S_ML_COMMENT_EOL2] = &s_ml_comment_eol2,
 		[S_STR_LIT] = &s_str_lit,
 		[S_ESCAPE_SEQ] = &s_escape_seq,
 		[S_HEX1] = &s_hex1,
@@ -322,6 +325,8 @@ scanner_state_t s_ml_comment1(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
+	} else if (c == '\n') {
+		return S_ML_COMMENT_EOL1;
 	} else if (c == '*') {
 		return S_ML_COMMENT2;
 	}
@@ -333,6 +338,8 @@ scanner_state_t s_ml_comment2(scanner_t scanner, int c) {
 		get_tok(scanner)->type = TK_ERROR;
 		get_tok(scanner)->param.i = ERROR_LEX;
 		return S_END;
+	} else if (c == '\n') {
+		return S_ML_COMMENT_EOL1;
 	} else if (c == '*') {
 		return S_ML_COMMENT2;
 	} else if (c == '/') {
@@ -340,6 +347,33 @@ scanner_state_t s_ml_comment2(scanner_t scanner, int c) {
 		return S_START;
 	} else {
 		return S_ML_COMMENT1;
+	}
+}
+
+scanner_state_t s_ml_comment_eol1(scanner_t scanner, int c) {
+	if (c == EOF) {
+		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
+		return S_END;
+	} else if (c == '*') {
+		return S_ML_COMMENT_EOL2;
+	} else {
+		return S_ML_COMMENT_EOL1;
+	}
+}
+
+scanner_state_t s_ml_comment_eol2(scanner_t scanner, int c) {
+	if (c == EOF) {
+		get_tok(scanner)->type = TK_ERROR;
+		get_tok(scanner)->param.i = ERROR_LEX;
+		return S_END;
+	} else if (c == '*') {
+		return S_ML_COMMENT_EOL2;
+	} else if (c == '/') {
+		get_tok(scanner)->type = TK_EOL;
+		return S_END;
+	} else {
+		return S_ML_COMMENT_EOL1;
 	}
 }
 
@@ -578,7 +612,7 @@ scanner_state_t s_float_sci_lit(scanner_t scanner, int c) {
 		get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
 		if (*endptr != '\0') {
 			get_tok(scanner)->type = TK_ERROR;
-			get_tok(scanner)->param.i = ERROR_MISC;
+			get_tok(scanner)->param.i = ERROR_LEX;
 		}
 		return S_END;
 	}
@@ -612,7 +646,7 @@ scanner_state_t s_float_lit(scanner_t scanner, int c) {
 				get_tok(scanner)->param.f = strtod(charseq_data(get_charseq(scanner)), &endptr);
 				if (*endptr != '\0') {
 					get_tok(scanner)->type = TK_ERROR;
-					get_tok(scanner)->param.i = ERROR_MISC;
+					get_tok(scanner)->param.i = ERROR_LEX;
 				}
 				return S_END;
 			}

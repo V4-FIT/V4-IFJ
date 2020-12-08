@@ -308,6 +308,8 @@ data_type_t tk2dt(parser_t parser, token_t token) {
 		case TK_KEYW_TRUE:
 		case TK_KEYW_FALSE:
 			return DT_BOOL;
+		default:
+			break;
 	}
 	return DT_UNDEFINED;
 }
@@ -371,7 +373,7 @@ int sem_func_declare_param(parser_t parser) {
 			ALLOCATION_ERROR_MSG();
 			return ERROR_MISC;
 		}
-		sym_var_t var_data = {.data_type = DT_UNDEFINED, .constant = false, .value = 0};
+		sym_var_t var_data = {0};
 		switch (parser->token_second->type) {
 			case TK_KEYW_FLOAT64:
 				var_data.data_type = DT_FLOAT64;
@@ -384,6 +386,8 @@ int sem_func_declare_param(parser_t parser) {
 				break;
 			case TK_KEYW_BOOL:
 				var_data.data_type = DT_BOOL;
+				break;
+			default:
 				break;
 		}
 		symbol_var_set_data(symbol_ref, var_data);
@@ -406,6 +410,8 @@ int sem_func_add_param_type(parser_t parser) {
 				break;
 			case TK_KEYW_BOOL:
 				success = symbol_func_add_param(parser->sem.func_cur, DT_BOOL);
+				break;
+			default:
 				break;
 		}
 	}
@@ -432,6 +438,8 @@ int sem_func_add_return_type(parser_t parser) {
 				break;
 			case TK_KEYW_BOOL:
 				success = symbol_func_add_return(parser->sem.func_cur, DT_BOOL);
+				break;
+			default:
 				break;
 		}
 	}
@@ -691,6 +699,8 @@ int sem_zero_division(parser_t parser, prec_stack_t *head) {
 					return ERROR_ZERO_DIV;
 				}
 				break;
+			default:
+				break;
 		}
 	}
 	return EXIT_SUCCESS;
@@ -918,6 +928,8 @@ int sem_assign_zero_div(parser_t parser) {
 						PARSER_ERROR_MSG("division by zero");
 						return ERROR_ZERO_DIV;
 					}
+					break;
+				default:
 					break;
 			}
 		}

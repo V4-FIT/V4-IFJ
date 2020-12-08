@@ -8,9 +8,10 @@
 
 #include "generator.h"
 
-#include <stdio.h>
-#include <ctype.h>
 #include <assert.h>
+#include <ctype.h>
+#include <inttypes.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "generator_static.h"
@@ -57,7 +58,7 @@
  * ^!?      -> loop/conditional block end
  * ^&       -> "for" condition label
  * ^*       -> "for" assignment label
- * ^_       -> "for" content label
+ * ^-       -> "for" content label
  * ^!!      -> "if" end
  * ^%       -> DEFVAR area (called before function body)
  * !_main   -> program end
@@ -134,7 +135,7 @@ static void push_literal(token_t token) {
 	switch (token->type) {
 		case TK_INT_LIT:
 			INSTRUCTION_PART("PUSHS int@");
-			printf("%lld", token->param.i);
+			printf("%" PRId64, token->param.i);
 			INSTRUCTION_END();
 			break;
 		case TK_FLOAT_LIT:
@@ -167,12 +168,18 @@ static void concat_stack() {
 
 ////// Helper functions
 
+// this function is failsafe
 char *compose_immersion_string(const char *basestr, unsigned long counter) {
 	size_t basesize = strlen(basestr);
-	size_t countersize = snprintf(NULL, 0, "%lu", counter);
+	int expected_n_size = snprintf(NULL, 0, "%lu", counter);
+	if (expected_n_size < 0) {
+		return (char *)basestr;
+	}
+
+	size_t countersize = (size_t)expected_n_size;
+
 	char *tmp = calloc(basesize + countersize + 1, sizeof(char));
 	if (tmp == NULL) {
-		// failsafe
 		return (char *)basestr;
 	}
 
@@ -451,7 +458,7 @@ void gen_for_label_assignment(flist_iterator_t immersion) {
 }
 
 void gen_for_label_content(flist_iterator_t immersion) {
-	INSTRUCTION_PART("LABEL _");
+	INSTRUCTION_PART("LABEL -");
 	immersion_label(immersion);
 	INSTRUCTION_END();
 }
@@ -469,7 +476,7 @@ void gen_for_jump_assignment(flist_iterator_t immersion) {
 }
 
 void gen_for_jump_content(flist_iterator_t immersion) {
-	INSTRUCTION_PART("JUMP _");
+	INSTRUCTION_PART("JUMP -");
 	immersion_label(immersion);
 	INSTRUCTION_END();
 }

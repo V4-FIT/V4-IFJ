@@ -8,8 +8,8 @@
 #ifndef IFJ_SCANNER_STATES_H
 #define IFJ_SCANNER_STATES_H
 
-#include "tokens.h"
 #include "scanner.h"
+#include "tokens.h"
 
 /*states of the scanner finite state machine*/
 typedef enum
@@ -29,6 +29,8 @@ typedef enum
 	S_SL_COMMENT,
 	S_ML_COMMENT1,
 	S_ML_COMMENT2,
+	S_ML_COMMENT_EOL1,
+	S_ML_COMMENT_EOL2,
 	S_STR_LIT,
 	S_ESCAPE_SEQ,
 	S_HEX1,
@@ -71,6 +73,8 @@ scanner_state_t s_slash(scanner_t scanner, int c);
 scanner_state_t s_sl_comment(scanner_t scanner, int c);
 scanner_state_t s_ml_comment1(scanner_t scanner, int c);
 scanner_state_t s_ml_comment2(scanner_t scanner, int c);
+scanner_state_t s_ml_comment_eol1(scanner_t scanner, int c);
+scanner_state_t s_ml_comment_eol2(scanner_t scanner, int c);
 scanner_state_t s_str_lit(scanner_t scanner, int c);
 scanner_state_t s_escape_seq(scanner_t scanner, int c);
 scanner_state_t s_hex1(scanner_t scanner, int c);
