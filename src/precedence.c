@@ -144,13 +144,12 @@ void stack_pop(prec_stack_t *head) {
 
 prec_stack_t stack_init() {
 	// init stack to $
-	prec_stack_t head = malloc(sizeof(struct prec_stack));
+	prec_stack_t head = calloc(1, sizeof(struct prec_stack));
 	if (head == NULL) {
 		return NULL;
 	}
-	head->token = NULL;
+
 	head->type = PREC_DOLLAR;
-	head->next = NULL;
 	return head;
 }
 
