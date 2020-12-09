@@ -77,6 +77,13 @@ void gen_func_call(const char *identifier);
  */
 void gen_func_call_arg(symtable_t symtable, token_t token);
 
+/**
+ * @brief Generates the fucking function return
+ *
+ * @param immersion
+ * @param elseid
+ */
+void gen_func_return();
 
 /// Variable
 

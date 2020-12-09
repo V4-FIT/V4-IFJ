@@ -281,6 +281,11 @@ void gen_func_call_arg(symtable_t symtable, token_t token) {
 	gen_var_load(symtable, token);
 }
 
+void gen_func_return() {
+	INSTRUCTION("POPFRAME");
+	INSTRUCTION("RETURN");
+}
+
 ////// Variable
 
 void gen_var_define(symbol_ref_t symbol_ref) {
@@ -493,14 +498,14 @@ void gen_for_jump_content(flist_iterator_t immersion) {
 
 void gen_if_label_finish(flist_iterator_t immersion, unsigned long elseid) {
 	INSTRUCTION_PART("LABEL !!");
-	printf("else%lu", elseid);
+	printf("ifend%lu", elseid);
 	immersion_label(immersion);
 	INSTRUCTION_END();
 }
 
 void gen_if_jump_finish(flist_iterator_t immersion, unsigned long elseid) {
 	INSTRUCTION_PART("JUMP !!");
-	printf("else%lu", elseid);
+	printf("ifend%lu", elseid);
 	immersion_label(flist_it_next(immersion));
 	INSTRUCTION_END();
 }

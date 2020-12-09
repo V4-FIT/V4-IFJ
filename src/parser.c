@@ -41,6 +41,15 @@ parser_t parser_init(tklist_t tklist) {
 		return NULL;
 	}
 
+	parser->else_id = flist_init(sizeof(unsigned long));
+	if (parser->else_id == NULL) {
+		flist_free(parser->blockcounter);
+		flist_free(parser->return_id_list);
+		symtable_free(parser->symtable);
+		free(parser);
+		return NULL;
+	}
+
 	parser->tklist = tklist;
 	parser->token = tklist_front(tklist);
 	parser->first_pass = true;
@@ -80,6 +89,7 @@ void parser_free(parser_t parser) {
 	gen_finish();
 
 	symtable_free(parser->symtable);
+	flist_free(parser->else_id);
 	flist_free(parser->return_id_list);
 	flist_free(parser->blockcounter);
 	free(parser);

@@ -66,7 +66,6 @@ typedef struct BlockCounter
 {
 	unsigned long for_c;
 	unsigned long if_c;
-	unsigned long else_id;
 } * counter_t;
 
 typedef struct parser
@@ -83,6 +82,7 @@ typedef struct parser
 	token_type_t assign_type;
 	char *last_scope;
 	flist_t blockcounter;
+	flist_t else_id;
 } * parser_t;
 
 /**
