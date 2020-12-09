@@ -50,6 +50,15 @@ parser_t parser_init(tklist_t tklist) {
 		return NULL;
 	}
 
+	parser->assigned_ids_map = hmap_init(53, 1);
+	if (parser->assigned_ids_map == NULL) {
+		flist_free(parser->blockcounter);
+		flist_free(parser->return_id_list);
+		symtable_free(parser->symtable);
+		flist_free(parser->else_id);
+		free(parser);
+	}
+
 	parser->tklist = tklist;
 	parser->token = tklist_front(tklist);
 	parser->first_pass = true;
@@ -92,5 +101,6 @@ void parser_free(parser_t parser) {
 	flist_free(parser->else_id);
 	flist_free(parser->return_id_list);
 	flist_free(parser->blockcounter);
+	hmap_free(parser->assigned_ids_map);
 	free(parser);
 }

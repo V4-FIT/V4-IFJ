@@ -361,7 +361,8 @@ int rule_var_define(parser_t parser) {
 	EXECUTE_RULE(rule_expression);
 	SEM_ACTION(sem_var_define_type);
 
-	gen_var_assign_expr_result(symtable_find(parser->symtable, id));
+	gen_var_assign_expr_result(parser->assigned_ids_map, symtable_find(parser->symtable, id));
+	hmap_clear(parser->assigned_ids_map);
 	return EXIT_SUCCESS;
 }
 
@@ -617,9 +618,10 @@ int rule_exprs_funcall(parser_t parser) {
 			gen_var_load_id_before(symtable_find_by_string(parser->symtable, flist_get(it)));
 			gen_var_operator_binary(parser->assign_type, parser->sem.expr_data_type);
 		}
-		gen_var_assign_expr_result(symtable_find_by_string(parser->symtable, flist_get(it)));
+		gen_var_assign_expr_result(parser->assigned_ids_map, symtable_find_by_string(parser->symtable, flist_get(it)));
 	}
 	flist_clear(parser->return_id_list);
+	hmap_clear(parser->assigned_ids_map);
 
 	return EXIT_SUCCESS;
 }
@@ -699,6 +701,7 @@ int rule_argument(parser_t parser) {
 	SEM_ACTION(sem_argument_begin);
 	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
+			SEM_ACTION(sem_var_check);
 			TK_NEXT();
 			break;
 		default:

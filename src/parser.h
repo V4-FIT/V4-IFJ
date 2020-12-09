@@ -83,6 +83,7 @@ typedef struct parser
 	char *last_scope;
 	flist_t blockcounter;
 	flist_t else_id;
+	hmap_t assigned_ids_map;
 } * parser_t;
 
 /**

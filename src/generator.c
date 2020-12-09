@@ -242,8 +242,13 @@ void gen_func_param(symbol_ref_t symbol_ref) {
 }
 
 void gen_func_end(const char *identifier) {
-	// jump to real end
-	INSTRUCTION("JUMP !", identifier);
+	// real end
+	INSTRUCTION("LABEL !", identifier);
+
+	INSTRUCTION("POPFRAME");
+	INSTRUCTION("RETURN");
+
+	COMMENT("End funtion - ", identifier);
 
 	// defvars
 	COMMENT("Begin defvars - ", identifier);
@@ -255,14 +260,6 @@ void gen_func_end(const char *identifier) {
 
 	INSTRUCTION("RETURN");
 	COMMENT("End defvars - ", identifier);
-
-	// real end
-	INSTRUCTION("LABEL !", identifier);
-
-	INSTRUCTION("POPFRAME");
-	INSTRUCTION("RETURN");
-
-	COMMENT("End funtion - ", identifier);
 }
 
 ////// Function call
@@ -326,15 +323,22 @@ void gen_var_load_id_before(symbol_ref_t symbol_ref) {
  * Assigns expression result to a frame variable
  * @param identifier
  */
-void gen_var_assign_expr_result(symbol_ref_t symbol_ref) {
+void gen_var_assign_expr_result(hmap_t assign_ids_map, symbol_ref_t symbol_ref) {
 	if (symbol_ref.symbol == NULL) { // in case of _ = ...
 		INSTRUCTION("POPS GF@rega");
 		return;
 	}
 
-	INSTRUCTION_PART("POPS TF@");
-	immersion_var(symbol_ref.immersion_it, symbol_ref.symbol->name);
-	INSTRUCTION_END();
+	// assign to 1 variable only once (hacky way to have the corresponding right most expression stored in the variable)
+	hmap_iterator_t it = hmap_find(assign_ids_map, symbol_ref.symbol->name);
+	if (hmap_it_valid(it)) {
+		INSTRUCTION("POPS GF@rega");
+	} else {
+		INSTRUCTION_PART("POPS TF@");
+		immersion_var(symbol_ref.immersion_it, symbol_ref.symbol->name);
+		hmap_find_add(assign_ids_map, symbol_ref.symbol->name);
+		INSTRUCTION_END();
+	}
 }
 
 /**
