@@ -336,13 +336,12 @@ void gen_var_assign_expr_result(hmap_t assign_ids_map, symbol_ref_t symbol_ref) 
 	hmap_iterator_t it = hmap_find(assign_ids_map, symbol_ref.symbol->name);
 	if (hmap_it_valid(it)) {
 		INSTRUCTION("POPS GF@rega");
-	} else {	
+	} else {
 		INSTRUCTION_PART("POPS TF@");
 		immersion_var(symbol_ref.immersion_it, symbol_ref.symbol->name);
 		hmap_find_add(assign_ids_map, symbol_ref.symbol->name);
+		INSTRUCTION_END();
 	}
-
-	INSTRUCTION_END();
 }
 
 /**
