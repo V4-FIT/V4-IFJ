@@ -716,6 +716,7 @@ int rule_return(parser_t parser) {
 	EXECUTE_RULE(rule_expressions_opt);
 	SEM_ACTION(sem_return_expr_count);
 	TK_MATCH(TK_EOL);
+	gen_func_return();
 	return EXIT_SUCCESS;
 }
 

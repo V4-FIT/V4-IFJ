@@ -281,6 +281,11 @@ void gen_func_call_arg(symtable_t symtable, token_t token) {
 	gen_var_load(symtable, token);
 }
 
+void gen_func_return() {
+	INSTRUCTION("POPFRAME");
+	INSTRUCTION("RETURN");
+}
+
 ////// Variable
 
 void gen_var_define(symbol_ref_t symbol_ref) {
