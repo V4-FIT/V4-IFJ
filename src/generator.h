@@ -114,7 +114,7 @@ void gen_var_load_id_before(symbol_ref_t symbol_ref);
  *
  * @param symbol_ref Identifier name
  */
-void gen_var_assign_expr_result(symbol_ref_t symbol_ref);
+void gen_var_assign_expr_result(hmap_t assign_ids_map, symbol_ref_t symbol_ref);
 
 /**
  * @brief Generates a unary operator specific instruction(s)
