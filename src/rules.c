@@ -701,6 +701,7 @@ int rule_argument(parser_t parser) {
 	SEM_ACTION(sem_argument_begin);
 	switch (TOKEN_TYPE) {
 		case TK_IDENTIFIER:
+			SEM_ACTION(sem_var_check);
 			TK_NEXT();
 			break;
 		default:
