@@ -242,8 +242,13 @@ void gen_func_param(symbol_ref_t symbol_ref) {
 }
 
 void gen_func_end(const char *identifier) {
-	// jump to real end
-	INSTRUCTION("JUMP !", identifier);
+	// real end
+	INSTRUCTION("LABEL !", identifier);
+
+	INSTRUCTION("POPFRAME");
+	INSTRUCTION("RETURN");
+
+	COMMENT("End funtion - ", identifier);
 
 	// defvars
 	COMMENT("Begin defvars - ", identifier);
@@ -255,14 +260,6 @@ void gen_func_end(const char *identifier) {
 
 	INSTRUCTION("RETURN");
 	COMMENT("End defvars - ", identifier);
-
-	// real end
-	INSTRUCTION("LABEL !", identifier);
-
-	INSTRUCTION("POPFRAME");
-	INSTRUCTION("RETURN");
-
-	COMMENT("End funtion - ", identifier);
 }
 
 ////// Function call
