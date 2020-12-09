@@ -125,11 +125,7 @@ int rule_function(parser_t parser) {
 
 	// make a new counter layer for this function
 	parser->last_scope = (char *)parser->sem.func_cur.symbol->name;
-	struct BlockCounter tmp = {0};
-	if (!flist_push_front(parser->blockcounter, &tmp)) {
-		ALLOCATION_ERROR_MSG();
-		return ERROR_MISC;
-	}
+	COUNTERS_ENTER();
 
 	SEM_ACTION(sem_enter_scope);
 	EXECUTE_RULE(rule_param_list);
@@ -145,7 +141,7 @@ int rule_function(parser_t parser) {
 	TK_MATCH(TK_R_CURLY);
 
 	SEM_ACTION(sem_exit_scope);
-	flist_pop_front(parser->blockcounter);
+	COUNTERS_EXIT();
 
 	SEM_ACTION(sem_func_has_return_stmt);
 
@@ -372,11 +368,12 @@ int rule_var_define(parser_t parser) {
 /// 17
 int rule_conditionals(parser_t parser) {
 	// Conditionals -> 		  Conditional Conditional_n eol.
-	COUNTERS->else_id = COUNTERS->if_c;
+	ELSEID_ENTER();
 	EXECUTE_RULE(rule_conditional);
 	EXECUTE_RULE(rule_conditional_n);
 	TK_MATCH(TK_EOL);
-	gen_if_label_finish(symtable_immersion(parser->symtable), COUNTERS->else_id);
+	gen_if_label_finish(symtable_immersion(parser->symtable), ELSEID);
+	ELSEID_EXIT();
 	return EXIT_SUCCESS;
 }
 
@@ -407,7 +404,7 @@ int rule_else(parser_t parser) {
 		case TK_L_CURLY:
 			TK_NEXT();
 			TK_MATCH(TK_EOL);
-			parser->last_scope = compose_immersion_string("else", COUNTERS->if_c);
+			parser->last_scope = compose_immersion_string("else", ELSEID);
 			SEM_ACTION(sem_enter_scope);
 			free(parser->last_scope);
 
@@ -442,7 +439,7 @@ int rule_conditional(parser_t parser) {
 	EXECUTE_RULE(rule_statements);
 	TK_MATCH(TK_R_CURLY);
 
-	gen_if_jump_finish(symtable_immersion(parser->symtable), COUNTERS->else_id);
+	gen_if_jump_finish(symtable_immersion(parser->symtable), ELSEID);
 
 	gen_label_end(symtable_immersion(parser->symtable));
 

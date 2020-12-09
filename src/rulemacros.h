@@ -116,4 +116,27 @@
 
 #define COUNTERS ((counter_t)flist_front(parser->blockcounter))
 
+#define COUNTERS_ENTER()                                     \
+	do {                                                     \
+		struct BlockCounter tmp = {0};                       \
+		if (!flist_push_front(parser->blockcounter, &tmp)) { \
+			ALLOCATION_ERROR_MSG();                          \
+			return ERROR_MISC;                               \
+		}                                                    \
+	} while (0)
+
+#define COUNTERS_EXIT() flist_pop_front(parser->blockcounter)
+
+#define ELSEID_ENTER()                                               \
+	do {                                                             \
+		if (!flist_push_front(parser->else_id, &(COUNTERS->if_c))) { \
+			ALLOCATION_ERROR_MSG();                                  \
+			return ERROR_MISC;                                       \
+		}                                                            \
+	} while (0)
+
+#define ELSEID (*((unsigned long *)flist_front(parser->else_id)))
+
+#define ELSEID_EXIT() flist_pop_front(parser->else_id)
+
 #endif // !IFJ_RULEMACROS_H
